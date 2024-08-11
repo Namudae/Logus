@@ -20,6 +20,9 @@ public class BlogMember {
     @JoinColumn(name = "blog_id")
     private Blog blog;
 
+    @Column(length = 1)
+    private String masterYn;
+
 
     //==연관관계 편의 메서드==
     public void setMember(Member member) {

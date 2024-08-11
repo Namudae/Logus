@@ -17,11 +17,32 @@ public class Blog {
     private Long id;
 
     private String blogName;
+
     private String blogAddress;
+
     private String introduce;
-    private LocalDateTime createdDate;
+
+    private LocalDateTime createDate;
+
+    @Column(length = 1)
+    private String shareYn;
+
+    @Column(length = 1)
     private String delYn;
 
-    @OneToMany(mappedBy = "blog")
-    private List<BlogMember> blogMembers = new ArrayList<>();
+//    @OneToMany(mappedBy = "blog")
+//    private List<BlogMember> blogMembers = new ArrayList<>();
+//
+//    @OneToMany(mappedBy = "blog")
+//    private List<Visit> visits = new ArrayList<>();
+//
+//    @OneToMany(mappedBy = "blog")
+//    private List<Follow> follows = new ArrayList<>();
+//
+//    @OneToMany(mappedBy = "blog")
+//    private List<Series> series = new ArrayList<>();
+//
+//    @OneToMany(mappedBy = "blog")
+//    private List<Post> posts = new ArrayList<>();
+
 }

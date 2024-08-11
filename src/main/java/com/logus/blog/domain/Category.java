@@ -16,8 +16,6 @@ public class Category {
     @Column(name = "category_id")
     private Long id;
 
-    private String name;
-
     //계층형
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
@@ -25,6 +23,14 @@ public class Category {
 
     @OneToMany(mappedBy = "parent")
     private List<Category> child = new ArrayList<>();
+
+    private Integer orderSeq;
+
+    private String name;
+
+
+//    @OneToMany(mappedBy = "category")
+//    private List<Post> posts = new ArrayList<>();
 
     //==연관관계 메서드==//
     public void addChildCategory(Category child) {
