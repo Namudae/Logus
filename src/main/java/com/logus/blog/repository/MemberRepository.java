@@ -1,14 +1,8 @@
 package com.logus.blog.repository;
 
 
-import com.logus.blog.domain.Member;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import lombok.RequiredArgsConstructor;
+import com.logus.blog.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 //@Repository
 //@RequiredArgsConstructor

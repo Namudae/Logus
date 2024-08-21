@@ -1,4 +1,5 @@
-package com.logus.blog.domain;
+package com.logus.blog.entity;
+
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -9,22 +10,26 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Setter
-public class Follow {
+public class Alarm {
 
     @Id
     @GeneratedValue
-    @Column(name = "follow_id")
+    @Column(name = "alarm_id")
     private Long id;
 
-    //일대다, fk
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "blog_id")
-    private Blog blog;
+    @JoinColumn(name = "comment_id")
+    private Comment comment;
+
+    private String content;
+
+    private String link;
 
     private LocalDateTime createDate;
+
 
 }

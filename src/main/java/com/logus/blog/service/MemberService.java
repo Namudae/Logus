@@ -1,6 +1,6 @@
 package com.logus.blog.service;
 
-import com.logus.blog.domain.Member;
+import com.logus.blog.entity.Member;
 import com.logus.blog.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

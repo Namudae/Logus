@@ -1,4 +1,4 @@
-package com.logus.blog.domain;
+package com.logus.blog.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;

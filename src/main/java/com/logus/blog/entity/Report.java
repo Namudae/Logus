@@ -1,4 +1,5 @@
-package com.logus.blog.domain;
+package com.logus.blog.entity;
+
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -9,20 +10,27 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Setter
-public class Visit {
+public class Report {
 
     @Id
     @GeneratedValue
-    @Column(name = "visit_id")
+    @Column(name = "report_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "blog_id")
-    private Blog blog;
+    private Long targetId;
+
+    private String reportType;
+
+    private String reason;
 
     private LocalDateTime createDate;
+
+    private String status;
+
+    private LocalDateTime solutionDate;
+
 }
