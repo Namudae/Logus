@@ -51,6 +51,6 @@ public class Comment {
     @Column(length = 1)
     private String delYn;
 
-
+    private String status;
 
 }

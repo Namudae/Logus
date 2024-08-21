@@ -16,6 +16,22 @@ public class Post {
     @Column(name = "post_id")
     private Long id;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
+    private Member member;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "blog_id")
+    private Blog blog;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private Category category;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "seires_id")
+    private Series series;
+
     private String title;
 
     @Lob
@@ -36,21 +52,7 @@ public class Post {
     @Column(length = 1)
     private String delYn;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id")
-    private Category category;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "seires_id")
-    private Series series;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    private Member member;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "blog_id")
-    private Blog blog;
+    private String status;
 
 //    @OneToMany(mappedBy = "post")
 //    private List<Comment> comments = new ArrayList<>();
