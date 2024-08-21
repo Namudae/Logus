@@ -26,10 +26,4 @@ public class Likey {
 
     private LocalDateTime createDate;
 
-    @Column(length = 1)
-    private String readYn;
-
-    @Column(length = 1)
-    private String delYn;
-
 }
