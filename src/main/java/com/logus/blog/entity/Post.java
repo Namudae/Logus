@@ -59,6 +59,6 @@ public class Post {
 //    private List<PostTag> postTags = new ArrayList<>();
 //
 //    @OneToMany(mappedBy = "post")
-//    private List<Like> likes = new ArrayList<>();
+//    private List<Likey> likeys = new ArrayList<>();
 
 }

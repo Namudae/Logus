@@ -9,11 +9,11 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Setter
-public class Like {
+public class Likey {
 
     @Id
     @GeneratedValue
-    @Column(name = "like_id")
+    @Column(name = "likey_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
