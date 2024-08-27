@@ -28,9 +28,6 @@ public class Member {
 
     private String introduce;
 
-    @Enumerated(EnumType.STRING)
-    private Role role;
-
     private String profilePic;
 
     @Column(length = 1)
