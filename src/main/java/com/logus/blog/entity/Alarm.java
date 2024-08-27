@@ -22,14 +22,22 @@ public class Alarm {
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "post_id")
+    private Post post;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "comment_id")
     private Comment comment;
 
     private String content;
 
-    private String link;
-
     private LocalDateTime createDate;
+
+    @Column(length = 1)
+    private String readYn;
+
+    @Column(length = 1)
+    private String delYn;
 
 
 }

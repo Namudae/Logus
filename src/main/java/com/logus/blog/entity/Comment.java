@@ -34,8 +34,6 @@ public class Comment {
     @OneToMany(mappedBy = "parent")
     private List<Comment> child = new ArrayList<>();
 
-    private Integer groupNum;
-
     private Integer depth;
 
     @Column(length = 1000)
