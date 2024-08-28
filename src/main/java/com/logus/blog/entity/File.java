@@ -22,7 +22,7 @@ public class File {
     private Member member;
 
     @Enumerated(EnumType.STRING)
-    @Column(length = 20)
+    @Column(length = 20, columnDefinition = "varchar(20)")
     private FileType fileType;
 
     private String fileName;

@@ -30,13 +30,13 @@ public class Report {
     private Post post;
 
     @Enumerated(EnumType.STRING)
-    @Column(length = 30)
+    @Column(length = 30, columnDefinition = "varchar(30)")
     private ReportType reportType;
 
     private String reason;
 
     @Enumerated(EnumType.STRING)
-    @Column(length = 20)
+    @Column(length = 20, columnDefinition = "varchar(20)")
     private Status status;
 
     private LocalDateTime createDate;

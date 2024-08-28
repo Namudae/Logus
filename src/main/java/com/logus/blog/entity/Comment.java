@@ -42,7 +42,7 @@ public class Comment {
     private String secretYn;
 
     @Enumerated(EnumType.STRING)
-    @Column(length = 20)
+    @Column(length = 20, columnDefinition = "varchar(20)")
     private Status status;
 
     @Column(length = 1)
