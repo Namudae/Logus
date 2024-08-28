@@ -4,12 +4,12 @@ package com.logus.blog.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import nonapi.io.github.classgraph.json.JSONUtils;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@Setter
 public class Report {
 
     @Id
@@ -18,18 +18,28 @@ public class Report {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    private Member member;
+    @JoinColumn(referencedColumnName = "member_id", name = "reporter_member_id")
+    private Member reporter;
 
-    private Long targetId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(referencedColumnName = "member_id", name = "reported_member_id")
+    private Member reported;
 
-    private String reportType;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "post_id")
+    private Post post;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 30)
+    private ReportType reportType;
 
     private String reason;
 
-    private LocalDateTime createDate;
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private Status status;
 
-    private String status;
+    private LocalDateTime createDate;
 
     private LocalDateTime solutionDate;
 

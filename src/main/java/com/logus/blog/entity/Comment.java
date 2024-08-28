@@ -10,7 +10,6 @@ import java.util.List;
 
 @Entity
 @Getter
-@Setter
 public class Comment {
 
     @Id
@@ -34,21 +33,23 @@ public class Comment {
     @OneToMany(mappedBy = "parent")
     private List<Comment> child = new ArrayList<>();
 
-    private Integer depth;
+    private Byte depth;
 
-    @Column(length = 1000)
+    @Column(length = 500)
     private String content;
 
     @Column(length = 1)
     private String secretYn;
 
-    private LocalDateTime createDate;
-
-    private LocalDateTime updateDate;
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private Status status;
 
     @Column(length = 1)
     private String delYn;
 
-    private String status;
+    private LocalDateTime createDate;
+
+    private LocalDateTime updateDate;
 
 }

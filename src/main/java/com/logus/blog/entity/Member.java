@@ -7,28 +7,37 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Entity
-@Getter @Setter
+@Getter 
 public class Member {
 
     @Id @GeneratedValue
     @Column(name = "member_id")
     private Long id;
 
+    //프로필 사진
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "file_id")
+    private File file;
+
+    @Column(length = 20)
     private String socialType;
 
     private String accessToken;
 
+    @Column(length = 20)
     private String loginId;
 
+    @Column(length = 100)
     private String password;
 
+    @Column(length = 30)
     private String nickname;
 
+    @Column(length = 50)
     private String email;
 
+    @Column(length = 100)
     private String introduce;
-
-    private String profilePic;
 
     @Column(length = 1)
     private String delYn;
@@ -51,4 +60,7 @@ public class Member {
 //
 //    @OneToMany(mappedBy = "member")
 //    private List<Comment> comments = new ArrayList<>();
+//
+//    @OneToMany(mappedBy = "member")
+//    private List<File> files = new ArrayList<>();
 }

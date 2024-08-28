@@ -7,17 +7,19 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Entity
-@Getter @Setter
+@Getter 
 public class Blog {
 
     @Id @GeneratedValue
     @Column(name = "blog_id")
     private Long id;
 
+    @Column(length = 20)
     private String blogName;
 
     private String blogAddress;
 
+    @Column(length = 100)
     private String introduce;
 
     private LocalDateTime createDate;

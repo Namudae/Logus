@@ -9,7 +9,6 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@Setter
 public class Notice {
 
     @Id
@@ -21,17 +20,19 @@ public class Notice {
     @JoinColumn(name = "member_id")
     private Member member;
 
+    @Column(length = 100)
     private String title;
 
+    @Column(length = 10000)
     private String content;
-
-    private LocalDateTime createDate;
-
-    private LocalDateTime updateDate;
 
     private Long count;
 
     @Column(length = 1)
     private String delYn;
+
+    private LocalDateTime createDate;
+
+    private LocalDateTime updateDate;
 
 }

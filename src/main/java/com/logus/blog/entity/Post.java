@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@Setter
+
 public class Post {
 
     @Id
@@ -29,30 +29,33 @@ public class Post {
     private Category category;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "seires_id")
+    @JoinColumn(name = "series_id")
     private Series series;
 
+    @Column(length = 100)
     private String title;
 
-    @Lob
+    @Column(length = 10000)
     private String content;
-
-    private LocalDateTime createDate;
-
-    private LocalDateTime updateDate;
 
     private Long count;
 
-    @Column(length = 1)
-    private String secretYn;
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private Status status;
 
     @Column(length = 1)
     private String saveYn;
 
     @Column(length = 1)
+    private String secretYn;
+
+    @Column(length = 1)
     private String delYn;
 
-    private String status;
+    private LocalDateTime createDate;
+
+    private LocalDateTime updateDate;
 
 //    @OneToMany(mappedBy = "post")
 //    private List<Comment> comments = new ArrayList<>();

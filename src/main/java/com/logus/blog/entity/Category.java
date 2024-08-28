@@ -8,7 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Getter @Setter
+@Getter
+@Setter
 public class Category {
 
     @Id
@@ -26,7 +27,8 @@ public class Category {
 
     private Integer orderSeq;
 
-    private String name;
+    @Column(length = 30)
+    private String categoryName;
 
 
 //    @OneToMany(mappedBy = "category")

@@ -6,7 +6,6 @@ import lombok.Setter;
 
 @Entity
 @Getter
-@Setter
 public class Tag {
 
     @Id
@@ -14,6 +13,7 @@ public class Tag {
     @Column(name = "tag_id")
     private Long id;
 
+    @Column(length = 30)
     private String tagName;
 
 //    @OneToMany(mappedBy = "tag")

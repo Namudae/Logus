@@ -6,7 +6,6 @@ import lombok.Setter;
 
 @Entity
 @Getter
-@Setter
 public class Series {
 
     @Id
@@ -18,9 +17,10 @@ public class Series {
     @JoinColumn(name = "blog_id")
     private Blog blog;
 
+    @Column(length = 100)
     private String seriesName;
 
-    private String sriesOrder;
+    private Byte sriesOrder;
 
 //    @OneToMany(mappedBy = "series")
 //    private List<Post> posts = new ArrayList<>();
