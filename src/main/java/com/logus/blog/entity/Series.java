@@ -14,7 +14,7 @@ public class Series {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "blog_id")
+    @JoinColumn(name = "blog_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Blog blog;
 
     @Column(length = 100)

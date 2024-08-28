@@ -18,15 +18,15 @@ public class Report {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(referencedColumnName = "member_id", name = "reporter_member_id")
+    @JoinColumn(referencedColumnName = "member_id", name = "reporter_member_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Member reporter;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(referencedColumnName = "member_id", name = "reported_member_id")
+    @JoinColumn(referencedColumnName = "member_id", name = "reported_member_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Member reported;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id")
+    @JoinColumn(name = "post_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Post post;
 
     @Enumerated(EnumType.STRING)

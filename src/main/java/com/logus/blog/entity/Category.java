@@ -19,7 +19,7 @@ public class Category {
 
     //계층형
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_id")
+    @JoinColumn(name = "parent_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Category parent;
 
     @OneToMany(mappedBy = "parent")

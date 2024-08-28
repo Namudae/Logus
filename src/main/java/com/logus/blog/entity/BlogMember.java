@@ -13,24 +13,14 @@ public class BlogMember {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "member_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "blog_id")
+    @JoinColumn(name = "blog_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Blog blog;
 
     @Column(length = 1)
     private String masterYn;
-
-
-    //==연관관계 편의 메서드==
-    public void setMember(Member member) {
-        this.member = member;
-    }
-
-    public void setBlog(Blog blog) {
-        this.blog = blog;
-    }
 
 }

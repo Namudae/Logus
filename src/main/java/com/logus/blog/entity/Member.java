@@ -16,7 +16,7 @@ public class Member {
 
     //프로필 사진
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "file_id")
+    @JoinColumn(name = "file_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private File file;
 
     @Column(length = 20)
