@@ -1,6 +1,6 @@
 package com.logus.blog.entity;
 
-import com.logus.admin.entity.Status;
+import com.logus.admin.entity.ReportStatus;
 import com.logus.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -39,15 +39,18 @@ public class Comment {
     @Column(length = 500)
     private String content;
 
-    @Column(length = 1)
-    private String secretYn;
+    @Enumerated(EnumType.STRING)
+    @Column(length = 1, columnDefinition = "varchar(1)")
+    private Status status;
+//    @Column(length = 1)
+//    private String secretYn;
+//
+//    @Column(length = 1)
+//    private String delYn;
 
     @Enumerated(EnumType.STRING)
     @Column(length = 20, columnDefinition = "varchar(20)")
-    private Status status;
-
-    @Column(length = 1)
-    private String delYn;
+    private ReportStatus reportStatus;
 
     private LocalDateTime createDate;
 

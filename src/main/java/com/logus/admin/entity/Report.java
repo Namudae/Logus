@@ -37,7 +37,7 @@ public class Report {
 
     @Enumerated(EnumType.STRING)
     @Column(length = 20, columnDefinition = "varchar(20)")
-    private Status status;
+    private ReportStatus reportStatus;
 
     private LocalDateTime createDate;
 

@@ -1,15 +1,17 @@
 package com.logus.blog.entity;
 
-import com.logus.admin.entity.Status;
+import com.logus.admin.entity.ReportStatus;
 import com.logus.member.entity.Member;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
-
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Post {
 
     @Id
@@ -43,22 +45,32 @@ public class Post {
 
     @Enumerated(EnumType.STRING)
     @Column(length = 20, columnDefinition = "varchar(20)")
+    private ReportStatus reportStatus;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 1, columnDefinition = "varchar(1)")
     private Status status;
 
-    @Column(length = 1)
-    private String saveYn;
-
-    @Column(length = 1)
-    private String secretYn;
-
-    @Column(length = 1)
-    private String delYn;
+//    @Column(length = 1)
+//    private String saveYn;
+//
+//    @Column(length = 1)
+//    private String secretYn;
+//
+//    @Column(length = 1)
+//    private String delYn;
 
     private LocalDateTime createDate;
 
     private LocalDateTime updateDate;
 
-//    @OneToMany(mappedBy = "post")
+    public Post(String title, String content, Member member) {
+        this.title = title;
+        this.content = content;
+        this.member = member; //양방향 연관관계X
+    }
+
+    //    @OneToMany(mappedBy = "post")
 //    private List<Comment> comments = new ArrayList<>();
 //
 //    @OneToMany(mappedBy = "post")
