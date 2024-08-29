@@ -1,8 +1,8 @@
-package com.logus.blog.entity;
+package com.logus.member.entity;
 
+import com.logus.blog.entity.File;
 import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 

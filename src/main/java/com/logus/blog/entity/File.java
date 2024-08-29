@@ -1,8 +1,8 @@
 package com.logus.blog.entity;
 
+import com.logus.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.Setter;
 
 @Entity
 @Getter

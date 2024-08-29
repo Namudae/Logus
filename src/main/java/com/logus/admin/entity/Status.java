@@ -1,4 +1,4 @@
-package com.logus.blog.entity;
+package com.logus.admin.entity;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

@@ -1,8 +1,9 @@
 package com.logus.blog.entity;
 
+import com.logus.admin.entity.Status;
+import com.logus.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

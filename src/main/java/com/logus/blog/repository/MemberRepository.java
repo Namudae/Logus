@@ -1,7 +1,7 @@
 package com.logus.blog.repository;
 
 
-import com.logus.blog.entity.Member;
+import com.logus.member.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 //@Repository
