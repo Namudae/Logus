@@ -46,9 +46,9 @@ public class Member {
 
     private LocalDateTime updateDate;
 
-//    public Member(String loginId) {
-//        this.loginId = loginId;
-//    }
+    public Member(String loginId) {
+        this.loginId = loginId;
+    }
 
     //    @OneToMany(mappedBy = "member")
 //    private List<BlogMember> blogMembers = new ArrayList<>();
