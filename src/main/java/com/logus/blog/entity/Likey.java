@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 public class Likey {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "likey_id")
     private Long id;
 

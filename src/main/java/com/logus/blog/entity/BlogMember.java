@@ -8,7 +8,7 @@ import lombok.Getter;
 @Getter
 public class BlogMember {
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "blog_member_id")
     private Long id;
 

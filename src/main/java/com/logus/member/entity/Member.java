@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Getter 
 public class Member {
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "member_id")
     private Long id;
 
@@ -46,7 +46,11 @@ public class Member {
 
     private LocalDateTime updateDate;
 
-//    @OneToMany(mappedBy = "member")
+//    public Member(String loginId) {
+//        this.loginId = loginId;
+//    }
+
+    //    @OneToMany(mappedBy = "member")
 //    private List<BlogMember> blogMembers = new ArrayList<>();
 //
 //    @OneToMany(mappedBy = "member")

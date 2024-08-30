@@ -9,7 +9,7 @@ import lombok.Getter;
 public class File {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "file_id")
     private Long id;
 

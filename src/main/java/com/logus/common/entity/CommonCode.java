@@ -7,7 +7,7 @@ import jakarta.persistence.Id;
 public class CommonCode {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "common_code_id")
     private Long id;
 

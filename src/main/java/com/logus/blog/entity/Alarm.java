@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 public class Alarm {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "alarm_id")
     private Long id;
 
