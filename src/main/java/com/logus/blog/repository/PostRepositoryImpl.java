@@ -1,14 +1,11 @@
 package com.logus.blog.repository;
 
-import com.logus.blog.dto.PostDto;
-import com.logus.blog.entity.QBlog;
-import com.logus.blog.entity.QPost;
-import com.logus.member.entity.QMember;
+import com.logus.blog.dto.PostRequestDto;
+import com.logus.blog.dto.PostResponseDto;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
-import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
@@ -26,9 +23,9 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     }
 
     //2. Projection.fields()
-    public List<PostDto.PostResponse> getAllPosts(String blogAddress) {
+    public List<PostResponseDto> selectAllPosts(String blogAddress) {
         return jpaQueryFactory
-                .select(Projections.fields(PostDto.PostResponse.class,
+                .select(Projections.fields(PostResponseDto.class,
                         member.id.as("memberId"),
                         member.nickname,
                         post.id.as("postId"),
@@ -42,8 +39,21 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                         blogAddressEq(blogAddress)
                 )
                 .fetch();
+    }
 
-    //1. @QuryProjection
+    public Long createPost(PostRequestDto postRequestDto) {
+        return null;
+    }
+
+    private BooleanExpression blogAddressEq(String blogAddress) {
+        return hasText(blogAddress) ? post.blog.blogAddress.eq(blogAddress) : null;
+    }
+
+
+}
+
+
+//1. @QuryProjection
 //    public List<PostDto> getAllPosts(String blogAddress) {
 //        return jpaQueryFactory
 //                .select(new QPostDto(
@@ -59,15 +69,3 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 //                        blogAddressEq(blogAddress)
 //                )
 //                .fetch();
-
-
-
-//        return null;
-    }
-
-    private BooleanExpression blogAddressEq(String blogAddress) {
-        return hasText(blogAddress) ? post.blog.blogAddress.eq(blogAddress) : null;
-    }
-
-
-}

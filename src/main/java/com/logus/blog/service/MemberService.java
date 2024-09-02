@@ -1,6 +1,6 @@
 package com.logus.blog.service;
 
-import com.logus.blog.repository.MemberRepository;
+import com.logus.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -2,12 +2,15 @@ package com.logus.member.entity;
 
 import com.logus.blog.entity.File;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Getter 
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Member {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

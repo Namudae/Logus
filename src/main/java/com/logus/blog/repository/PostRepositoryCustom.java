@@ -1,9 +1,12 @@
 package com.logus.blog.repository;
 
-import com.logus.blog.dto.PostDto;
+import com.logus.blog.dto.PostRequestDto;
+import com.logus.blog.dto.PostResponseDto;
 
 import java.util.List;
 
 public interface PostRepositoryCustom {
-    List<PostDto.PostResponse> getAllPosts(String blogAddress);
+    List<PostResponseDto> selectAllPosts(String blogAddress);
+
+    Long createPost(PostRequestDto postRequestDto);
 }
