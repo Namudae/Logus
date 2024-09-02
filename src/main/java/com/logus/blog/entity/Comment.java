@@ -4,6 +4,9 @@ import com.logus.admin.entity.ReportStatus;
 import com.logus.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.Getter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -11,6 +14,7 @@ import java.util.List;
 
 @Entity
 @Getter
+@EntityListeners(AuditingEntityListener.class)
 public class Comment {
 
     @Id
@@ -40,20 +44,17 @@ public class Comment {
     private String content;
 
     @Enumerated(EnumType.STRING)
-    @Column(length = 1, columnDefinition = "varchar(1)")
+    @Column(length = 20, columnDefinition = "varchar(20)")
     private Status status;
-//    @Column(length = 1)
-//    private String secretYn;
-//
-//    @Column(length = 1)
-//    private String delYn;
 
     @Enumerated(EnumType.STRING)
     @Column(length = 20, columnDefinition = "varchar(20)")
     private ReportStatus reportStatus;
 
+    @CreatedDate
     private LocalDateTime createDate;
 
+    @LastModifiedDate
     private LocalDateTime updateDate;
 
 }

@@ -4,6 +4,9 @@ import com.logus.admin.entity.ReportStatus;
 import com.logus.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
@@ -12,6 +15,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
+@EntityListeners(AuditingEntityListener.class)
 public class Post {
 
     @Id
@@ -48,20 +52,13 @@ public class Post {
     private ReportStatus reportStatus;
 
     @Enumerated(EnumType.STRING)
-    @Column(length = 1, columnDefinition = "varchar(1)")
+    @Column(length = 20, columnDefinition = "varchar(20)")
     private Status status;
 
-//    @Column(length = 1)
-//    private String saveYn;
-//
-//    @Column(length = 1)
-//    private String secretYn;
-//
-//    @Column(length = 1)
-//    private String delYn;
-
+    @CreatedDate
     private LocalDateTime createDate;
 
+    @LastModifiedDate
     private LocalDateTime updateDate;
 
     public Post(String title, String content, Member member) {
