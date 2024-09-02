@@ -6,16 +6,11 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Getter
 public enum Status {
-    /**
-     * Public: 공개
-     * Secret: 비밀글
-     * NotSaved: 임시저장
-     * Delete: 삭제된 글
-     */
 
-    P,
-    S,
-    N,
-    D;
-    
+    PUBLIC("공개"),
+    SECRET("비밀글"),
+    TEMPORARY("임시저장"),
+    DELETE("삭제");
+
+    private final String title;
 }

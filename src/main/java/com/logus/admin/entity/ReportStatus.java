@@ -7,13 +7,9 @@ import lombok.RequiredArgsConstructor;
 @Getter
 public enum ReportStatus {
 
-    //HIDE
-    H("임시 숨김 처리"),
-    //BLOCK
-    B("차단"),
-    //RETURN
-    R("반려");
-
+    BLIND("임시 숨김 처리"),
+    BLOCK("차단"),
+    RETURN("반려");
 
     private final String title;
 }

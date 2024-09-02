@@ -20,7 +20,8 @@ public class BlogMember {
     @JoinColumn(name = "blog_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Blog blog;
 
-    @Column(length = 1)
-    private String masterYn;
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20, columnDefinition = "varchar(20)")
+    private BlogAuth blogAuth;
 
 }
