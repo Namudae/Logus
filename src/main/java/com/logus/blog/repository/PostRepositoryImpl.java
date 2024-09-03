@@ -41,10 +41,6 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .fetch();
     }
 
-    public Long createPost(PostRequestDto postRequestDto) {
-        return null;
-    }
-
     private BooleanExpression blogAddressEq(String blogAddress) {
         return hasText(blogAddress) ? post.blog.blogAddress.eq(blogAddress) : null;
     }

@@ -5,43 +5,38 @@ import com.logus.member.entity.Member;
 import lombok.*;
 
 import java.time.LocalDateTime;
-
-//@Data
-//@NoArgsConstructor
-
-//@Getter
-//@Setter
-////@Builder
-//@NoArgsConstructor(access = AccessLevel.PROTECTED)
-////@AllArgsConstructor
+import java.util.List;
 
 @Getter
 @Setter
-@Data
 @AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 public class PostRequestDto {
 
-    /**
-     * 등록, 수정을 처리할 요청(Request) 클래스
-     */
         private Long postId;
+        private Long memberId;
+        private Long blogId;
+        private Long categoryId;
+        private Long seriesId;
         private String title;
         private String content;
         private LocalDateTime createDate;
-        private Member member;
-        private Blog blog;
-        private Category category;
-        private Series series;
         private Status status;
-        //태그추가
+        //태그
+        private List<Tag> tags;
+
+        //Entity 대신 필요한값 받을것
+//        private Member member;
+//        private Blog blog;
+//        private Category category;
+        //private Series series;
 
         /*
         Dto -> toEntity
         Service에서 member 전달
          */
-        public Post toPostEntity(Member member) {
+        public Post toEntity(Member member, Blog blog, Category category, Series series) {
             return Post.builder()
                     .id(postId)
                     .member(member)
@@ -54,17 +49,5 @@ public class PostRequestDto {
                     .createDate(createDate)
                     .build();
         }
-
-        //등록 생성자
-//        public PostRequestDto(Long id, Long memberId, String title, String content, LocalDateTime createDate) {
-//            Id = id;
-//            this.memberId = memberId;
-//            this.title = title;
-//            this.content = content;
-//            this.createDate = createDate;
-//        }
-
-
-
 
 }

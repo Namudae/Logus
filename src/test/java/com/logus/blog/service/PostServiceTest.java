@@ -30,13 +30,13 @@ class PostServiceTest {
     @DisplayName("글 작성")
     void createPostTest() {
         //given
-        Member member = memberRepository.findById(1L)
-                .orElseThrow(() -> new IllegalArgumentException("Member not found"));
-
         PostRequestDto postRequestDto = PostRequestDto.builder()
+                .blogId(1L)
+                .memberId(1L)
+                .categoryId(1L)
+                .seriesId(1L)
                 .title("제목입니다.")
                 .content("내용입니다.")
-                .member(member)
                 .build();
 
         //when

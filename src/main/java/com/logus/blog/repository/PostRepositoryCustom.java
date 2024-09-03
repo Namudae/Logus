@@ -8,5 +8,5 @@ import java.util.List;
 public interface PostRepositoryCustom {
     List<PostResponseDto> selectAllPosts(String blogAddress);
 
-    Long createPost(PostRequestDto postRequestDto);
+//    Long createPost(PostRequestDto postRequestDto);
 }

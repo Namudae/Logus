@@ -16,7 +16,7 @@ public class PostController {
 
     /**
      * 글 여러개 조회
-     * + Pageable 추가
+     * + Pageable 추가해야됨
      */
     @GetMapping("/{blogAddress}/posts")
     public List<PostResponseDto> selectAllPosts(@PathVariable("blogAddress") String blogAddress) {
@@ -35,7 +35,7 @@ public class PostController {
     /**
      * 글 등록
      */
-    @PostMapping("/{blogAddress}/newpost")
+    @PostMapping("/{blogAddress}/post")
     public String createPost(@PathVariable("blogAddress") String blogAddress,
                              @RequestBody PostRequestDto postRequestDto) {
         Long postId = postService.createPost(postRequestDto);
