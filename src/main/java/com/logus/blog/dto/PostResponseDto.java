@@ -25,7 +25,7 @@ public class PostResponseDto {
     private String nickname;
     private String title;
     private String content;
-    private Long count;
+    private Long views;
     private LocalDateTime createDate;
     private List<CommentResponseDto> comments;
 
@@ -36,11 +36,8 @@ public class PostResponseDto {
         this.nickname = post.getMember().getNickname();
         this.title = post.getTitle();
         this.content = post.getContent();
-        this.count = post.getCount();
+        this.views = post.getViews();
         this.createDate = post.getCreateDate();
-//        this.comments = post.getComments().stream()
-//                .map(CommentResponseDto::new)
-//                .collect(Collectors.toList());
     }
 
     public PostResponseDto(Post post, List<CommentResponseDto> comments) {
@@ -49,19 +46,9 @@ public class PostResponseDto {
         this.nickname = post.getMember().getNickname();
         this.title = post.getTitle();
         this.content = post.getContent();
-        this.count = post.getCount();
+        this.views = post.getViews();
         this.createDate = post.getCreateDate();
         this.comments = comments;
     }
 
-//    public PostResponseDto(Long postId, Long memberId, String nickname, String title, String content, Long count, LocalDateTime createDate, List<CommentResponseDto> comments) {
-//        this.postId = postId;
-//        this.memberId = memberId;
-//        this.nickname = nickname;
-//        this.title = title;
-//        this.content = content;
-//        this.count = count;
-//        this.createDate = createDate;
-//        this.comments = comments;
-//    }
 }

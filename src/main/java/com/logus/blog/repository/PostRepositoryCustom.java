@@ -6,7 +6,7 @@ import com.logus.blog.dto.PostResponseDto;
 import java.util.List;
 
 public interface PostRepositoryCustom {
-    List<PostResponseDto> selectAllPosts(String blogAddress);
+    List<PostResponseDto> selectAllBlogPosts(String blogAddress);
 
 //    Long createPost(PostRequestDto postRequestDto);
 }

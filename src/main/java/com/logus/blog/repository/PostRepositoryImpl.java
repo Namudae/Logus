@@ -23,7 +23,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     }
 
     //2. Projection.fields()
-    public List<PostResponseDto> selectAllPosts(String blogAddress) {
+    public List<PostResponseDto> selectAllBlogPosts(String blogAddress) {
         return jpaQueryFactory
                 .select(Projections.fields(PostResponseDto.class,
                         member.id.as("memberId"),
@@ -31,7 +31,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                         post.id.as("postId"),
                         post.title,
                         post.content,
-                        post.count,
+                        post.views,
                         post.createDate))
                 .from(post)
                 .join(post.member, member)

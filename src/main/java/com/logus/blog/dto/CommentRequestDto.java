@@ -16,8 +16,8 @@ import lombok.*;
 public class CommentRequestDto {
 
     private Long commentId;
-    private Member member;
-    private Post post;
+    private Long memberId;
+    private Long postId;
     private Comment parent;
     private Byte depth;
     private String content;

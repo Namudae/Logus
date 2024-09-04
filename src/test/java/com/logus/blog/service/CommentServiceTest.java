@@ -42,8 +42,8 @@ class CommentServiceTest {
                 .orElseThrow(() -> new IllegalArgumentException("Post not found"));
 
         CommentRequestDto commentRequestDto = CommentRequestDto.builder()
-                .member(member)
-                .post(post)
+                .memberId(1L)
+                .postId(1L)
                 .content("테스트 댓글입니다.")
                 .status(Status.PUBLIC)
                 .build();

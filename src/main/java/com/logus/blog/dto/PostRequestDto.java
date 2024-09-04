@@ -21,10 +21,9 @@ public class PostRequestDto {
         private Long seriesId;
         private String title;
         private String content;
-        private LocalDateTime createDate;
         private Status status;
         //태그
-        private List<Tag> tags;
+        private List<String> tags;
 
         //Entity 대신 필요한값 받을것
 //        private Member member;
@@ -46,7 +45,6 @@ public class PostRequestDto {
                     .title(title)
                     .content(content)
                     .status(status)
-                    .createDate(createDate)
                     .build();
         }
 

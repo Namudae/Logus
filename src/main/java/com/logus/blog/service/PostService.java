@@ -3,14 +3,11 @@ package com.logus.blog.service;
 import com.logus.blog.dto.CommentResponseDto;
 import com.logus.blog.dto.PostRequestDto;
 import com.logus.blog.dto.PostResponseDto;
-import com.logus.blog.entity.Blog;
-import com.logus.blog.entity.Category;
-import com.logus.blog.entity.Post;
-import com.logus.blog.entity.Series;
+import com.logus.blog.entity.*;
 import com.logus.blog.exception.PostNotFound;
 import com.logus.blog.repository.*;
-import com.logus.member.repository.MemberRepository;
 import com.logus.member.entity.Member;
+import com.logus.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,16 +22,22 @@ public class PostService {
 
     private static final Logger log = LoggerFactory.getLogger(PostService.class);
     private final PostRepository postRepository;
-    private final MemberRepository memberRepository;
-    private final CommentRepository commentRepository;
 
-    private final BlogRepository blogRepository;
-    private final CategoryRepository categoryRepository;
-    private final SeriesRepository seriesRepository;
-    private final TagRepository tagRepository;
+    private final BlogService blogService;
+    private final MemberService memberService;
+    private final CategoryService categoryService;
+    private final SeriesService seriesService;
+    private final TagService tagService;
+    private final CommentService commentService;
 
-    public List<PostResponseDto> selectAllPosts(String blogAddress) {
-        return postRepository.selectAllPosts(blogAddress);
+    //+내용 130글자까지?
+    public List<PostResponseDto> selectAllBlogPosts(String blogAddress) {
+        return postRepository.selectAllBlogPosts(blogAddress);
+    }
+
+    public Post getById(Long postId) {
+        return postRepository.findById(postId)
+                .orElseThrow(PostNotFound::new);
     }
 
     @Transactional
@@ -44,38 +47,35 @@ public class PostService {
         //1. findById > select로 인한 성능저하
         //2. getReferenceById > 데이터 검증x
         //findById
-        Member member = memberRepository.findById(postRequestDto.getMemberId())
-                .orElseThrow(() -> new IllegalArgumentException("USER NOT FOUND"));
-        Blog blog = blogRepository.findById(postRequestDto.getBlogId())
-                .orElseThrow(() -> new IllegalArgumentException("BLOG NOT FOUND"));
+        Member member = memberService.getById(postRequestDto.getMemberId()); //전부 replace
+        Blog blog = blogService.getById(postRequestDto.getBlogId());
         //getReferenceById
-        Category category = (postRequestDto.getCategoryId() == null) ? null :
-                categoryRepository.getReferenceById(postRequestDto.getCategoryId());
-        Series series = (postRequestDto.getSeriesId() == null) ? null :
-                seriesRepository.getReferenceById(postRequestDto.getSeriesId());
+        Category category = categoryService.getReferenceById(postRequestDto.getCategoryId());
+        Series series = seriesService.getReferenceById(postRequestDto.getSeriesId());
 
-        //태그 처리
-        //1. tag 먼저 insert(인데 중복 체크)
-        //2. postTag insert
-//        tagRepository.existsByTagName(postRequestDto.getTags());
-
+        //Post insert
         Post post = postRequestDto.toEntity(member, blog, category, series);
-        postRepository.save(post);
+        Post savedPost = postRepository.save(post);
+
+        //Tag insert
+        if (postRequestDto.getTags() != null) {
+            //1. tag insert
+            List<Tag> tags = tagService.insertTags(postRequestDto.getTags());
+            //2. postTag insert
+            tagService.insertPostTags(savedPost, tags);
+        }
 
         return post.getId();
     }
 
+
     public PostResponseDto selectPost(String blogAddress, Long postId) {
         //게시글 조회
-        Post post = postRepository.findById(postId)
-                .orElseThrow(PostNotFound::new);
-
+        Post post = getById(postId);
         //댓글 조회
-        List<CommentResponseDto> comments = commentRepository.findByPostId(postId)
-                .stream()
-                .map(CommentResponseDto::new)
-                .toList();
+        List<CommentResponseDto> comments = commentService.getComments(postId);
 
         return new PostResponseDto(post, comments);
     }
+
 }
