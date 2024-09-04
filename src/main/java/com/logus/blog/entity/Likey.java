@@ -1,5 +1,6 @@
 package com.logus.blog.entity;
 
+import com.logus.common.entity.BaseCreateTime;
 import com.logus.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -8,7 +9,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
-public class Likey {
+public class Likey extends BaseCreateTime {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,7 +23,5 @@ public class Likey {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Post post;
-
-    private LocalDateTime createDate;
 
 }

@@ -2,6 +2,7 @@ package com.logus.admin.entity;
 
 
 import com.logus.blog.entity.Post;
+import com.logus.common.entity.BaseTime;
 import com.logus.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -10,7 +11,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
-public class Report {
+public class Report extends BaseTime {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,9 +39,5 @@ public class Report {
     @Enumerated(EnumType.STRING)
     @Column(length = 20, columnDefinition = "varchar(20)")
     private ReportStatus reportStatus;
-
-    private LocalDateTime createDate;
-
-    private LocalDateTime solutionDate;
 
 }

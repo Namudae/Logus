@@ -1,6 +1,7 @@
 package com.logus.admin.entity;
 
 
+import com.logus.common.entity.BaseTime;
 import com.logus.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -9,7 +10,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
-public class Notice {
+public class Notice extends BaseTime {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,9 +31,5 @@ public class Notice {
 
     @Column(length = 1)
     private String delYn;
-
-    private LocalDateTime createDate;
-
-    private LocalDateTime updateDate;
 
 }

@@ -1,5 +1,6 @@
 package com.logus.blog.entity;
 
+import com.logus.common.entity.BaseCreateTime;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -7,8 +8,8 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Entity
-@Getter 
-public class Blog {
+@Getter
+public class Blog extends BaseCreateTime {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "blog_id")
@@ -21,8 +22,6 @@ public class Blog {
 
     @Column(length = 100)
     private String introduce;
-
-    private LocalDateTime createDate;
 
     @Column(length = 1)
     private String shareYn;

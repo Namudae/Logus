@@ -1,11 +1,13 @@
 package com.logus.blog.entity;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity
 @Getter
+@Builder
 public class PostTag {
 
     @Id

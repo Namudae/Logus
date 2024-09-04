@@ -25,8 +25,10 @@ public class File {
     @Column(length = 20, columnDefinition = "varchar(20)")
     private FileType fileType;
 
-    private String fileName;
+    private String filename;
 
-    private String url;
+    private String orgFilename;
+
+    private String filepath;
 
 }

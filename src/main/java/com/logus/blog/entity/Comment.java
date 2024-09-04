@@ -1,6 +1,7 @@
 package com.logus.blog.entity;
 
 import com.logus.admin.entity.ReportStatus;
+import com.logus.common.entity.BaseTime;
 import com.logus.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.*;
@@ -17,8 +18,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@EntityListeners(AuditingEntityListener.class)
-public class Comment {
+public class Comment extends BaseTime {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -53,11 +53,5 @@ public class Comment {
     @Enumerated(EnumType.STRING)
     @Column(length = 20, columnDefinition = "varchar(20)")
     private ReportStatus reportStatus;
-
-    @CreatedDate
-    private LocalDateTime createDate;
-
-    @LastModifiedDate
-    private LocalDateTime updateDate;
 
 }

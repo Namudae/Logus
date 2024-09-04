@@ -1,6 +1,7 @@
 package com.logus.blog.entity;
 
 
+import com.logus.common.entity.BaseCreateTime;
 import com.logus.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -9,7 +10,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
-public class Alarm {
+public class Alarm extends BaseCreateTime {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,8 +30,6 @@ public class Alarm {
     private Comment comment;
 
     private String content;
-
-    private LocalDateTime createDate;
 
     @Column(length = 1)
     private String readYn;
