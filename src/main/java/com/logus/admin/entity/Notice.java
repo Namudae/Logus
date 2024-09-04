@@ -27,7 +27,7 @@ public class Notice extends BaseTime {
     @Column(length = 10000)
     private String content;
 
-    private Long count;
+    private Long views;
 
     @Column(length = 1)
     private String delYn;

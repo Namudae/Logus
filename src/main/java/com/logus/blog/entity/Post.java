@@ -47,7 +47,7 @@ public class Post extends BaseTime {
     @Column(length = 10000)
     private String content;
 
-    private Long count;
+    private Long views;
 
     @Enumerated(EnumType.STRING)
     @Column(length = 20, columnDefinition = "varchar(20)")
