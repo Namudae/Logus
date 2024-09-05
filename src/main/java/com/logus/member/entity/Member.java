@@ -1,13 +1,11 @@
 package com.logus.member.entity;
 
-import com.logus.blog.entity.File;
+import com.logus.common.entity.Attachment;
 import com.logus.common.entity.BaseTime;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -21,7 +19,7 @@ public class Member extends BaseTime {
     //프로필 사진
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "file_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-    private File file;
+    private Attachment attachment;
 
     @Column(length = 20)
     private String socialType;

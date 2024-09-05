@@ -1,15 +1,12 @@
 package com.logus.blog.entity;
 
 import com.logus.admin.entity.ReportStatus;
+import com.logus.common.entity.Attachment;
 import com.logus.common.entity.BaseTime;
 import com.logus.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -69,6 +66,9 @@ public class Post extends BaseTime {
 
     @OneToMany(mappedBy = "post")
     private List<PostTag> postTags = new ArrayList<>();
+
+    @OneToMany(mappedBy = "post")
+    private List<Attachment> attachments = new ArrayList<>();
 
 //    @OneToMany(mappedBy = "post")
 //    private List<Likey> likeys = new ArrayList<>();
