@@ -4,9 +4,13 @@ import com.logus.blog.dto.PostRequestDto;
 import com.logus.blog.dto.PostResponseDto;
 import com.logus.blog.service.PostService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -34,17 +38,6 @@ public class PostController {
     }
 
     /**
-     * 글 등록(+사진 첨부)
-     */
-    @PostMapping("/{blogAddress}/post")
-    public String createPost(@PathVariable("blogAddress") String blogAddress,
-                                  @ModelAttribute PostRequestDto postRequestDto,
-                                  @RequestParam("images") MultipartFile[] images) {
-        Long postId = postService.createPost(postRequestDto);
-        return "redirect:/" + blogAddress + "/" + postId;
-    }
-
-    /**
      * 글 등록(임시)
      */
     @PostMapping("/{blogAddress}/postv1")
@@ -53,4 +46,23 @@ public class PostController {
         Long postId = postService.createPost(postRequestDto);
         return "redirect:/" + blogAddress + "/" + postId;
     }
+
+    /**
+     * 글 등록(+사진 첨부)
+     */
+//    @PostMapping("/{blogAddress}/post")
+//    public String createPost(@PathVariable("blogAddress") String blogAddress,
+//                             @ModelAttribute PostRequestDto postRequestDto,
+//                             @RequestParam("images") MultipartFile[] images) throws IOException {
+//
+//        if (images != null) {
+//            for (MultipartFile image : images) {
+//                String fullPath = fileDir + image.getOriginalFilename(); //file.getOriginalFilename: 사용자가 업로드한 파일명
+//                image.transferTo(new File(fullPath)); //file.transferto(): 파일저장
+//            }
+//        }
+//
+//        Long postId = postService.createPost(postRequestDto);
+//        return "redirect:/" + blogAddress + "/" + postId;
+//    }
 }

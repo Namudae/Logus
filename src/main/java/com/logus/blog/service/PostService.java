@@ -65,7 +65,7 @@ public class PostService {
             tagService.insertPostTags(savedPost, tags);
         }
 
-        return post.getId();
+        return savedPost.getId();
     }
 
 

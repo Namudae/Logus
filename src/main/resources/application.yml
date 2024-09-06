@@ -21,3 +21,19 @@ logging:
 
 server:
   port: 8082
+
+servlet:
+  multipart:
+    location: C:\\logusImage\\
+    max-request-size: 30MB
+    max-file-size: 10MB
+
+file:
+  dir: C:/logusImage/  # 실제 저장할 경로
+#  temporaryLocation: C:/logusImage/temp  # 임시 저장 경로
+#
+#resourceHandlerUrl: /images/ # 이미지 파일 접근 uri
+
+#contentImgLocation: C:/logusImage/save  # 실제 저장할 경로
+#temporaryLocation: C:/logusImage/temp  # 임시 저장 경로
+#resourceHandlerUrl: /images/ # 이미지 파일 접근 uri
