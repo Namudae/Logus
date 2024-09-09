@@ -1,13 +1,14 @@
 package com.logus.common.service;
 
 import com.logus.common.dto.AttachmentRequestDto;
-import com.logus.common.entity.Attachment;
 import com.logus.common.entity.AttachmentType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -18,9 +19,6 @@ public class AttachmentService {
 
     @Value("${file.dir}")
     private String fileDir;
-
-//    @Value("${temporaryLocation}")
-//    private String temporaryLocation;
 
     public String getFullPath(String filename) {
         return fileDir + filename;
@@ -51,12 +49,22 @@ public class AttachmentService {
         String storeFileName = createStoreFileName(originalFilename); //실제 저장할 파일명
         String filepath = createPath(storeFileName, attachmentType); //파일이 저장될 전체 경로
 
+        //이미지 가로세로 크기
+        int width = 0, height = 0;
+        String contentType = multipartFile.getContentType();
+        if (contentType!=null && contentType.startsWith("image/")) {
+            BufferedImage bufferedImage = ImageIO.read(multipartFile.getInputStream());
+            width = bufferedImage.getWidth();
+            height = bufferedImage.getHeight();
+        }
+
         multipartFile.transferTo(new File(filepath));
         return AttachmentRequestDto.builder()
-                .attachmentType(attachmentType)
                 .filename(storeFileName)
                 .orgFilename(originalFilename)
                 .filepath(filepath)
+                .width(width)
+                .height(height)
                 .build();
     }
 

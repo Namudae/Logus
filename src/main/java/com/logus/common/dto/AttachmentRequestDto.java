@@ -11,13 +11,12 @@ import lombok.*;
 @NoArgsConstructor
 public class AttachmentRequestDto {
 
-//    private Long attachmentId;
-//    private Long postId;
-//    private Long memberId;
-    private AttachmentType attachmentType;
+//    private AttachmentType attachmentType;
     private String filename;
     private String orgFilename;
     private String filepath;
+    private int width;
+    private int height;
 
 //    @Builder
 //    public AttachmentRequestDto(AttachmentType attachmentType, String filename, String orgFilename, String filepath) {
