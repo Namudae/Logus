@@ -16,11 +16,6 @@ public class Member extends BaseTime {
     @Column(name = "member_id")
     private Long id;
 
-    //프로필 사진
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "file_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-    private Attachment attachment;
-
     @Column(length = 20)
     private String socialType;
 
@@ -40,6 +35,8 @@ public class Member extends BaseTime {
 
     @Column(length = 100)
     private String introduce;
+
+    private String imgUrl;
 
     @Column(length = 1)
     private String delYn;

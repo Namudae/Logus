@@ -22,6 +22,8 @@ public class Series {
 
     private Byte sriesOrder;
 
+    private String imgUrl;
+
 //    @OneToMany(mappedBy = "series")
 //    private List<Post> posts = new ArrayList<>();
 
