@@ -4,8 +4,12 @@ import com.logus.blog.dto.PostRequestDto;
 import com.logus.blog.dto.PostResponseDto;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -22,9 +26,11 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         this.jpaQueryFactory = new JPAQueryFactory(em);
     }
 
-    //2. Projection.fields()
-    public List<PostResponseDto> selectAllBlogPosts(String blogAddress) {
-        return jpaQueryFactory
+    /**
+     * 블로그 내 모든 포스트 조회
+     */
+    public Page<PostResponseDto> selectAllBlogPosts(String blogAddress, Pageable pageable) {
+        JPAQuery<PostResponseDto> query = jpaQueryFactory
                 .select(Projections.fields(PostResponseDto.class,
                         member.id.as("memberId"),
                         member.nickname,
@@ -37,8 +43,55 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .join(post.member, member)
                 .where(
                         blogAddressEq(blogAddress)
-                )
+                );
+
+        // 총 결과 수 조회
+        long total = query.fetchCount();
+
+        // 페이지에 맞는 결과 조회
+        List<PostResponseDto> results = query
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
                 .fetch();
+
+        // Page 객체 생성 및 반환
+        return new PageImpl<>(results, pageable, total);
+    }
+
+
+    /**
+     * 블로그 내 검색
+     */
+    public Page<PostResponseDto> searchBlogPosts(String blogAddress, String keyword, Pageable pageable) {
+        JPAQuery<PostResponseDto> query = jpaQueryFactory
+                .select(Projections.fields(PostResponseDto.class,
+                        member.id.as("memberId"),
+                        member.nickname,
+                        post.id.as("postId"),
+                        post.title,
+                        post.content,
+                        post.views,
+                        post.createDate))
+                .from(post)
+                .join(post.member, member)
+                .where(
+                        blogAddressEq(blogAddress)
+                        .and(post.title.contains(keyword)
+                            .or(post.content.contains(keyword))
+                        )
+                );
+
+        // 총 결과 수 조회
+        long total = query.fetchCount();
+
+        // 페이지에 맞는 결과 조회
+        List<PostResponseDto> results = query
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        // Page 객체 생성 및 반환
+        return new PageImpl<>(results, pageable, total);
     }
 
     private BooleanExpression blogAddressEq(String blogAddress) {
@@ -47,21 +100,3 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 
 
 }
-
-
-//1. @QuryProjection
-//    public List<PostDto> getAllPosts(String blogAddress) {
-//        return jpaQueryFactory
-//                .select(new QPostDto(
-//                        member.id.as("memberId"),
-//                        member.nickname,
-//                        post.id.as("postId"),
-//                        post.title,
-//                        post.content,
-//                        post.createDate))
-//                .from(post)
-//                .join(post.member, member)
-//                .where(
-//                        blogAddressEq(blogAddress)
-//                )
-//                .fetch();

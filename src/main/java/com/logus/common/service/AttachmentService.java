@@ -17,6 +17,8 @@ import java.util.*;
 @RequiredArgsConstructor
 public class AttachmentService {
 
+    private final S3Service s3Service;
+
     @Value("${file.dir}")
     private String fileDir;
 
@@ -27,46 +29,50 @@ public class AttachmentService {
     /**
      * 여러개 저장
      */
-    public List<AttachmentRequestDto> storeFiles(List<MultipartFile> multipartFiles, AttachmentType attachmentType) throws IOException {
-        List<AttachmentRequestDto> storeAttachmentResult = new ArrayList<>();
-        for (MultipartFile multipartFile : multipartFiles) {
-            if (!multipartFile.isEmpty()) {
-                storeAttachmentResult.add(storeFile(multipartFile, attachmentType));
-            }
-        }
-        return storeAttachmentResult;
-    }
+//    public List<AttachmentRequestDto> storeFiles(List<MultipartFile> multipartFiles, AttachmentType attachmentType) throws IOException {
+//        List<AttachmentRequestDto> storeAttachmentResult = new ArrayList<>();
+//        for (MultipartFile multipartFile : multipartFiles) {
+//            if (!multipartFile.isEmpty()) {
+//                storeAttachmentResult.add(storeFile(multipartFile, attachmentType));
+//            }
+//        }
+//        return storeAttachmentResult;
+//    }
 
     /**
      * 파일 한 개 저장
      */
-    public AttachmentRequestDto storeFile(MultipartFile multipartFile, AttachmentType attachmentType) throws IOException {
-        if (multipartFile.isEmpty()) {
-            return null;
-        }
-
-        String originalFilename = multipartFile.getOriginalFilename(); //사용자가 저장한 파일명
-        String storeFileName = createStoreFileName(originalFilename); //실제 저장할 파일명
-        String filepath = createPath(storeFileName, attachmentType); //파일이 저장될 전체 경로
-
-        //이미지 가로세로 크기
-        int width = 0, height = 0;
-        String contentType = multipartFile.getContentType();
-        if (contentType!=null && contentType.startsWith("image/")) {
-            BufferedImage bufferedImage = ImageIO.read(multipartFile.getInputStream());
-            width = bufferedImage.getWidth();
-            height = bufferedImage.getHeight();
-        }
-
-        multipartFile.transferTo(new File(filepath));
-        return AttachmentRequestDto.builder()
-                .filename(storeFileName)
-                .orgFilename(originalFilename)
-                .filepath(filepath)
-                .width(width)
-                .height(height)
-                .build();
-    }
+//    public AttachmentRequestDto storeFile(MultipartFile multipartFile, AttachmentType attachmentType) throws IOException {
+//        if (multipartFile.isEmpty()) {
+//            return null;
+//        }
+//
+//        String originalFilename = multipartFile.getOriginalFilename(); //사용자가 저장한 파일명
+//        String storeFileName = createStoreFileName(originalFilename); //실제 저장할 파일명
+//        String filepath = createPath(storeFileName, attachmentType); //파일이 저장될 전체 경로
+//
+//        //이미지 가로세로 크기
+//        int width = 0, height = 0;
+//        String contentType = multipartFile.getContentType();
+//        if (contentType!=null && contentType.startsWith("image/")) {
+//            BufferedImage bufferedImage = ImageIO.read(multipartFile.getInputStream());
+//            width = bufferedImage.getWidth();
+//            height = bufferedImage.getHeight();
+//        }
+//
+//        //지정된 경로로 저장
+////        multipartFile.transferTo(new File(filepath));
+////        String url = s3Service.upload(multipartFile);
+//
+//        return AttachmentRequestDto.builder()
+//                .filename(storeFileName)
+//                .orgFilename(originalFilename)
+//                .filepath(filepath)
+//                .width(width)
+//                .height(height)
+//                .url(url)
+//                .build();
+//    }
 
     //파일 경로 구성
     public String createPath(String storeFilename, AttachmentType attachmentType) {
@@ -74,7 +80,7 @@ public class AttachmentService {
         if (attachmentType == AttachmentType.IMAGE) {
             viaPath = "images/";
         } else if (attachmentType == AttachmentType.TEMP) {
-            viaPath = "images/temporary/";
+            viaPath = "temporary/";
         } else if (attachmentType == AttachmentType.PROFILE) {
             viaPath = "profiles/";
         } else if (attachmentType == AttachmentType.VIDEO) {

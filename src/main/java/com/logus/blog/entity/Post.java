@@ -6,6 +6,7 @@ import com.logus.common.entity.BaseTime;
 import com.logus.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,6 +63,14 @@ public class Post extends BaseTime {
         this.member = member; //양방향 연관관계X
     }
 
+    //조회수 default 0
+    @PrePersist
+    public void prePersist() {
+        if (this.views == null) {
+            this.views = 0L;
+        }
+    }
+
     //양방향 연관관계
     @OneToMany(mappedBy = "post")
     private List<Comment> comments = new ArrayList<>();
@@ -69,10 +78,15 @@ public class Post extends BaseTime {
     @OneToMany(mappedBy = "post")
     private List<PostTag> postTags = new ArrayList<>();
 
-    @OneToMany(mappedBy = "post")
+    //영속성 전이
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Attachment> attachments = new ArrayList<>();
 
-//    @OneToMany(mappedBy = "post")
+    public void setViews(Long views) {
+        this.views = views;
+    }
+
+    //    @OneToMany(mappedBy = "post")
 //    private List<Likey> likeys = new ArrayList<>();
 //
 //    @OneToMany(mappedBy = "post")

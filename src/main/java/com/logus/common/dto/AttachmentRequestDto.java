@@ -1,5 +1,6 @@
 package com.logus.common.dto;
 
+import com.logus.common.entity.Attachment;
 import com.logus.common.entity.AttachmentType;
 import lombok.*;
 
@@ -17,6 +18,14 @@ public class AttachmentRequestDto {
     private String filepath;
     private int width;
     private int height;
+
+//    public Attachment toEntity() {
+//        return Attachment.builder()
+//                .filename(filename)
+//                .orgFilename(orgFilename)
+//                .filepath(filepath)
+//                .build();
+//    }
 
 //    @Builder
 //    public AttachmentRequestDto(AttachmentType attachmentType, String filename, String orgFilename, String filepath) {

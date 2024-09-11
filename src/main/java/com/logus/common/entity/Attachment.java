@@ -19,10 +19,6 @@ public class Attachment {
     @JoinColumn(name = "post_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Post post;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-    private Member member;
-
     @Enumerated(EnumType.STRING)
     @Column(length = 20, columnDefinition = "varchar(20)")
     private AttachmentType attachmentType;
@@ -42,4 +38,7 @@ public class Attachment {
         this.filepath = filepath;
     }
 
+    public void setPost(Post post) {
+        this.post = post;
+    }
 }
