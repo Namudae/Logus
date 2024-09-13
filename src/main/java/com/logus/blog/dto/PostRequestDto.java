@@ -1,10 +1,12 @@
 package com.logus.blog.dto;
 
 import com.logus.blog.entity.*;
+import com.logus.common.exception.InvalidRequest;
 import com.logus.member.entity.Member;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -19,22 +21,18 @@ public class PostRequestDto {
         private Long blogId;
         private Long categoryId;
         private Long seriesId;
+
+        @NotBlank(message = "제목을 입력하세요.")
         private String title;
+
+        @NotBlank(message = "내용을 입력하세요.")
         private String content;
+
         private Status status;
-        //태그
-        private List<String> tags;
 
-        //Entity 대신 필요한값 받을것
-//        private Member member;
-//        private Blog blog;
-//        private Category category;
-        //private Series series;
+        // 각 태그에 특수문자를 허용하지 않는 패턴 설정
+        private List<@Pattern(regexp = "^[^!@#$%^&*(),.?\":{}|<>]*$", message = "특수문자는 허용되지 않습니다.") String> tags;
 
-        /*
-        Dto -> toEntity
-        Service에서 member 전달
-         */
         public Post toEntity(Member member, Blog blog, Category category, Series series) {
             return Post.builder()
                     .id(postId)
@@ -47,5 +45,14 @@ public class PostRequestDto {
                     .status(status)
                     .build();
         }
+
+//        public void validate() {
+//                String specialCharacters = "[!@#$%^&*(),.?\":{}|<>]";
+//                for (String tag : tags) {
+//                        if (tag.matches(".*" + specialCharacters + ".*")) {
+//                                throw new InvalidRequest("tags", "태그에 특수문자를 포함할 수 없습니다.");
+//                        }
+//                }
+//        }
 
 }

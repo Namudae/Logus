@@ -2,13 +2,15 @@ package com.logus.blog.entity;
 
 import com.logus.common.entity.BaseCreateTime;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Blog extends BaseCreateTime {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,7 +31,18 @@ public class Blog extends BaseCreateTime {
     @Column(length = 1)
     private String delYn;
 
-//    @OneToMany(mappedBy = "blog")
+    public void setDelYn(String delYn) {
+        this.delYn = delYn;
+    }
+
+    @PrePersist
+    public void prePersist() {
+        if (this.delYn == null) {
+            this.delYn = "N";
+        }
+    }
+
+    //    @OneToMany(mappedBy = "blog")
 //    private List<BlogMember> blogMembers = new ArrayList<>();
 //
 //    @OneToMany(mappedBy = "blog")

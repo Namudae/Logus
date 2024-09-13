@@ -88,45 +88,6 @@ public class S3Service {
         }
     }
 
-    /**
-     * response
-     * - 업로드한 파일명
-     * - 실제 저장된 파일명
-     * - 파일경로
-     * - 가로, 세로 사이즈
-     */
-//    public AttachmentRequestDto toClient(MultipartFile file) throws IOException {
-//        if (file.isEmpty()) {
-//            return null;
-//        }
-//
-//        String originalFilename = multipartFile.getOriginalFilename(); //사용자가 저장한 파일명
-//        String storeFileName = createStoreFileName(originalFilename); //실제 저장할 파일명
-//        String filepath = createPath(storeFileName, attachmentType); //파일이 저장될 전체 경로
-//
-//        //이미지 가로세로 크기
-//        int width = 0, height = 0;
-//        String contentType = file.getContentType();
-//        if (contentType!=null && contentType.startsWith("image/")) {
-//            BufferedImage bufferedImage = ImageIO.read(file.getInputStream());
-//            width = bufferedImage.getWidth();
-//            height = bufferedImage.getHeight();
-//        }
-//
-//        //지정된 경로로 저장
-////        multipartFile.transferTo(new File(filepath));
-//        String url = upload(multipartFile);
-//
-//        return AttachmentRequestDto.builder()
-//                .filename(storeFileName)
-//                .orgFilename(originalFilename)
-//                .filepath(filepath)
-//                .width(width)
-//                .height(height)
-//                .url(url)
-//                .build();
-//    }
-
     public void update(String oldSource, String newSource) {
         try {
             oldSource = URLDecoder.decode(oldSource, "UTF-8");

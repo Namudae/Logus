@@ -4,6 +4,7 @@ import com.logus.blog.dto.PostRequestDto;
 import com.logus.blog.dto.PostResponseDto;
 import com.logus.blog.entity.Post;
 import com.logus.blog.service.PostService;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,7 +28,7 @@ public class PostController {
     private final PostService postService;
 
     /**
-     * 글 여러개 조회
+     * 블로그의 전체게시글 조회
      * + Pageable x
      */
 //    @GetMapping("/{blogAddress}/posts")
@@ -82,25 +84,28 @@ public class PostController {
      */
     @PostMapping("/{blogAddress}/post")
     public String createPost(@PathVariable("blogAddress") String blogAddress,
-                             @RequestPart("requestDto") PostRequestDto postRequestDto
+                             @RequestPart("requestDto") @Valid PostRequestDto postRequestDto
 //                             @RequestPart("images") MultipartFile[] images,
 //                             @RequestPart("thumbImg") MultipartFile thumbImage
-    ) throws IOException {
-
-//        if (images != null) {
-//            for (MultipartFile image : images) {
-////                String fullPath = fileDir + image.getOriginalFilename(); //file.getOriginalFilename: 사용자가 업로드한 파일명
-////                image.transferTo(new File(fullPath)); //file.transferto(): 파일저장
-//
-//                //images > s3 temp 폴더에서 images 폴더로 복제 후 삭제, db insert
-//                //thumbImg > s3 thumb 폴더에 postid로 저장하고 url createPost로 전달, db url컬럼에 저장
-//            }
-//        }
-
+    ) throws MethodArgumentNotValidException {
+//        postRequestDto.validate();
         Long postId = postService.createPost(postRequestDto);
         return "redirect:/" + blogAddress + "/" + postId;
     }
 
+    /**
+     * 글 수정
+     */
+
+    /**
+     * 글 삭제
+     *  - 댓글 delYn 처리
+     *  - postTag delete
+     *  - attachment db delete(s3에서도 삭제)
+     */
+
+
+}
     //검색 참고
 //    @GetMapping("/search")
 //    public ResponseEntity searchTitle(@RequestParam(value ="title",required = false) String title,
@@ -113,5 +118,3 @@ public class PostController {
 //
 //        return new ResponseEntity<>(new PostResponseDto(), HttpStatus.OK);
 //    }
-
-}

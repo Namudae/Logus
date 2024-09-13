@@ -8,6 +8,8 @@ import com.logus.blog.exception.PostNotFound;
 import com.logus.blog.repository.*;
 import com.logus.common.entity.Attachment;
 import com.logus.common.entity.AttachmentType;
+import com.logus.common.exception.CustomException;
+import com.logus.common.exception.ErrorCode;
 import com.logus.common.repository.AttachmentRepository;
 import com.logus.common.service.AttachmentService;
 import com.logus.common.service.S3Service;
@@ -38,9 +40,9 @@ import static com.logus.common.service.S3Service.CLOUD_FRONT_DOMAIN_NAME;
 public class PostService {
 
     private static final Logger log = LoggerFactory.getLogger(PostService.class);
+
     private final PostRepository postRepository;
     private final AttachmentRepository attachmentRepository;
-
     private final BlogService blogService;
     private final MemberService memberService;
     private final CategoryService categoryService;
@@ -51,7 +53,8 @@ public class PostService {
 
     public Post getById(Long postId) {
         return postRepository.findById(postId)
-                .orElseThrow(PostNotFound::new);
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+//                .orElseThrow(PostNotFound::new);
     }
 
     //+내용 130글자까지?
@@ -64,7 +67,7 @@ public class PostService {
 
         //1. findById > select로 인한 성능저하
         //2. getReferenceById > 데이터 검증x ***
-        Member member = memberService.getReferenceById(postRequestDto.getMemberId());
+        Member member = memberService.getById(postRequestDto.getMemberId());
         Blog blog = blogService.getReferenceById(postRequestDto.getBlogId());
         Category category = categoryService.getReferenceById(postRequestDto.getCategoryId());
         Series series = seriesService.getReferenceById(postRequestDto.getSeriesId());

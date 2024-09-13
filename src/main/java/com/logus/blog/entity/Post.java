@@ -63,7 +63,7 @@ public class Post extends BaseTime {
         this.member = member; //양방향 연관관계X
     }
 
-    //조회수 default 0
+    //default
     @PrePersist
     public void prePersist() {
         if (this.views == null) {

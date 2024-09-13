@@ -1,5 +1,6 @@
 package com.logus.blog.exception;
 
+import com.logus.common.exception.LogusException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 

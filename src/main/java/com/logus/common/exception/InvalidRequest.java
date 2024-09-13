@@ -1,4 +1,4 @@
-package com.logus.blog.exception;
+package com.logus.common.exception;
 
 import lombok.Getter;
 
@@ -15,7 +15,7 @@ public class InvalidRequest extends LogusException {
     }
 
     public InvalidRequest(String fieldName, String message) {
-        super(MESSAGE);
+        super(message);
         addValidation(fieldName, message);
     }
 
