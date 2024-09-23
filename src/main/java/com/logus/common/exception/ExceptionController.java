@@ -1,17 +1,10 @@
 package com.logus.common.exception;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
@@ -19,30 +12,47 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 @RestControllerAdvice
 public class ExceptionController {
 
-    //new...
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handException(Exception e) {
-//        e.printStackTrace();
-        return ResponseEntity
-                .status(INTERNAL_SERVER_ERROR)
-                .body(ErrorResponse.of(500, INTERNAL_SERVER_ERROR, e.getMessage()));
-    }
-
-    @ExceptionHandler(CustomException.class)
-    public ResponseEntity<ErrorResponse> handleLogusException(CustomException e) {
-//        e.printStackTrace();
-        ErrorCode errorCode = e.getErrorCode();
-        return ResponseEntity
-                .status(errorCode.getStatus())
-                .body(ErrorResponse.of(errorCode));
-    }
-
+    //***하는중
     // @Valid 또는 @Validated로 발생하는 유효성 검사 예외 처리
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Object> handleValidationExceptions(MethodArgumentNotValidException e) {
-        Map<String, String> errors = new HashMap<>();
-        e.getBindingResult().getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
-        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException e) {
+//        Map<String, String> errors = new HashMap<>();
+//        e.getBindingResult().getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+//        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+        log.error("[ExceptionHandler] Validation error: ", e);
+        ErrorResponse response = ErrorResponse.createError(ErrorCode.INPUT_VALUE_INVALID, e.getBindingResult());
+        return ResponseEntity.status(ErrorCode.INPUT_VALUE_INVALID.getCode()).body(response);
+    }
+    //ㄴvalid 수정전
+//    @ExceptionHandler(MethodArgumentNotValidException.class)
+//    public ResponseEntity<Object> handleValidationExceptions(MethodArgumentNotValidException e) {
+//        Map<String, String> errors = new HashMap<>();
+//        e.getBindingResult().getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+//        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+//    }
+
+    //new...
+    @ExceptionHandler(CustomException.class)
+    public ResponseEntity<ErrorResponse> handleCustomException(CustomException e) {
+//        ErrorCode errorCode = e.getErrorCode();
+//        return ResponseEntity
+//                .status(errorCode.getStatus())
+//                .body(ErrorResponse.of(errorCode));
+
+        log.error("[ExceptionHandler] CustomException: ", e);
+        return ResponseEntity.status(e.getErrorCode().getStatus())
+                .body(ErrorResponse.createError(e.getErrorCode()));
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleException(Exception e) {
+//        return ResponseEntity
+//                .status(INTERNAL_SERVER_ERROR)
+//                .body(ErrorResponse.of(500, INTERNAL_SERVER_ERROR, e.getMessage()));
+
+        log.error("[ExceptionHandler] Exception: ", e);
+        return ResponseEntity.status(INTERNAL_SERVER_ERROR)
+                .body(ErrorResponse.createError(ErrorCode.INTERNAL_SERVER_ERROR));
     }
 
 //    @ResponseStatus(HttpStatus.BAD_REQUEST)

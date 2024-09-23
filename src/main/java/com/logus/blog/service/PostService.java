@@ -4,7 +4,6 @@ import com.logus.blog.dto.CommentResponseDto;
 import com.logus.blog.dto.PostRequestDto;
 import com.logus.blog.dto.PostResponseDto;
 import com.logus.blog.entity.*;
-import com.logus.blog.exception.PostNotFound;
 import com.logus.blog.repository.*;
 import com.logus.common.entity.Attachment;
 import com.logus.common.entity.AttachmentType;

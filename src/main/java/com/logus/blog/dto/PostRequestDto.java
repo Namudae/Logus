@@ -1,7 +1,6 @@
 package com.logus.blog.dto;
 
 import com.logus.blog.entity.*;
-import com.logus.common.exception.InvalidRequest;
 import com.logus.member.entity.Member;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;

@@ -7,6 +7,8 @@ import com.logus.blog.entity.Blog;
 import com.logus.blog.entity.BlogMember;
 import com.logus.blog.repository.BlogMemberRepository;
 import com.logus.blog.repository.BlogRepository;
+import com.logus.common.exception.CustomException;
+import com.logus.common.exception.ErrorCode;
 import com.logus.member.entity.Member;
 import com.logus.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +27,7 @@ public class BlogService {
 
     public Blog getById(Long blogId) {
         return blogRepository.findById(blogId)
-                .orElseThrow(() -> new IllegalArgumentException("BLOG NOT FOUND"));
+                .orElseThrow(() -> new CustomException(ErrorCode.BLOG_NOT_FOUND));
     }
 
     public Blog getReferenceById(Long blogId) {

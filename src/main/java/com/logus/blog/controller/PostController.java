@@ -4,6 +4,7 @@ import com.logus.blog.dto.PostRequestDto;
 import com.logus.blog.dto.PostResponseDto;
 import com.logus.blog.entity.Post;
 import com.logus.blog.service.PostService;
+import com.logus.common.controller.ApiResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
@@ -41,9 +42,12 @@ public class PostController {
      * + Pageable
      */
     @GetMapping("/{blogAddress}/posts")
-    public ResponseEntity<Page<PostResponseDto>> selectAllBlogPosts(@PathVariable("blogAddress") String blogAddress, Pageable pageable) {
+    public ApiResponse<Page<PostResponseDto>> selectAllBlogPosts(@PathVariable("blogAddress") String blogAddress, Pageable pageable) {
         Page<PostResponseDto> posts = postService.selectAllBlogPosts(blogAddress, pageable);
-        return new ResponseEntity<>(posts, HttpStatus.OK);
+//        return new ResponseEntity<>(posts, HttpStatus.OK);
+
+        //커스텀(body에 status 포함)
+        return ApiResponse.of(HttpStatus.OK, posts);
     }
 
     /**
@@ -53,20 +57,25 @@ public class PostController {
      * http://localhost:8082/blog1/search?page=0&size=10&keyword=1번째
      */
     @GetMapping("/{blogAddress}/search")
-    public ResponseEntity<Page<PostResponseDto>> searchBlogPosts(@PathVariable("blogAddress") String blogAddress,
+    public ApiResponse<Page<PostResponseDto>> searchBlogPosts(@PathVariable("blogAddress") String blogAddress,
                                                                  @RequestParam(value="keyword", required = false) String keyword,
                                                                  Pageable pageable) {
         Page<PostResponseDto> pagePosts = postService.searchBlogPosts(blogAddress, keyword, pageable);
-        return new ResponseEntity<>(pagePosts, HttpStatus.OK);
+
+//        return new ResponseEntity<>(pagePosts, HttpStatus.OK);
+
+        return ApiResponse.of(HttpStatus.OK, "성공", pagePosts);
     }
 
     /**
      * 글 한개 조회
      */
     @GetMapping("/{blogAddress}/{postId}")
-    public PostResponseDto selectPost(@PathVariable("blogAddress") String blogAddress,
+    public ApiResponse<PostResponseDto> selectPost(@PathVariable("blogAddress") String blogAddress,
                                       @PathVariable("postId") Long postId) {
-        return postService.selectPost(blogAddress, postId);
+//        return postService.selectPost(blogAddress, postId);
+
+        return ApiResponse.of(HttpStatus.OK, "성공", postService.selectPost(blogAddress, postId));
     }
 
     /**
