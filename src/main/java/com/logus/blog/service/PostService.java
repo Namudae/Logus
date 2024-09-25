@@ -31,6 +31,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.logus.common.service.S3Service.CLOUD_FRONT_DOMAIN_NAME;
 
@@ -53,12 +55,33 @@ public class PostService {
     public Post getById(Long postId) {
         return postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
-//                .orElseThrow(PostNotFound::new);
     }
 
     //+내용 130글자까지?
     public Page<PostResponseDto> selectAllBlogPosts(String blogAddress, Pageable pageable) {
         return postRepository.selectAllBlogPosts(blogAddress, pageable);
+    }
+
+    public PostResponseDto selectPost(String blogAddress, Long postId) {
+        //게시글 조회수+
+        Post post = getById(postId);
+        post.setViews(post.getViews()+1);
+        postRepository.save(post);
+        //댓글 조회
+        List<CommentResponseDto> comments = commentService.getComments(postId);
+        //태그 조회
+        List<String> tags = tagService.selectPostTags(postId);
+
+        //+ 이전게시글, 다음게시글(전체조회 or 시리즈조회)
+
+        return new PostResponseDto(post, comments, tags);
+    }
+
+    public Page<PostResponseDto> searchBlogPosts(String blogAddress, String keyword, Pageable pageable) {
+        if(keyword == null) keyword = "";
+
+//        PageRequest pageRequest = PageRequest.of(page - 1, size, Sort.by("postId").descending());
+        return postRepository.searchBlogPosts(blogAddress, keyword, pageable);
     }
 
     @Transactional
@@ -86,14 +109,29 @@ public class PostService {
         }
 
         //Tag insert
-        if (postRequestDto.getTags() != null) {
-            //1. tag insert
-            List<Tag> tags = tagService.insertTags(postRequestDto.getTags());
-            //2. postTag insert
-            tagService.insertPostTags(savedPost, tags);
-        }
+        tagService.savePostTag(postRequestDto, savedPost);
 
         return savedPost.getId();
+    }
+
+    @Transactional
+    public Long updatePost(Long postId, PostRequestDto postRequestDto) {
+        Post post = getById(postId);
+
+        Category category = categoryService.getReferenceById(postRequestDto.getCategoryId());
+        Series series = seriesService.getReferenceById(postRequestDto.getSeriesId());
+
+        post.updatePost(category, series, postRequestDto.getTitle(), postRequestDto.getContent(), postRequestDto.getStatus());
+
+        //태그 처리 추가
+        // post_tag 삭제하고 새로 insert
+        tagService.deleteOldPostTag(postId);
+        postRepository.flush();
+        tagService.savePostTag(postRequestDto, post);
+
+        //이미지 처리 추가(주의*삭제하는 경우)
+
+        return postId;
     }
 
     private List<Attachment> moveTemporaryImages(PostRequestDto postRequestDto) {
@@ -110,7 +148,7 @@ public class PostService {
                     continue;
                 }
 
-                String oldSource = source.replace("https://" + CLOUD_FRONT_DOMAIN_NAME + "/", "");
+                String oldSource = source.replace(CLOUD_FRONT_DOMAIN_NAME + "/", "");
                 String newSource = oldSource.replace("temporary", "images");
 
                 s3Service.update(oldSource, newSource);
@@ -123,28 +161,11 @@ public class PostService {
                 attachments.add(attachment);
             }
         }
-        content = content.replace("https://" + CLOUD_FRONT_DOMAIN_NAME + "/temporary", "https://" + CLOUD_FRONT_DOMAIN_NAME + "/images");
+        content = content.replace(CLOUD_FRONT_DOMAIN_NAME + "/temporary", CLOUD_FRONT_DOMAIN_NAME + "/images");
 
         postRequestDto.setContent(content);
         return attachments;
     }
 
 
-    public PostResponseDto selectPost(String blogAddress, Long postId) {
-        //게시글 조회
-        Post post = getById(postId);
-        post.setViews(post.getViews()+1);
-        postRepository.save(post);
-        //댓글 조회
-        List<CommentResponseDto> comments = commentService.getComments(postId);
-
-        return new PostResponseDto(post, comments);
-    }
-
-    public Page<PostResponseDto> searchBlogPosts(String blogAddress, String keyword, Pageable pageable) {
-        if(keyword == null) keyword = "";
-
-//        PageRequest pageRequest = PageRequest.of(page - 1, size, Sort.by("postId").descending());
-        return postRepository.searchBlogPosts(blogAddress, keyword, pageable);
-    }
 }

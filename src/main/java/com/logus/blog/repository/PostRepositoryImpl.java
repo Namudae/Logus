@@ -2,8 +2,10 @@ package com.logus.blog.repository;
 
 import com.logus.blog.dto.PostRequestDto;
 import com.logus.blog.dto.PostResponseDto;
+import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
@@ -13,6 +15,8 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
+import static com.logus.blog.entity.QComment.comment;
+import static com.logus.blog.entity.QLikey.likey;
 import static com.logus.blog.entity.QPost.*;
 import static com.logus.member.entity.QMember.*;
 import static org.springframework.util.StringUtils.hasText;
@@ -38,7 +42,19 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                         post.title,
                         post.content,
                         post.views,
-                        post.createDate))
+                        post.createDate,
+                        ExpressionUtils.as(
+                                JPAExpressions.select(comment.count())
+                                        .from(comment)
+                                        .where(comment.post.eq(post)),
+                                "commentCount"
+                        ),
+                        ExpressionUtils.as(
+                                JPAExpressions.select(likey.count())
+                                        .from(likey)
+                                        .where(likey.post.eq(post)),
+                                "likeCount"
+                        )))
                 .from(post)
                 .join(post.member, member)
                 .where(
@@ -93,6 +109,8 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         // Page 객체 생성 및 반환
         return new PageImpl<>(results, pageable, total);
     }
+
+    //여기서 postTag까지 조회
 
     private BooleanExpression blogAddressEq(String blogAddress) {
         return hasText(blogAddress) ? post.blog.blogAddress.eq(blogAddress) : null;

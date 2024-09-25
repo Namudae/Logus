@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,8 +30,7 @@ public class PostController {
     private final PostService postService;
 
     /**
-     * 블로그의 전체게시글 조회
-     * + Pageable x
+     * 블로그의 전체게시글 조회(Pageable 없는 버전)
      */
 //    @GetMapping("/{blogAddress}/posts")
 //    public List<PostResponseDto> selectAllBlogPosts(@PathVariable("blogAddress") String blogAddress) {
@@ -44,16 +44,13 @@ public class PostController {
     @GetMapping("/{blogAddress}/posts")
     public ApiResponse<Page<PostResponseDto>> selectAllBlogPosts(@PathVariable("blogAddress") String blogAddress, Pageable pageable) {
         Page<PostResponseDto> posts = postService.selectAllBlogPosts(blogAddress, pageable);
-//        return new ResponseEntity<>(posts, HttpStatus.OK);
 
-        //커스텀(body에 status 포함)
-        return ApiResponse.of(HttpStatus.OK, posts);
+        return ApiResponse.ok(posts);
     }
 
     /**
      * 블로그 내부 검색(제목+내용)
      * + Pageable
-     * + sort 추가?
      * http://localhost:8082/blog1/search?page=0&size=10&keyword=1번째
      */
     @GetMapping("/{blogAddress}/search")
@@ -62,9 +59,7 @@ public class PostController {
                                                                  Pageable pageable) {
         Page<PostResponseDto> pagePosts = postService.searchBlogPosts(blogAddress, keyword, pageable);
 
-//        return new ResponseEntity<>(pagePosts, HttpStatus.OK);
-
-        return ApiResponse.of(HttpStatus.OK, "성공", pagePosts);
+        return ApiResponse.ok(pagePosts);
     }
 
     /**
@@ -73,9 +68,8 @@ public class PostController {
     @GetMapping("/{blogAddress}/{postId}")
     public ApiResponse<PostResponseDto> selectPost(@PathVariable("blogAddress") String blogAddress,
                                       @PathVariable("postId") Long postId) {
-//        return postService.selectPost(blogAddress, postId);
 
-        return ApiResponse.of(HttpStatus.OK, "성공", postService.selectPost(blogAddress, postId));
+        return ApiResponse.ok(postService.selectPost(blogAddress, postId));
     }
 
     /**
@@ -86,25 +80,37 @@ public class PostController {
                              @RequestBody PostRequestDto postRequestDto) {
         Long postId = postService.createPost(postRequestDto);
         return "redirect:/" + blogAddress + "/" + postId;
+//        return ApiResponse.ok(new PostResponseDto(postId));
     }
 
     /**
      * 글 등록(+사진 첨부)
      */
     @PostMapping("/{blogAddress}/post")
-    public String createPost(@PathVariable("blogAddress") String blogAddress,
+    public ApiResponse<Map<String, Long>> createPost(@PathVariable("blogAddress") String blogAddress,
                              @RequestPart("requestDto") @Valid PostRequestDto postRequestDto
 //                             @RequestPart("images") MultipartFile[] images,
 //                             @RequestPart("thumbImg") MultipartFile thumbImage
     ) throws MethodArgumentNotValidException {
 //        postRequestDto.validate();
         Long postId = postService.createPost(postRequestDto);
-        return "redirect:/" + blogAddress + "/" + postId;
+//        return "redirect:/" + blogAddress + "/" + postId;
+        return ApiResponse.ok(Map.of("postId", postId));
     }
 
     /**
      * 글 수정
+     * - 지우는 사진 어떻게할지... 프론트에서 지우는 순간 메서드 호출할수 있는지 or 수정 전후 비교?
      */
+    @PatchMapping("/{blogAddress}/post/{postId}")
+    public ApiResponse<Map<String, Long>> updatePost(@PathVariable("blogAddress") String blogAddress,
+                                                     @PathVariable("postId") Long postId,
+                                                     @RequestPart("requestDto") @Valid PostRequestDto postRequestDto
+    ) throws MethodArgumentNotValidException {
+        postService.updatePost(postId, postRequestDto);
+        return ApiResponse.ok(Map.of("postId", postId));
+    }
+
 
     /**
      * 글 삭제
@@ -115,15 +121,3 @@ public class PostController {
 
 
 }
-    //검색 참고
-//    @GetMapping("/search")
-//    public ResponseEntity searchTitle(@RequestParam(value ="title",required = false) String title,
-//                                      @RequestParam @Positive int page,
-//                                      @RequestParam @Positive int size){
-//        Page<Post> pagePosts = postService.searchByTitle(title, page, size);
-//        List<Post> questions = pagePosts.getContent();
-//
-//        //return new ResponseEntity<>(new MultiResponseDto<>(mapper.questionToQuestionResponseDtos(questions),pageQuestions), HttpStatus.OK);
-//
-//        return new ResponseEntity<>(new PostResponseDto(), HttpStatus.OK);
-//    }

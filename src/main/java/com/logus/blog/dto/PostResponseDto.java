@@ -1,6 +1,7 @@
 package com.logus.blog.dto;
 
 import com.logus.blog.entity.Post;
+import com.logus.blog.entity.Tag;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -27,7 +28,14 @@ public class PostResponseDto {
     private String content;
     private Long views;
     private LocalDateTime createDate;
+    private List<String> tags;
+    private Long likeCount;
+    private Long commentCount;
     private List<CommentResponseDto> comments;
+
+    //이전게시글&다음게시글
+    private String preTitle;
+    private String nextTitle;
 
     /* Entity -> Dto */
     public PostResponseDto(Post post) {
@@ -40,7 +48,7 @@ public class PostResponseDto {
         this.createDate = post.getCreateDate();
     }
 
-    public PostResponseDto(Post post, List<CommentResponseDto> comments) {
+    public PostResponseDto(Post post, List<CommentResponseDto> comments, List<String> tags) {
         this.postId = post.getId();
         this.memberId = post.getMember().getId();
         this.nickname = post.getMember().getNickname();
@@ -49,6 +57,11 @@ public class PostResponseDto {
         this.views = post.getViews();
         this.createDate = post.getCreateDate();
         this.comments = comments;
+        this.tags = tags;
+    }
+
+    public PostResponseDto(Long postId) {
+        this.postId = postId;
     }
 
 }

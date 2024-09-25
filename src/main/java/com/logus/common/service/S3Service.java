@@ -39,7 +39,7 @@ public class S3Service {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
-    public static final String CLOUD_FRONT_DOMAIN_NAME = "df5lnwgipj4a5.cloudfront.net";
+    public static final String CLOUD_FRONT_DOMAIN_NAME = "https://df5lnwgipj4a5.cloudfront.net";
 
     /**
      * s3 임시폴더 업로드
@@ -69,7 +69,7 @@ public class S3Service {
 
             //Url
 //            String url = amazonS3.getUrl(bucket, filepath).toString();
-            String url = "https://" + CLOUD_FRONT_DOMAIN_NAME + "/" + filepath;
+            String url = CLOUD_FRONT_DOMAIN_NAME + "/" + filepath;
 
         return AttachmentRequestDto.builder()
                 .filename(storeFileName)

@@ -19,6 +19,15 @@ public class TagService {
     private final TagRepository tagRepository;
     private final PostTagRepository postTagRepository;
 
+    public void savePostTag(PostRequestDto postRequestDto, Post savedPost) {
+        if (postRequestDto.getTags() != null) {
+            //1. tag insert
+            List<Tag> tags = insertTags(postRequestDto.getTags());
+            //2. postTag insert
+            insertPostTags(savedPost, tags);
+        }
+    }
+
     public List<Tag> insertTags(List<String> tagNames) {
         List<Tag> tags = new ArrayList<>();
 
@@ -45,6 +54,14 @@ public class TagService {
                     .build();
             postTagRepository.save(postTag);
         }
+    }
+
+    public void deleteOldPostTag(Long postId) {
+        postTagRepository.deleteAllByPostId(postId);
+    }
+
+    public List<String> selectPostTags(Long postId) {
+        return postTagRepository.selectPostTag(postId);
     }
 
 }

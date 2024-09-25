@@ -17,7 +17,6 @@ public class MemberService {
     public Member getById(Long memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-//                .orElseThrow(() -> new IllegalArgumentException("USER NOT FOUND"));
         return member;
     }
 

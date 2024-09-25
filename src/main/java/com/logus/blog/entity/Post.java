@@ -57,20 +57,6 @@ public class Post extends BaseTime {
     @Column(length = 20, columnDefinition = "varchar(20)")
     private Status status;
 
-    public Post(String title, String content, Member member) {
-        this.title = title;
-        this.content = content;
-        this.member = member; //양방향 연관관계X
-    }
-
-    //default
-    @PrePersist
-    public void prePersist() {
-        if (this.views == null) {
-            this.views = 0L;
-        }
-    }
-
     //양방향 연관관계
     @OneToMany(mappedBy = "post")
     private List<Comment> comments = new ArrayList<>();
@@ -82,8 +68,34 @@ public class Post extends BaseTime {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Attachment> attachments = new ArrayList<>();
 
+
+    //default
+    @PrePersist
+    public void prePersist() {
+        if (this.views == null) {
+            this.views = 0L;
+        }
+    }
+
+    //임시
+    public Post(String title, String content, Member member) {
+        this.title = title;
+        this.content = content;
+        this.member = member; //양방향 연관관계X
+    }
+
     public void setViews(Long views) {
         this.views = views;
+    }
+
+    //==비즈니스 로직==//
+    //게시글 수정
+    public void updatePost(Category category, Series series, String title, String content, Status status) {
+        this.category = category;
+        this.series = series;
+        this.title = title;
+        this.content = content;
+        this.status = status;
     }
 
     //    @OneToMany(mappedBy = "post")

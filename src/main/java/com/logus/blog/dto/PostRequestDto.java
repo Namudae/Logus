@@ -4,6 +4,7 @@ import com.logus.blog.entity.*;
 import com.logus.member.entity.Member;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.util.List;
@@ -16,15 +17,21 @@ import java.util.List;
 public class PostRequestDto {
 
         private Long postId;
+
         private Long memberId;
+
         private Long blogId;
+
         private Long categoryId;
+
         private Long seriesId;
 
         @NotBlank(message = "제목을 입력하세요.")
+        @Size(max=100, message = "제목의 최대 글자수는 100자입니다.")
         private String title;
 
         @NotBlank(message = "내용을 입력하세요.")
+        @Size(max=10000, message = "본문의 최대 글자수는 10000자입니다.")
         private String content;
 
         private Status status;
@@ -37,6 +44,17 @@ public class PostRequestDto {
                     .id(postId)
                     .member(member)
                     .blog(blog)
+                    .category(category)
+                    .series(series)
+                    .title(title)
+                    .content(content)
+                    .status(status)
+                    .build();
+        }
+
+        public Post toEntity(Category category, Series series) {
+            return Post.builder()
+                    .id(postId)
                     .category(category)
                     .series(series)
                     .title(title)
