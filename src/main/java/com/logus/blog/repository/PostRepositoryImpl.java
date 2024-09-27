@@ -52,6 +52,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                         post.imgUrl,
                         post.views,
                         post.status,
+                        post.reportStatus,
                         post.createDate,
                         ExpressionUtils.as(
                                 JPAExpressions.select(comment.count())
@@ -91,6 +92,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                         post.imgUrl,
                         post.views,
                         post.status,
+                        post.reportStatus,
                         post.createDate,
                         ExpressionUtils.as(
                                 JPAExpressions.select(comment.count())

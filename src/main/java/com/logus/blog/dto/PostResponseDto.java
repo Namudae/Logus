@@ -1,6 +1,7 @@
 package com.logus.blog.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.logus.admin.entity.ReportStatus;
 import com.logus.blog.entity.Post;
 import com.logus.blog.entity.Status;
 import com.logus.blog.entity.Tag;
@@ -34,6 +35,7 @@ public class PostResponseDto {
     private String content;
     private Long views;
     private Status status;
+    private ReportStatus reportStatus;
     @JsonFormat(shape= JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createDate;
     private List<String> tags;

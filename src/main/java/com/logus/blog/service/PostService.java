@@ -16,6 +16,7 @@ import com.logus.common.service.S3Service;
 import com.logus.member.entity.Member;
 import com.logus.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.text.StringEscapeUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -67,6 +68,16 @@ public class PostService {
                     if (imgUrl != null) {
                         dto.setImgUrl(CLOUD_FRONT_DOMAIN_NAME + "/" + imgUrl);
                     }
+
+                    // content 앞 130자만 가져오기
+                    //html태그 포함인 경우...
+//                    String content = dto.getContent();
+//                    String textContent = Jsoup.parse(content).text();
+//
+//                    if (textContent != null && textContent.length() > 130) {
+//                        dto.setContent(textContent.substring(0, 130));
+//                    }
+
                     // tags 설정
                     List<String> tags = tagService.selectPostTags(dto.getPostId());
                     dto.setTags(tags);
