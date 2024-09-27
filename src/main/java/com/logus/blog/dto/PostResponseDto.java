@@ -1,5 +1,6 @@
 package com.logus.blog.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.logus.blog.entity.Post;
 import com.logus.blog.entity.Tag;
 import lombok.*;
@@ -27,6 +28,7 @@ public class PostResponseDto {
     private String title;
     private String content;
     private Long views;
+    @JsonFormat(shape= JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createDate;
     private List<String> tags;
     private Long likeCount;
