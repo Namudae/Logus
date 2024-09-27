@@ -60,13 +60,17 @@ public class PostService {
     public Page<PostListResponseDto> selectAllBlogPosts(String blogAddress, Pageable pageable) {
         Page<PostListResponseDto> posts = postRepository.selectAllBlogPosts(blogAddress, pageable);
 
-        //imgUrl에 CLOUD_FRONT 추가
         List<PostListResponseDto> newPosts = posts.stream()
                 .map(dto -> {
+                    //imgUrl 처리
                     String imgUrl = dto.getImgUrl();
                     if (imgUrl != null) {
                         dto.setImgUrl(CLOUD_FRONT_DOMAIN_NAME + "/" + imgUrl);
                     }
+                    // tags 설정
+                    List<String> tags = tagService.selectPostTags(dto.getPostId());
+                    dto.setTags(tags);
+
                     return dto;
                 })
                 .toList();
@@ -111,7 +115,10 @@ public class PostService {
         List<Attachment> attachments = moveTemporaryImages(postRequestDto);
 
         //썸네일 업로드
-        String thumbUrl = s3Service.thumbUpload(thumbImage);
+        String thumbUrl = null;
+        if (thumbImage != null) {
+            thumbUrl = s3Service.thumbUpload(thumbImage);
+        }
 
         Post post = postRequestDto.toEntity(member, blog, category, series, thumbUrl);
 

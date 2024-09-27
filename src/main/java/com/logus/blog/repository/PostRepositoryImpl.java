@@ -16,9 +16,11 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
+import static com.logus.blog.entity.QCategory.category;
 import static com.logus.blog.entity.QComment.comment;
 import static com.logus.blog.entity.QLikey.likey;
 import static com.logus.blog.entity.QPost.*;
+import static com.logus.blog.entity.QSeries.series;
 import static com.logus.member.entity.QMember.*;
 import static org.springframework.util.StringUtils.hasText;
 
@@ -39,6 +41,10 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .select(Projections.fields(PostListResponseDto.class,
                         member.id.as("memberId"),
                         member.nickname,
+                        category.id.as("categoryId"),
+                        category.categoryName,
+                        series.id.as("seriesId"),
+                        series.seriesName,
                         post.id.as("postId"),
                         post.title,
                         post.content,
@@ -59,6 +65,8 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                         )))
                 .from(post)
                 .join(post.member, member)
+                .leftJoin(post.category, category)
+                .leftJoin(post.series, series)
                 .where(
                         blogAddressEq(blogAddress)
                 );

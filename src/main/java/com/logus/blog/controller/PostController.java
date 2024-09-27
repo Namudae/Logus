@@ -91,9 +91,9 @@ public class PostController {
     @PostMapping("/{blogAddress}/post")
     public ApiResponse<Map<String, Long>> createPost(@PathVariable("blogAddress") String blogAddress,
                              @RequestPart("requestDto") @Valid PostRequestDto postRequestDto,
-                             @RequestPart("thumbImg") MultipartFile thumbImage
+                             @RequestPart(value = "thumbImg", required = false) MultipartFile thumbImg
     ) throws MethodArgumentNotValidException, IOException {
-        Long postId = postService.createPost(postRequestDto, thumbImage);
+        Long postId = postService.createPost(postRequestDto, thumbImg);
         return ApiResponse.ok(Map.of("postId", postId));
     }
 
