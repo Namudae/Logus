@@ -2,7 +2,6 @@ package com.logus.common.controller;
 
 import com.logus.common.dto.AttachmentRequestDto;
 import com.logus.common.entity.AttachmentType;
-import com.logus.common.service.AttachmentService;
 import com.logus.common.service.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -10,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -40,8 +38,7 @@ public class AttachmentController {
         AttachmentRequestDto imageDto = null;
         String imgPath = "";
         try {
-            imageDto = s3Service.upload(image);
-//            logger.info("File stored successfully with filename: {}", imageDto.getFilename());
+            imageDto = s3Service.tempUpload(image);
         }  catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }

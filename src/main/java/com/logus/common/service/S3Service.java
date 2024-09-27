@@ -2,16 +2,12 @@ package com.logus.common.service;
 
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.SdkClientException;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.logus.common.dto.AttachmentRequestDto;
 import com.logus.common.entity.AttachmentType;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,7 +40,7 @@ public class S3Service {
     /**
      * s3 임시폴더 업로드
      */
-    public AttachmentRequestDto upload(MultipartFile file) throws IOException {
+    public AttachmentRequestDto tempUpload(MultipartFile file) throws IOException {
         String storeFileName;
         try {
             String originalFilename = file.getOriginalFilename();
@@ -78,6 +74,41 @@ public class S3Service {
                 .width(width)
                 .height(height)
                 .build();
+
+        } catch (AmazonServiceException e) {
+            log.error("AWS 서비스 오류: {}", e.getMessage());
+            throw new IllegalStateException("파일 업로드에 실패했습니다.");
+        } catch (SdkClientException e) {
+            log.error("AWS 클라이언트 오류: {}", e.getMessage());
+            throw new IllegalStateException("파일 업로드 중 문제가 발생했습니다.");
+        }
+    }
+
+    /**
+     * S3 썸네일 업로드
+     */
+    public String thumbUpload(MultipartFile file) throws IOException {
+        String storeFileName;
+        try {
+            String originalFilename = file.getOriginalFilename();
+            storeFileName = createStoreFileName(originalFilename);
+            String filepath = createPath(storeFileName, AttachmentType.THUMB);
+
+            //이미지 가로세로 크기
+            int width = 0, height = 0;
+            String contentType = file.getContentType();
+
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentType(contentType);
+            metadata.setContentLength(file.getSize());
+
+            amazonS3.putObject(new PutObjectRequest(bucket, filepath, file.getInputStream(), metadata)
+                    .withCannedAcl(CannedAccessControlList.PublicRead));
+
+            //Url
+//            String url = amazonS3.getUrl(bucket, filepath).toString();
+            String url = CLOUD_FRONT_DOMAIN_NAME + "/" + filepath;
+            return filepath;
 
         } catch (AmazonServiceException e) {
             log.error("AWS 서비스 오류: {}", e.getMessage());
@@ -166,6 +197,8 @@ public class S3Service {
             viaPath = "images/";
         } else if (attachmentType == AttachmentType.TEMP) {
             viaPath = "temporary/";
+        } else if (attachmentType == AttachmentType.THUMB) {
+            viaPath = "thumbnail/";
         } else if (attachmentType == AttachmentType.PROFILE) {
             viaPath = "profiles/";
         } else if (attachmentType == AttachmentType.VIDEO) {

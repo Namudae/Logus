@@ -1,5 +1,6 @@
 package com.logus.blog.repository;
 
+import com.logus.blog.dto.PostListResponseDto;
 import com.logus.blog.dto.PostRequestDto;
 import com.logus.blog.dto.PostResponseDto;
 import com.querydsl.core.types.ExpressionUtils;
@@ -33,14 +34,15 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     /**
      * 블로그 내 모든 포스트 조회
      */
-    public Page<PostResponseDto> selectAllBlogPosts(String blogAddress, Pageable pageable) {
-        JPAQuery<PostResponseDto> query = jpaQueryFactory
-                .select(Projections.fields(PostResponseDto.class,
+    public Page<PostListResponseDto> selectAllBlogPosts(String blogAddress, Pageable pageable) {
+        JPAQuery<PostListResponseDto> query = jpaQueryFactory
+                .select(Projections.fields(PostListResponseDto.class,
                         member.id.as("memberId"),
                         member.nickname,
                         post.id.as("postId"),
                         post.title,
                         post.content,
+                        post.imgUrl,
                         post.views,
                         post.createDate,
                         ExpressionUtils.as(
@@ -65,7 +67,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         long total = query.fetchCount();
 
         // 페이지에 맞는 결과 조회
-        List<PostResponseDto> results = query
+        List<PostListResponseDto> results = query
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -78,14 +80,15 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     /**
      * 블로그 내 검색
      */
-    public Page<PostResponseDto> searchBlogPosts(String blogAddress, String keyword, Pageable pageable) {
-        JPAQuery<PostResponseDto> query = jpaQueryFactory
-                .select(Projections.fields(PostResponseDto.class,
+    public Page<PostListResponseDto> searchBlogPosts(String blogAddress, String keyword, Pageable pageable) {
+        JPAQuery<PostListResponseDto> query = jpaQueryFactory
+                .select(Projections.fields(PostListResponseDto.class,
                         member.id.as("memberId"),
                         member.nickname,
                         post.id.as("postId"),
                         post.title,
                         post.content,
+                        post.imgUrl,
                         post.views,
                         post.createDate))
                 .from(post)
@@ -101,7 +104,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         long total = query.fetchCount();
 
         // 페이지에 맞는 결과 조회
-        List<PostResponseDto> results = query
+        List<PostListResponseDto> results = query
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();

@@ -1,6 +1,7 @@
 package com.logus.blog.service;
 
 import com.logus.blog.dto.CommentResponseDto;
+import com.logus.blog.dto.PostListResponseDto;
 import com.logus.blog.dto.PostRequestDto;
 import com.logus.blog.dto.PostResponseDto;
 import com.logus.blog.entity.*;
@@ -21,14 +22,12 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -58,8 +57,22 @@ public class PostService {
     }
 
     //+내용 130글자까지?
-    public Page<PostResponseDto> selectAllBlogPosts(String blogAddress, Pageable pageable) {
-        return postRepository.selectAllBlogPosts(blogAddress, pageable);
+    public Page<PostListResponseDto> selectAllBlogPosts(String blogAddress, Pageable pageable) {
+        Page<PostListResponseDto> posts = postRepository.selectAllBlogPosts(blogAddress, pageable);
+
+        //imgUrl에 CLOUD_FRONT 추가
+        List<PostListResponseDto> newPosts = posts.stream()
+                .map(dto -> {
+                    String imgUrl = dto.getImgUrl();
+                    if (imgUrl != null) {
+                        dto.setImgUrl(CLOUD_FRONT_DOMAIN_NAME + "/" + imgUrl);
+                    }
+                    return dto;
+                })
+                .toList();
+
+        return new PageImpl<>(newPosts, pageable, posts.getTotalElements());
+//        return postRepository.selectAllBlogPosts(blogAddress, pageable);
     }
 
     public PostResponseDto selectPost(String blogAddress, Long postId) {
@@ -77,7 +90,7 @@ public class PostService {
         return new PostResponseDto(post, comments, tags);
     }
 
-    public Page<PostResponseDto> searchBlogPosts(String blogAddress, String keyword, Pageable pageable) {
+    public Page<PostListResponseDto> searchBlogPosts(String blogAddress, String keyword, Pageable pageable) {
         if(keyword == null) keyword = "";
 
 //        PageRequest pageRequest = PageRequest.of(page - 1, size, Sort.by("postId").descending());
@@ -85,7 +98,7 @@ public class PostService {
     }
 
     @Transactional
-    public Long createPost(PostRequestDto postRequestDto) {
+    public Long createPost(PostRequestDto postRequestDto, MultipartFile thumbImage) throws IOException {
 
         //1. findById > select로 인한 성능저하
         //2. getReferenceById > 데이터 검증x ***
@@ -97,7 +110,10 @@ public class PostService {
         //임시폴더 이미지 images 폴더로
         List<Attachment> attachments = moveTemporaryImages(postRequestDto);
 
-        Post post = postRequestDto.toEntity(member, blog, category, series);
+        //썸네일 업로드
+        String thumbUrl = s3Service.thumbUpload(thumbImage);
+
+        Post post = postRequestDto.toEntity(member, blog, category, series, thumbUrl);
 
         //Post insert
         Post savedPost = postRepository.save(post);

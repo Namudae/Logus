@@ -1,5 +1,6 @@
 package com.logus.blog.controller;
 
+import com.logus.blog.dto.PostListResponseDto;
 import com.logus.blog.dto.PostRequestDto;
 import com.logus.blog.dto.PostResponseDto;
 import com.logus.blog.entity.Post;
@@ -42,8 +43,8 @@ public class PostController {
      * + Pageable
      */
     @GetMapping("/{blogAddress}/posts")
-    public ApiResponse<Page<PostResponseDto>> selectAllBlogPosts(@PathVariable("blogAddress") String blogAddress, Pageable pageable) {
-        Page<PostResponseDto> posts = postService.selectAllBlogPosts(blogAddress, pageable);
+    public ApiResponse<Page<PostListResponseDto>> selectAllBlogPosts(@PathVariable("blogAddress") String blogAddress, Pageable pageable) {
+        Page<PostListResponseDto> posts = postService.selectAllBlogPosts(blogAddress, pageable);
 
         return ApiResponse.ok(posts);
     }
@@ -54,10 +55,10 @@ public class PostController {
      * http://localhost:8082/blog1/search?page=0&size=10&keyword=1번째
      */
     @GetMapping("/{blogAddress}/search")
-    public ApiResponse<Page<PostResponseDto>> searchBlogPosts(@PathVariable("blogAddress") String blogAddress,
+    public ApiResponse<Page<PostListResponseDto>> searchBlogPosts(@PathVariable("blogAddress") String blogAddress,
                                                                  @RequestParam(value="keyword", required = false) String keyword,
                                                                  Pageable pageable) {
-        Page<PostResponseDto> pagePosts = postService.searchBlogPosts(blogAddress, keyword, pageable);
+        Page<PostListResponseDto> pagePosts = postService.searchBlogPosts(blogAddress, keyword, pageable);
 
         return ApiResponse.ok(pagePosts);
     }
@@ -75,26 +76,24 @@ public class PostController {
     /**
      * 글 등록(임시)
      */
-    @PostMapping("/{blogAddress}/postv1")
-    public String createPostV1(@PathVariable("blogAddress") String blogAddress,
-                             @RequestBody PostRequestDto postRequestDto) {
-        Long postId = postService.createPost(postRequestDto);
-        return "redirect:/" + blogAddress + "/" + postId;
-//        return ApiResponse.ok(new PostResponseDto(postId));
-    }
+//    @PostMapping("/{blogAddress}/postv1")
+//    public String createPostV1(@PathVariable("blogAddress") String blogAddress,
+//                             @RequestBody PostRequestDto postRequestDto) {
+//        Long postId = postService.createPost(postRequestDto, null);
+//        return "redirect:/" + blogAddress + "/" + postId;
+////        return ApiResponse.ok(new PostResponseDto(postId));
+//    }
 
     /**
      * 글 등록(+사진 첨부)
+     * + 썸네일 작업중
      */
     @PostMapping("/{blogAddress}/post")
     public ApiResponse<Map<String, Long>> createPost(@PathVariable("blogAddress") String blogAddress,
-                             @RequestPart("requestDto") @Valid PostRequestDto postRequestDto
-//                             @RequestPart("images") MultipartFile[] images,
-//                             @RequestPart("thumbImg") MultipartFile thumbImage
-    ) throws MethodArgumentNotValidException {
-//        postRequestDto.validate();
-        Long postId = postService.createPost(postRequestDto);
-//        return "redirect:/" + blogAddress + "/" + postId;
+                             @RequestPart("requestDto") @Valid PostRequestDto postRequestDto,
+                             @RequestPart("thumbImg") MultipartFile thumbImage
+    ) throws MethodArgumentNotValidException, IOException {
+        Long postId = postService.createPost(postRequestDto, thumbImage);
         return ApiResponse.ok(Map.of("postId", postId));
     }
 

@@ -47,7 +47,7 @@ public class Post extends BaseTime {
 
     private Long views;
 
-    private String img_url;
+    private String imgUrl;
 
     @Enumerated(EnumType.STRING)
     @Column(length = 20, columnDefinition = "varchar(20)")
