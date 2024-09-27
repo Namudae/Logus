@@ -18,7 +18,7 @@ public class CommentRequestDto {
     private Long commentId;
     private Long memberId;
     private Long postId;
-    private Comment parent;
+    private Long parentId;
     private Byte depth;
     private String content;
     private Status status;
@@ -26,7 +26,7 @@ public class CommentRequestDto {
     /*
     Dto -> toEntity
      */
-    public Comment toEntity(Member member, Post post) {
+    public Comment toEntity(Member member, Post post, Comment parent) {
         return Comment.builder()
                 .id(commentId)
                 .member(member)

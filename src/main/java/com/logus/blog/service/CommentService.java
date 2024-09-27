@@ -25,11 +25,11 @@ public class CommentService {
 
     public Long createComment(CommentRequestDto commentRequestDto) {
 
-        Member member = memberService.getById(commentRequestDto.getMemberId());
-        Post post = postRepository.findById(commentRequestDto.getPostId())
-                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+        Member member = memberService.getReferenceById(commentRequestDto.getMemberId());
+        Post post = postRepository.getReferenceById(commentRequestDto.getPostId());
+        Comment parent = commentRepository.getReferenceById(commentRequestDto.getParentId());
 
-        Comment comment = commentRequestDto.toEntity(member, post);
+        Comment comment = commentRequestDto.toEntity(member, post, parent);
         commentRepository.save(comment);
 
         return comment.getId();
