@@ -2,6 +2,7 @@ package com.logus.blog.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.logus.blog.entity.Post;
+import com.logus.blog.entity.Status;
 import com.logus.blog.entity.Tag;
 import lombok.*;
 
@@ -25,9 +26,14 @@ public class PostResponseDto {
     private Long postId;
     private Long memberId;
     private String nickname;
+    private Long categoryId;
+    private String categoryName;
+    private Long seriesId;
+    private String seriesName;
     private String title;
     private String content;
     private Long views;
+    private Status status;
     @JsonFormat(shape= JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createDate;
     private List<String> tags;
@@ -47,6 +53,7 @@ public class PostResponseDto {
         this.title = post.getTitle();
         this.content = post.getContent();
         this.views = post.getViews();
+        this.status = post.getStatus();
         this.createDate = post.getCreateDate();
     }
 
@@ -57,7 +64,13 @@ public class PostResponseDto {
         this.title = post.getTitle();
         this.content = post.getContent();
         this.views = post.getViews();
+        this.status = post.getStatus();
         this.createDate = post.getCreateDate();
+        this.comments = comments;
+        this.tags = tags;
+    }
+
+    public PostResponseDto(List<CommentResponseDto> comments, List<String> tags) {
         this.comments = comments;
         this.tags = tags;
     }

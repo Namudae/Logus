@@ -13,7 +13,6 @@ public interface PostRepositoryCustom {
     Page<PostListResponseDto> selectAllBlogPosts(String blogAddress, Pageable pageable);
 
     Page<PostListResponseDto> searchBlogPosts(String blogAddress, String keyword, Pageable pageable);
-//    List<Post> findByContentContaining(Long id);
 
-//    Long createPost(PostRequestDto postRequestDto);
+    PostResponseDto selectPost(Long postId);
 }

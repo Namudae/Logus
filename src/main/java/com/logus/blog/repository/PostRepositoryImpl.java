@@ -34,6 +34,46 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     }
 
     /**
+     * 단건 조회
+     */
+    @Override
+    public PostResponseDto selectPost(Long postId) {
+        return jpaQueryFactory
+                .select(Projections.fields(PostResponseDto.class,
+                        member.id.as("memberId"),
+                        member.nickname,
+                        category.id.as("categoryId"),
+                        category.categoryName,
+                        series.id.as("seriesId"),
+                        series.seriesName,
+                        post.id.as("postId"),
+                        post.title,
+                        post.content,
+                        post.imgUrl,
+                        post.views,
+                        post.status,
+                        post.createDate,
+                        ExpressionUtils.as(
+                                JPAExpressions.select(comment.count())
+                                        .from(comment)
+                                        .where(comment.post.eq(post)),
+                                "commentCount"
+                        ),
+                        ExpressionUtils.as(
+                                JPAExpressions.select(likey.count())
+                                        .from(likey)
+                                        .where(likey.post.eq(post)),
+                                "likeCount"
+                        )))
+                .from(post)
+                .join(post.member, member)
+                .leftJoin(post.category, category)
+                .leftJoin(post.series, series)
+                .where(post.id.eq(postId))
+                .fetchOne();
+    }
+
+    /**
      * 블로그 내 모든 포스트 조회
      */
     public Page<PostListResponseDto> selectAllBlogPosts(String blogAddress, Pageable pageable) {
@@ -50,6 +90,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                         post.content,
                         post.imgUrl,
                         post.views,
+                        post.status,
                         post.createDate,
                         ExpressionUtils.as(
                                 JPAExpressions.select(comment.count())

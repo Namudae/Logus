@@ -82,6 +82,8 @@ public class PostService {
     public PostResponseDto selectPost(String blogAddress, Long postId) {
         //게시글 조회수+
         Post post = getById(postId);
+        PostResponseDto dto = postRepository.selectPost(postId);
+
         post.setViews(post.getViews()+1);
         postRepository.save(post);
         //댓글 조회
@@ -91,7 +93,10 @@ public class PostService {
 
         //+ 이전게시글, 다음게시글(전체조회 or 시리즈조회)
 
-        return new PostResponseDto(post, comments, tags);
+        dto.setComments(comments);
+        dto.setTags(tags);
+        return dto;
+//        return new PostResponseDto(post, comments, tags);
     }
 
     public Page<PostListResponseDto> searchBlogPosts(String blogAddress, String keyword, Pageable pageable) {
