@@ -20,7 +20,7 @@ public class Series {
     @Column(length = 100)
     private String seriesName;
 
-    private Byte sriesOrder;
+    private Byte seriesOrder;
 
     private String imgUrl;
 
