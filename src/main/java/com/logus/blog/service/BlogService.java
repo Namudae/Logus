@@ -1,12 +1,15 @@
 package com.logus.blog.service;
 
 import com.logus.blog.dto.BlogMemberRequestDto;
+import com.logus.blog.dto.BlogMemberResponseDto;
 import com.logus.blog.dto.BlogRequestDto;
 import com.logus.blog.dto.BlogResponseDto;
 import com.logus.blog.entity.Blog;
 import com.logus.blog.entity.BlogMember;
+import com.logus.blog.entity.Series;
 import com.logus.blog.repository.BlogMemberRepository;
 import com.logus.blog.repository.BlogRepository;
+import com.logus.blog.repository.SeriesRepository;
 import com.logus.common.exception.CustomException;
 import com.logus.common.exception.ErrorCode;
 import com.logus.member.entity.Member;
@@ -23,6 +26,7 @@ public class BlogService {
 
     private final BlogRepository blogRepository;
     private final BlogMemberRepository blogMemberRepository;
+    private final SeriesRepository seriesRepository;
     private final MemberService memberService;
 
     public Blog getById(Long blogId) {
@@ -55,4 +59,14 @@ public class BlogService {
         }
     }
 
+    public BlogResponseDto selectBlogInfo(String blogAddress) {
+        //블로그, 블로그멤버, 시리즈 따로따로
+        Blog blog = blogRepository.findByBlogAddress(blogAddress);
+        List<BlogMemberResponseDto> blogMembers = blogMemberRepository.findByBlogId(blog.getId());
+        List<String> seriesName = seriesRepository.findByBlogId(blog.getId()).stream()
+                .map(Series::getSeriesName)
+                .toList();
+
+        return null;
+    }
 }

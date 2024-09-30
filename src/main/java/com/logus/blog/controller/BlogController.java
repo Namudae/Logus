@@ -1,18 +1,12 @@
 package com.logus.blog.controller;
 
+import com.logus.blog.dto.BlogMemberResponseDto;
 import com.logus.blog.dto.BlogRequestDto;
 import com.logus.blog.dto.BlogResponseDto;
-import com.logus.blog.entity.Blog;
-import com.logus.blog.repository.BlogRepository;
 import com.logus.blog.service.BlogService;
 import com.logus.common.controller.ApiResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -25,6 +19,12 @@ public class BlogController {
     /**
      * 블로그 정보 조회
      */
+    @GetMapping("/{blogAddress}/info")
+    public ApiResponse<BlogResponseDto> blogInfo(@PathVariable("blogAddress") String blogAddress) {
+        BlogResponseDto dto = blogService.selectBlogInfo(blogAddress);
+
+        return ApiResponse.ok(dto);
+    }
 
     /**
      * 블로그 등록
