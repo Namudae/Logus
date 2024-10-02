@@ -3,7 +3,6 @@ package com.logus.blog.service;
 import com.logus.blog.dto.*;
 import com.logus.blog.entity.Blog;
 import com.logus.blog.entity.BlogMember;
-import com.logus.blog.entity.Series;
 import com.logus.blog.repository.BlogMemberRepository;
 import com.logus.blog.repository.BlogRepository;
 import com.logus.blog.repository.SeriesRepository;
@@ -59,13 +58,20 @@ public class BlogService {
     public BlogResponseDto selectBlogInfo(Long blogId) {
         //블로그, 블로그멤버, 시리즈 따로따로
         Blog blog = getById(blogId);
-        List<SeriesResponseDto> series = seriesRepository.findByBlogIdOrderBySeriesOrder(blog.getId()).stream()
-                .map(s -> new SeriesResponseDto(s.getId(), s.getSeriesName()))
+        List<SeriesDto> series = seriesRepository.findByBlogIdOrderBySeriesOrder(blog.getId()).stream()
+                .map(SeriesDto::new)
                 .toList();
         List<BlogMemberResponseDto> blogMembers = blogMemberRepository.findByBlogId(blog.getId()).stream()
                 .map(BlogMemberResponseDto::fromEntity)
                 .toList();
 
         return new BlogResponseDto(blog, blogMembers, series);
+    }
+
+    public List<SeriesResponseDto> selectSeries(Long blogId) {
+        Blog blog = getById(blogId);
+        return seriesRepository.findByBlogIdOrderBySeriesOrder(blog.getId()).stream()
+                .map(SeriesResponseDto::new)
+                .toList();
     }
 }

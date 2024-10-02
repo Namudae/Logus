@@ -3,11 +3,13 @@ package com.logus.blog.controller;
 import com.logus.blog.dto.BlogMemberResponseDto;
 import com.logus.blog.dto.BlogRequestDto;
 import com.logus.blog.dto.BlogResponseDto;
+import com.logus.blog.dto.SeriesResponseDto;
 import com.logus.blog.service.BlogService;
 import com.logus.common.controller.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -35,5 +37,14 @@ public class BlogController {
         return ApiResponse.ok(Map.of("blogId", blogId));
     }
 
+    /**
+     * 시리즈 조회
+     */
+    @GetMapping("/series")
+    public ApiResponse<List<SeriesResponseDto>> selectSeries(@RequestParam("blogId") Long blogId) {
+        List<SeriesResponseDto> series = blogService.selectSeries(blogId);
+
+        return ApiResponse.ok(series);
+    }
 
 }

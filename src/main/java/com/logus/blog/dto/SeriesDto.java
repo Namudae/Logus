@@ -8,16 +8,12 @@ import lombok.*;
 @Getter
 @Data
 @Builder
-public class SeriesResponseDto {
+public class SeriesDto {
     private Long seriesId;
     private String seriesName;
-    private Byte seriesOrder;
-    private String imgUrl;
 
-    public SeriesResponseDto(Series series) {
+    public SeriesDto(Series series) {
         this.seriesId = series.getId();
         this.seriesName = series.getSeriesName();
-        this.seriesOrder = series.getSeriesOrder();
-        this.imgUrl = series.getImgUrl();
     }
 }

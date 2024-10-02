@@ -17,9 +17,9 @@ public class BlogResponseDto {
     private String introduce;
     private String shareYn;
     private List<BlogMemberResponseDto> members;
-    private List<SeriesResponseDto> series;
+    private List<SeriesDto> series;
 
-    public BlogResponseDto(Blog blog, List<BlogMemberResponseDto> blogMembers, List<SeriesResponseDto> series) {
+    public BlogResponseDto(Blog blog, List<BlogMemberResponseDto> blogMembers, List<SeriesDto> series) {
         this.blogName = blog.getBlogName();
         this.blogAddress = blog.getBlogAddress();
         this.introduce = blog.getIntroduce();
