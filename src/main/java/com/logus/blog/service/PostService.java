@@ -58,8 +58,8 @@ public class PostService {
     }
 
     //+내용 130글자까지?
-    public Page<PostListResponseDto> selectAllBlogPosts(Long blogId, Pageable pageable) {
-        Page<PostListResponseDto> posts = postRepository.selectAllBlogPosts(blogId, pageable);
+    public Page<PostListResponseDto> selectAllBlogPosts(Long blogId, Long seriesId, Pageable pageable) {
+        Page<PostListResponseDto> posts = postRepository.selectAllBlogPosts(blogId, seriesId, pageable);
 
         List<PostListResponseDto> newPosts = posts.stream()
                 .map(dto -> {

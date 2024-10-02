@@ -77,7 +77,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     /**
      * 블로그 내 모든 포스트 조회
      */
-    public Page<PostListResponseDto> selectAllBlogPosts(Long blogId, Pageable pageable) {
+    public Page<PostListResponseDto> selectAllBlogPosts(Long blogId, Long seriesId, Pageable pageable) {
         JPAQuery<PostListResponseDto> query = jpaQueryFactory
                 .select(Projections.fields(PostListResponseDto.class,
                         member.id.as("memberId"),
@@ -111,8 +111,8 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .leftJoin(post.category, category)
                 .leftJoin(post.series, series)
                 .where(
-//                        blogAddressEq(blogAddress)
-                        post.blog.id.eq(blogId)
+                        post.blog.id.eq(blogId),
+                        post.series.id.eq(seriesId)
                 );
 
         // 총 결과 수 조회

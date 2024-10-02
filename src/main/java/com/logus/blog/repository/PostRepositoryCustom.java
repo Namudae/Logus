@@ -10,7 +10,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface PostRepositoryCustom {
-    Page<PostListResponseDto> selectAllBlogPosts(Long blogId, Pageable pageable);
+    Page<PostListResponseDto> selectAllBlogPosts(Long blogId, Long seriesId, Pageable pageable);
 
     Page<PostListResponseDto> searchBlogPosts(Long blogId, String keyword, Pageable pageable);
 
