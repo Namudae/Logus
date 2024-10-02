@@ -8,5 +8,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface BlogMemberRepository extends JpaRepository<BlogMember, Long> {
-    List<BlogMemberResponseDto> findByBlogId(Long blogId);
+    List<BlogMember> findByBlogId(Long blogId);
 }

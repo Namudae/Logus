@@ -1,9 +1,6 @@
 package com.logus.blog.service;
 
-import com.logus.blog.dto.BlogMemberRequestDto;
-import com.logus.blog.dto.BlogMemberResponseDto;
-import com.logus.blog.dto.BlogRequestDto;
-import com.logus.blog.dto.BlogResponseDto;
+import com.logus.blog.dto.*;
 import com.logus.blog.entity.Blog;
 import com.logus.blog.entity.BlogMember;
 import com.logus.blog.entity.Series;
@@ -59,14 +56,16 @@ public class BlogService {
         }
     }
 
-    public BlogResponseDto selectBlogInfo(String blogAddress) {
+    public BlogResponseDto selectBlogInfo(Long blogId) {
         //블로그, 블로그멤버, 시리즈 따로따로
-        Blog blog = blogRepository.findByBlogAddress(blogAddress);
-        List<BlogMemberResponseDto> blogMembers = blogMemberRepository.findByBlogId(blog.getId());
-        List<String> seriesName = seriesRepository.findByBlogId(blog.getId()).stream()
-                .map(Series::getSeriesName)
+        Blog blog = getById(blogId);
+        List<SeriesResponseDto> series = seriesRepository.findByBlogIdOrderBySeriesOrder(blog.getId()).stream()
+                .map(s -> new SeriesResponseDto(s.getId(), s.getSeriesName()))
+                .toList();
+        List<BlogMemberResponseDto> blogMembers = blogMemberRepository.findByBlogId(blog.getId()).stream()
+                .map(BlogMemberResponseDto::fromEntity)
                 .toList();
 
-        return null;
+        return new BlogResponseDto(blog, blogMembers, series);
     }
 }

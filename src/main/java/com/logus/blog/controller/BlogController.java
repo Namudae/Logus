@@ -19,9 +19,9 @@ public class BlogController {
     /**
      * 블로그 정보 조회
      */
-    @GetMapping("/{blogAddress}/info")
-    public ApiResponse<BlogResponseDto> blogInfo(@PathVariable("blogAddress") String blogAddress) {
-        BlogResponseDto dto = blogService.selectBlogInfo(blogAddress);
+    @GetMapping("/blog-info")
+    public ApiResponse<BlogResponseDto> blogInfo(@RequestParam("blogId") Long blogId) {
+        BlogResponseDto dto = blogService.selectBlogInfo(blogId);
 
         return ApiResponse.ok(dto);
     }

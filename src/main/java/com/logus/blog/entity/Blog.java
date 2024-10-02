@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -31,6 +33,12 @@ public class Blog extends BaseCreateTime {
     @Column(length = 1)
     private String delYn;
 
+    @OneToMany(mappedBy = "blog")
+    private List<Series> series = new ArrayList<>();
+
+    @OneToMany(mappedBy = "blog")
+    private List<BlogMember> blogMembers = new ArrayList<>();
+
     public void setDelYn(String delYn) {
         this.delYn = delYn;
     }
@@ -42,17 +50,11 @@ public class Blog extends BaseCreateTime {
         }
     }
 
-    //    @OneToMany(mappedBy = "blog")
-//    private List<BlogMember> blogMembers = new ArrayList<>();
-//
 //    @OneToMany(mappedBy = "blog")
 //    private List<Visit> visits = new ArrayList<>();
 //
 //    @OneToMany(mappedBy = "blog")
 //    private List<Follow> follows = new ArrayList<>();
-//
-//    @OneToMany(mappedBy = "blog")
-//    private List<Series> series = new ArrayList<>();
 //
 //    @OneToMany(mappedBy = "blog")
 //    private List<Post> posts = new ArrayList<>();
