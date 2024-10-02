@@ -19,6 +19,6 @@ public class BlogResponseDto {
     private List<String> series;
     private List<BlogMemberResponseDto> blogMembers;
 
-    public toEntity(Blog blog, List<String> series)
+//    public toEntity(Blog blog, List<String> series)
 
 }

@@ -58,8 +58,8 @@ public class PostService {
     }
 
     //+내용 130글자까지?
-    public Page<PostListResponseDto> selectAllBlogPosts(String blogAddress, Pageable pageable) {
-        Page<PostListResponseDto> posts = postRepository.selectAllBlogPosts(blogAddress, pageable);
+    public Page<PostListResponseDto> selectAllBlogPosts(Long blogId, Pageable pageable) {
+        Page<PostListResponseDto> posts = postRepository.selectAllBlogPosts(blogId, pageable);
 
         List<PostListResponseDto> newPosts = posts.stream()
                 .map(dto -> {
@@ -90,7 +90,7 @@ public class PostService {
 //        return postRepository.selectAllBlogPosts(blogAddress, pageable);
     }
 
-    public PostResponseDto selectPost(String blogAddress, Long postId) {
+    public PostResponseDto selectPost(Long postId) {
         //게시글 조회수+
         Post post = getById(postId);
         PostResponseDto dto = postRepository.selectPost(postId);
@@ -110,11 +110,11 @@ public class PostService {
 //        return new PostResponseDto(post, comments, tags);
     }
 
-    public Page<PostListResponseDto> searchBlogPosts(String blogAddress, String keyword, Pageable pageable) {
+    public Page<PostListResponseDto> searchBlogPosts(Long blogId, String keyword, Pageable pageable) {
         if(keyword == null) keyword = "";
 
 //        PageRequest pageRequest = PageRequest.of(page - 1, size, Sort.by("postId").descending());
-        return postRepository.searchBlogPosts(blogAddress, keyword, pageable);
+        return postRepository.searchBlogPosts(blogId, keyword, pageable);
     }
 
     @Transactional
