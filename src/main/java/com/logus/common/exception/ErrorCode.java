@@ -10,6 +10,8 @@ public enum ErrorCode {
 
     /* 1001~: 공통 */
     INPUT_VALUE_INVALID(1001, HttpStatus.BAD_REQUEST, "입력값이 올바르지 않습니다."),
+    FILE_NOT_FOUND(1002, HttpStatus.BAD_REQUEST, "존재하지 않는 파일입니다."),
+    IMAGE_SERVER_ERROR(1003, HttpStatus.INTERNAL_SERVER_ERROR, "이미지 서버 오류입니다."),
 
     /* 2001~: 회원 */
     MEMBER_NOT_FOUND(2001, HttpStatus.NOT_FOUND, "존재하지 않는 회원입니다."),

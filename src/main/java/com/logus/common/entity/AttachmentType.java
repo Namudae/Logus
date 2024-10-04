@@ -6,12 +6,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Getter
 public enum AttachmentType {
-    IMAGE("사진"),
-    THUMB("썸네일"),
-    TEMP("사진임시저장"),
-    VIDEO("영상"),
-    DOCUMENT("파일"),
-    PROFILE("프로필 사진");
+    IMAGE("사진", "images"),
+    THUMB("썸네일", "thumbnail"),
+    TEMP("사진임시저장", "temporary"),
+    VIDEO("영상", "video"),
+    DOCUMENT("파일", "document"),
+    PROFILE("프로필 사진", "profile"),
+    OTHER("기타", "generals");
 
     private final String title;
+    private final String path;
 }

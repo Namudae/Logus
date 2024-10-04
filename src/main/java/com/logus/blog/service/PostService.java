@@ -11,12 +11,10 @@ import com.logus.common.entity.AttachmentType;
 import com.logus.common.exception.CustomException;
 import com.logus.common.exception.ErrorCode;
 import com.logus.common.repository.AttachmentRepository;
-import com.logus.common.service.AttachmentService;
 import com.logus.common.service.S3Service;
 import com.logus.member.entity.Member;
 import com.logus.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.text.StringEscapeUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -31,8 +29,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static com.logus.common.service.S3Service.CLOUD_FRONT_DOMAIN_NAME;
 
@@ -95,7 +91,7 @@ public class PostService {
         Post post = getById(postId);
         PostResponseDto dto = postRepository.selectPost(postId);
 
-        post.setViews(post.getViews()+1);
+        post.addViews(post.getViews()+1);
         postRepository.save(post);
         //댓글 조회
         List<CommentResponseDto> comments = commentService.getComments(postId);
@@ -142,10 +138,10 @@ public class PostService {
         Post savedPost = postRepository.save(post);
 
         //Attachment insert
-        for (Attachment attachment : attachments) {
-            attachment.setPost(savedPost);
-            attachmentRepository.save(attachment);
-        }
+//        for (Attachment attachment : attachments) {
+//            attachment.setPost(savedPost);
+//            attachmentRepository.save(attachment);
+//        }
 
         //Tag insert
         tagService.savePostTag(postRequestDto, savedPost);
@@ -160,7 +156,15 @@ public class PostService {
         Category category = categoryService.getReferenceById(postRequestDto.getCategoryId());
         Series series = seriesService.getReferenceById(postRequestDto.getSeriesId());
 
+        //삭제된 이미지 처리
+        deleteImages(post.getContent(), postRequestDto.getContent());
+
+        //임시폴더 이미지 images 폴더로
+        List<Attachment> attachments = moveTemporaryImages(postRequestDto);
+
         post.updatePost(category, series, postRequestDto.getTitle(), postRequestDto.getContent(), postRequestDto.getStatus());
+
+        //Attachment 생략
 
         //태그 처리 추가
         // post_tag 삭제하고 새로 insert
@@ -168,9 +172,14 @@ public class PostService {
         postRepository.flush();
         tagService.savePostTag(postRequestDto, post);
 
-        //이미지 처리 추가(주의*삭제하는 경우)
-
         return postId;
+    }
+
+    @Transactional
+    public void deletePost(Long postId) {
+        Post post = getById(postId);
+        post.deletePost();
+        postRepository.save(post);
     }
 
     private List<Attachment> moveTemporaryImages(PostRequestDto postRequestDto) {
@@ -183,12 +192,12 @@ public class PostService {
             for (Element imageElement : imageElements) {
                 String source = imageElement.attr("src");
 
-                if (!source.contains("/temporary/")) {
+                if (!source.contains(CLOUD_FRONT_DOMAIN_NAME + "/" + AttachmentType.TEMP.getPath() + "/")) {
                     continue;
                 }
 
                 String oldSource = source.replace(CLOUD_FRONT_DOMAIN_NAME + "/", "");
-                String newSource = oldSource.replace("temporary", "images");
+                String newSource = oldSource.replace(AttachmentType.TEMP.getPath(), AttachmentType.IMAGE.getPath());
 
                 s3Service.update(oldSource, newSource);
 
@@ -200,11 +209,42 @@ public class PostService {
                 attachments.add(attachment);
             }
         }
-        content = content.replace(CLOUD_FRONT_DOMAIN_NAME + "/temporary", CLOUD_FRONT_DOMAIN_NAME + "/images");
+        content = content.replace(CLOUD_FRONT_DOMAIN_NAME + "/" + AttachmentType.TEMP.getPath(), CLOUD_FRONT_DOMAIN_NAME + "/" + AttachmentType.IMAGE.getPath());
 
         postRequestDto.setContent(content);
         return attachments;
     }
 
+    private void deleteImages(String oldContent, String newContent) {
+        //oldContent 사진 돌면서 newContent에 포함되는지 비교, 없으면 서버에서 삭제
+        List<String> oldImageList = extractImageSrcList(oldContent);
+        List<String> newImageList = extractImageSrcList(newContent);
+
+        //수정 전 게시글 이미지 중, 수정후에 없는 이미지만 삭제
+        for (String oldImage : oldImageList) {
+            if (!newImageList.contains(oldImage)) {
+                s3Service.deleteS3(oldImage);
+            }
+        }
+    }
+
+    private List<String> extractImageSrcList(String content) {
+        List<String> imageList = new ArrayList<>();
+        Document document = Jsoup.parse(content);
+        Elements imageElements = document.getElementsByTag("img");
+
+        for (Element imageElement : imageElements) {
+            String src = imageElement.attr("src");
+
+            if (!src.contains(CLOUD_FRONT_DOMAIN_NAME + "/" + AttachmentType.IMAGE.getPath() + "/")) {
+                continue;
+            }
+
+            // "/images/파일명.확장자" 부분만 추출
+            String imagePath = src.substring(src.indexOf(AttachmentType.IMAGE.getPath() + "/"));
+            imageList.add(imagePath);
+        }
+        return imageList;
+    }
 
 }

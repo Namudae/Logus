@@ -2,6 +2,8 @@ package com.logus.common.controller;
 
 import com.logus.common.dto.AttachmentRequestDto;
 import com.logus.common.entity.AttachmentType;
+import com.logus.common.exception.CustomException;
+import com.logus.common.exception.ErrorCode;
 import com.logus.common.service.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -12,25 +14,22 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-@Controller
+import static com.logus.common.service.S3Service.CLOUD_FRONT_DOMAIN_NAME;
+
+@RestController
 @RequiredArgsConstructor
 public class AttachmentController {
 
     private final S3Service s3Service;
     private static final Logger logger = LoggerFactory.getLogger(AttachmentController.class);
 
-    @GetMapping("/temporary-image")
-    public String newItem() {
-        return "image-form";
-    }
-
     /**
      * 이미지 임시저장 s3
      */
     @PostMapping("/temporary-image")
-    public ResponseEntity<AttachmentRequestDto> saveTempImage(@RequestParam("file") MultipartFile image) {
+    public ApiResponse<AttachmentRequestDto> saveTempImage(@RequestParam("file") MultipartFile image) {
         if (image == null || image.isEmpty()) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            throw new CustomException(ErrorCode.FILE_NOT_FOUND);
         }
 
         AttachmentType toAttachmentType = AttachmentType.TEMP;
@@ -40,35 +39,11 @@ public class AttachmentController {
         try {
             imageDto = s3Service.tempUpload(image);
         }  catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new CustomException(ErrorCode.IMAGE_SERVER_ERROR);
         }
 
-        return new ResponseEntity<>(imageDto, HttpStatus.OK);
+        return ApiResponse.ok(imageDto);
     }
 
-    /**
-     * 이미지 임시저장 v1
-     */
-//    @PostMapping("/tempImage")
-//    public ResponseEntity<AttachmentRequestDto> saveTempImage(@RequestParam("file") MultipartFile image) {
-//        if (image == null || image.isEmpty()) {
-//            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-//        }
-//
-//        AttachmentType toAttachmentType = AttachmentType.TEMP;
-//
-//        AttachmentRequestDto imageDto = null;
-//        try {
-////            imageDto = attachmentService.storeFile(image, toAttachmentType);
-//            String imgPath = s3Service.upload(image);
-//
-//            logger.info("File stored successfully with filename: {}", imageDto.getFilename());
-//        }  catch (Exception e) {
-////            logger.error("Error storing file", e);
-//            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//
-//        return new ResponseEntity<>(imageDto, HttpStatus.OK);
-//    }
 
 }

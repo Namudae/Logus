@@ -54,8 +54,7 @@ public class PostController {
 
 
     /**
-     * 글 등록(+사진 첨부)
-     * + 썸네일 작업중
+     * 글 등록
      */
     @PostMapping("/posts")
     public ApiResponse<Map<String, Long>> createPost(@RequestPart("requestDto") @Valid PostRequestDto postRequestDto,
@@ -67,9 +66,8 @@ public class PostController {
 
     /**
      * 글 수정
-     * - 지우는 사진 어떻게할지... 프론트에서 지우는 순간 메서드 호출할수 있는지 or 수정 전후 비교?
      */
-    @PatchMapping("/post/{postId}")
+    @PatchMapping("/posts/{postId}")
     public ApiResponse<Map<String, Long>> updatePost(@PathVariable("postId") Long postId,
                                                      @RequestPart("requestDto") @Valid PostRequestDto postRequestDto
     ) throws MethodArgumentNotValidException {
@@ -77,13 +75,18 @@ public class PostController {
         return ApiResponse.ok(Map.of("postId", postId));
     }
 
-
     /**
      * 글 삭제
      *  - 댓글 delYn 처리
      *  - postTag delete
      *  - attachment db delete(s3에서도 삭제)
+     *  - 썸네일 파일 삭제
      */
+    @DeleteMapping("/post/{postId}")
+    public ApiResponse<String> deletePost(@PathVariable("postId") Long postId) throws MethodArgumentNotValidException {
+        postService.deletePost(postId);
+        return ApiResponse.ok();
+    }
 
 
     /**

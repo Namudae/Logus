@@ -138,7 +138,7 @@ public class S3Service {
     }
 
     //복사한 파일 temp 폴더에서 삭제
-    private void deleteS3(String source) {
+    public void deleteS3(String source) {
         amazonS3.deleteObject(bucket, source);
     }
 
@@ -194,19 +194,19 @@ public class S3Service {
     public String createPath(String storeFilename, AttachmentType attachmentType) {
         String viaPath = "";
         if (attachmentType == AttachmentType.IMAGE) {
-            viaPath = "images/";
+            viaPath = AttachmentType.IMAGE.getPath() + "/";
         } else if (attachmentType == AttachmentType.TEMP) {
-            viaPath = "temporary/";
+            viaPath = AttachmentType.TEMP.getPath() + "/";
         } else if (attachmentType == AttachmentType.THUMB) {
-            viaPath = "thumbnail/";
+            viaPath = AttachmentType.THUMB.getPath() + "/";
         } else if (attachmentType == AttachmentType.PROFILE) {
-            viaPath = "profiles/";
+            viaPath = AttachmentType.PROFILE.getPath() + "/";
         } else if (attachmentType == AttachmentType.VIDEO) {
-            viaPath = "videos/";
+            viaPath = AttachmentType.VIDEO.getPath() + "/";
         } else if (attachmentType == AttachmentType.DOCUMENT) {
-            viaPath = "documents/";
+            viaPath = AttachmentType.DOCUMENT.getPath() + "/";
         } else {
-            viaPath = "generals/";
+            viaPath = AttachmentType.OTHER.getPath() + "/";
         }
         return viaPath + storeFilename;
     }

@@ -75,36 +75,36 @@ public class AttachmentService {
 //    }
 
     //파일 경로 구성
-    public String createPath(String storeFilename, AttachmentType attachmentType) {
-        String viaPath = "";
-        if (attachmentType == AttachmentType.IMAGE) {
-            viaPath = "images/";
-        } else if (attachmentType == AttachmentType.TEMP) {
-            viaPath = "temporary/";
-        } else if (attachmentType == AttachmentType.PROFILE) {
-            viaPath = "profiles/";
-        } else if (attachmentType == AttachmentType.VIDEO) {
-            viaPath = "videos/";
-        } else if (attachmentType == AttachmentType.DOCUMENT) {
-            viaPath = "documents/";
-        } else {
-            viaPath = "generals/";
-        }
-        return fileDir + viaPath + storeFilename;
-    }
+//    public String createPath(String storeFilename, AttachmentType attachmentType) {
+//        String viaPath = "";
+//        if (attachmentType == AttachmentType.IMAGE) {
+//            viaPath = "images/";
+//        } else if (attachmentType == AttachmentType.TEMP) {
+//            viaPath = "temporary/";
+//        } else if (attachmentType == AttachmentType.PROFILE) {
+//            viaPath = "profiles/";
+//        } else if (attachmentType == AttachmentType.VIDEO) {
+//            viaPath = "videos/";
+//        } else if (attachmentType == AttachmentType.DOCUMENT) {
+//            viaPath = "documents/";
+//        } else {
+//            viaPath = "generals/";
+//        }
+//        return fileDir + viaPath + storeFilename;
+//    }
 
     //저장할 파일 이름(랜덤값 부여)
-    private String createStoreFileName(String originalFilename) {
-        String ext = extractExt(originalFilename);
-        String uuid = UUID.randomUUID().toString();
-        return uuid + "." + ext;
-    }
-
-    //확장자 추출
-    private String extractExt(String originalFilename) {
-        int pos = originalFilename.lastIndexOf(".");
-        return originalFilename.substring(pos + 1);
-    }
+//    private String createStoreFileName(String originalFilename) {
+//        String ext = extractExt(originalFilename);
+//        String uuid = UUID.randomUUID().toString();
+//        return uuid + "." + ext;
+//    }
+//
+//    //확장자 추출
+//    private String extractExt(String originalFilename) {
+//        int pos = originalFilename.lastIndexOf(".");
+//        return originalFilename.substring(pos + 1);
+//    }
 
     /**
      * 첨부파일 저장 메소드
