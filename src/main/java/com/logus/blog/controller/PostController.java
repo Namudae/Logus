@@ -67,7 +67,7 @@ public class PostController {
     /**
      * 글 수정
      */
-    @PatchMapping("/posts/{postId}")
+    @PutMapping("/posts/{postId}")
     public ApiResponse<Map<String, Long>> updatePost(@PathVariable("postId") Long postId,
                                                      @RequestPart("requestDto") @Valid PostRequestDto postRequestDto
     ) throws MethodArgumentNotValidException {
@@ -82,7 +82,7 @@ public class PostController {
      *  - attachment db delete(s3에서도 삭제)
      *  - 썸네일 파일 삭제
      */
-    @DeleteMapping("/post/{postId}")
+    @DeleteMapping("/posts/{postId}")
     public ApiResponse<String> deletePost(@PathVariable("postId") Long postId) throws MethodArgumentNotValidException {
         postService.deletePost(postId);
         return ApiResponse.ok();
