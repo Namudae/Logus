@@ -99,6 +99,14 @@ public class Post extends BaseTime {
         this.status = Status.DELETE;
     }
 
+    public void deleteImgUrl() {
+        this.imgUrl = null;
+    }
+
+    public void changeImgUrl(String imgUrl) {
+        this.imgUrl = imgUrl;
+    }
+
     //조회수 증가
     public void addViews(Long views) {
         this.views = views;

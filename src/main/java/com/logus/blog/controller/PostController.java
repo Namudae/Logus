@@ -69,18 +69,16 @@ public class PostController {
      */
     @PutMapping("/posts/{postId}")
     public ApiResponse<Map<String, Long>> updatePost(@PathVariable("postId") Long postId,
-                                                     @RequestPart("requestDto") @Valid PostRequestDto postRequestDto
-    ) throws MethodArgumentNotValidException {
-        postService.updatePost(postId, postRequestDto);
+                                                     @RequestPart("requestDto") @Valid PostRequestDto postRequestDto,
+                                                     @RequestPart(value = "thumbImg", required = false) MultipartFile thumbImg,
+                                                     @RequestParam(value = "deleteThumb", required = false, defaultValue = "false") Boolean deleteThumb
+    ) throws MethodArgumentNotValidException, IOException {
+        postService.updatePost(postId, postRequestDto, thumbImg, deleteThumb);
         return ApiResponse.ok(Map.of("postId", postId));
     }
 
     /**
      * 글 삭제
-     *  - 댓글 delYn 처리
-     *  - postTag delete
-     *  - attachment db delete(s3에서도 삭제)
-     *  - 썸네일 파일 삭제
      */
     @DeleteMapping("/posts/{postId}")
     public ApiResponse<String> deletePost(@PathVariable("postId") Long postId) throws MethodArgumentNotValidException {

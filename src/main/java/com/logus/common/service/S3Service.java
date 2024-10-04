@@ -8,6 +8,8 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.logus.common.dto.AttachmentRequestDto;
 import com.logus.common.entity.AttachmentType;
+import com.logus.common.exception.CustomException;
+import com.logus.common.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -89,34 +91,25 @@ public class S3Service {
      */
     public String thumbUpload(MultipartFile file) throws IOException {
         String storeFileName;
-        try {
-            String originalFilename = file.getOriginalFilename();
-            storeFileName = createStoreFileName(originalFilename);
-            String filepath = createPath(storeFileName, AttachmentType.THUMB);
+        String originalFilename = file.getOriginalFilename();
+        storeFileName = createStoreFileName(originalFilename);
+        String filepath = createPath(storeFileName, AttachmentType.THUMB);
 
-            //이미지 가로세로 크기
-            int width = 0, height = 0;
-            String contentType = file.getContentType();
+        //이미지 가로세로 크기
+        int width = 0, height = 0;
+        String contentType = file.getContentType();
 
-            ObjectMetadata metadata = new ObjectMetadata();
-            metadata.setContentType(contentType);
-            metadata.setContentLength(file.getSize());
+        ObjectMetadata metadata = new ObjectMetadata();
+        metadata.setContentType(contentType);
+        metadata.setContentLength(file.getSize());
 
-            amazonS3.putObject(new PutObjectRequest(bucket, filepath, file.getInputStream(), metadata)
-                    .withCannedAcl(CannedAccessControlList.PublicRead));
+        amazonS3.putObject(new PutObjectRequest(bucket, filepath, file.getInputStream(), metadata)
+                .withCannedAcl(CannedAccessControlList.PublicRead));
 
-            //Url
-//            String url = amazonS3.getUrl(bucket, filepath).toString();
-            String url = CLOUD_FRONT_DOMAIN_NAME + "/" + filepath;
-            return filepath;
+        //Url
+        String url = CLOUD_FRONT_DOMAIN_NAME + "/" + filepath;
+        return filepath;
 
-        } catch (AmazonServiceException e) {
-            log.error("AWS 서비스 오류: {}", e.getMessage());
-            throw new IllegalStateException("파일 업로드에 실패했습니다.");
-        } catch (SdkClientException e) {
-            log.error("AWS 클라이언트 오류: {}", e.getMessage());
-            throw new IllegalStateException("파일 업로드 중 문제가 발생했습니다.");
-        }
     }
 
     public void update(String oldSource, String newSource) {
@@ -149,7 +142,7 @@ public class S3Service {
     public List<AttachmentRequestDto> storeFiles(List<MultipartFile> multipartFiles, AttachmentType attachmentType) throws IOException {
         List<AttachmentRequestDto> storeAttachmentResult = new ArrayList<>();
         for (MultipartFile multipartFile : multipartFiles) {
-            if (!multipartFile.isEmpty()) {
+            if (multipartFile != null || !multipartFile.isEmpty()) {
                 storeAttachmentResult.add(storeFile(multipartFile, attachmentType));
             }
         }
@@ -160,7 +153,7 @@ public class S3Service {
      * 파일 한 개 저장
      */
     public AttachmentRequestDto storeFile(MultipartFile multipartFile, AttachmentType attachmentType) throws IOException {
-        if (multipartFile.isEmpty()) {
+        if (multipartFile != null || !multipartFile.isEmpty()) {
             return null;
         }
 

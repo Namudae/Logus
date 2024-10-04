@@ -56,7 +56,7 @@ public class TagService {
         }
     }
 
-    public void deleteOldPostTag(Long postId) {
+    public void deletePostTag(Long postId) {
         postTagRepository.deleteAllByPostId(postId);
     }
 

@@ -10,7 +10,6 @@ import com.logus.common.entity.Attachment;
 import com.logus.common.entity.AttachmentType;
 import com.logus.common.exception.CustomException;
 import com.logus.common.exception.ErrorCode;
-import com.logus.common.repository.AttachmentRepository;
 import com.logus.common.service.S3Service;
 import com.logus.member.entity.Member;
 import com.logus.member.service.MemberService;
@@ -39,7 +38,6 @@ public class PostService {
     private static final Logger log = LoggerFactory.getLogger(PostService.class);
 
     private final PostRepository postRepository;
-    private final AttachmentRepository attachmentRepository;
     private final BlogService blogService;
     private final MemberService memberService;
     private final CategoryService categoryService;
@@ -128,7 +126,7 @@ public class PostService {
 
         //썸네일 업로드
         String thumbUrl = null;
-        if (thumbImage != null) {
+        if (thumbImage != null || !thumbImage.isEmpty()) {
             thumbUrl = s3Service.thumbUpload(thumbImage);
         }
 
@@ -150,17 +148,29 @@ public class PostService {
     }
 
     @Transactional
-    public Long updatePost(Long postId, PostRequestDto postRequestDto) {
+    public Long updatePost(Long postId, PostRequestDto postRequestDto, MultipartFile thumbImage, boolean deleteThumb) throws IOException {
         Post post = getById(postId);
 
         Category category = categoryService.getReferenceById(postRequestDto.getCategoryId());
         Series series = seriesService.getReferenceById(postRequestDto.getSeriesId());
 
+        //썸네일 처리
+        if (deleteThumb) {
+            //기존 썸네일 처리(s3 삭제, ImgUrl 지우기)
+            s3Service.deleteS3(post.getImgUrl());
+            post.deleteImgUrl();
+        }
+        //thumbImage 빈값아니면 썸네일 업로드
+        if (thumbImage != null && !thumbImage.isEmpty()) {
+            String thumbUrl = s3Service.thumbUpload(thumbImage);
+            post.changeImgUrl(thumbUrl);
+        }
+
         //삭제된 이미지 처리
         deleteImages(post.getContent(), postRequestDto.getContent());
 
         //임시폴더 이미지 images 폴더로
-        List<Attachment> attachments = moveTemporaryImages(postRequestDto);
+        moveTemporaryImages(postRequestDto);
 
         post.updatePost(category, series, postRequestDto.getTitle(), postRequestDto.getContent(), postRequestDto.getStatus());
 
@@ -168,7 +178,7 @@ public class PostService {
 
         //태그 처리 추가
         // post_tag 삭제하고 새로 insert
-        tagService.deleteOldPostTag(postId);
+        tagService.deletePostTag(postId);
         postRepository.flush();
         tagService.savePostTag(postRequestDto, post);
 
@@ -179,6 +189,27 @@ public class PostService {
     public void deletePost(Long postId) {
         Post post = getById(postId);
         post.deletePost();
+
+        //댓글 delete
+        commentService.getByPostId(postId).forEach(comment -> {
+            comment.delComment();
+            commentService.save(comment);
+        });
+
+        //postTag 처리
+        tagService.deletePostTag(postId);
+
+        //썸네일 삭제
+        if (post.getImgUrl() != null && !post.getImgUrl().isEmpty()) {
+            s3Service.deleteS3(post.getImgUrl());
+        }
+
+        //이미지
+        List<String> imageList = extractImageSrcList(post.getContent());
+        for (String image : imageList) {
+            s3Service.deleteS3(image);
+        }
+
         postRepository.save(post);
     }
 

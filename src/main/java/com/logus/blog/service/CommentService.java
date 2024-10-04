@@ -23,6 +23,14 @@ public class CommentService {
     private final PostRepository postRepository;
     private final MemberService memberService;
 
+    public List<Comment> getByPostId(Long postId) {
+        return commentRepository.findByPostId(postId);
+    }
+
+    public void save(Comment comment) {
+        commentRepository.save(comment);
+    }
+
     public Long createComment(CommentRequestDto commentRequestDto) {
 
         Member member = memberService.getReferenceById(commentRequestDto.getMemberId());

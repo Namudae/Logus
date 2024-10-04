@@ -112,7 +112,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .leftJoin(post.series, series)
                 .where(
                         post.blog.id.eq(blogId),
-                        post.series.id.eq(seriesId)
+                        seriesEq(seriesId)
                 );
 
         // 총 결과 수 조회
@@ -169,6 +169,10 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 
     private BooleanExpression blogAddressEq(String blogAddress) {
         return hasText(blogAddress) ? post.blog.blogAddress.eq(blogAddress) : null;
+    }
+
+    private BooleanExpression seriesEq(Long seriesId) {
+        return seriesId != null ? post.series.id.eq(seriesId) : null;
     }
 
 

@@ -1,5 +1,7 @@
 package com.logus.common.exception;
 
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.SdkClientException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -26,6 +28,13 @@ public class ExceptionController {
         log.error("[ExceptionHandler] CustomException: ", e);
         return ResponseEntity.status(e.getErrorCode().getStatus())
                 .body(ErrorResponse.createError(e.getErrorCode()));
+    }
+
+    @ExceptionHandler(SdkClientException.class)
+    public ResponseEntity<ErrorResponse> handleSdkClientException(SdkClientException e) {
+        log.error("[ExceptionHandler] SdkClientException: {}", e.getMessage());
+        return ResponseEntity.status(INTERNAL_SERVER_ERROR)
+                .body(ErrorResponse.createError(ErrorCode.AMAZON_SERVICE_ERROR));
     }
 
     @ExceptionHandler(Exception.class)
