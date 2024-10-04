@@ -74,4 +74,9 @@ public class BlogService {
                 .map(SeriesResponseDto::new)
                 .toList();
     }
+
+    public Long getBlogIdByAddress(String blogAddress) {
+        return blogRepository.findByBlogAddress(blogAddress)
+                .orElseThrow(() -> new CustomException(ErrorCode.BLOG_NOT_FOUND)).getId();
+    }
 }

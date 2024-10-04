@@ -31,7 +31,7 @@ public class BlogController {
     /**
      * 블로그 등록
      */
-    @PostMapping("/newblog")
+    @PostMapping("/new-blog")
     public ApiResponse<Map<String, Long>> createBlog(@RequestBody BlogRequestDto blogRequestDto) {
         Long blogId = blogService.createBlog(blogRequestDto);
         return ApiResponse.ok(Map.of("blogId", blogId));
@@ -45,6 +45,16 @@ public class BlogController {
         List<SeriesResponseDto> series = blogService.selectSeries(blogId);
 
         return ApiResponse.ok(series);
+    }
+
+    /**
+     * 블로그 id 조회
+     */
+    @GetMapping("/blog-id")
+    public ApiResponse<Map<String, Long>> getBlogIdByAddress(@RequestParam("blogAddress") String blogAddress) {
+        Long blogId = blogService.getBlogIdByAddress(blogAddress);
+
+        return ApiResponse.ok(Map.of("blogId", blogId));
     }
 
 }
