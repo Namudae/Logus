@@ -27,7 +27,7 @@ repositories {
 }
 
 dependencies {
-//	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	implementation 'org.jsoup:jsoup:1.13.1'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -35,7 +35,7 @@ dependencies {
 	implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0' //쿼리 파라미터 로그(개발 단계에서만 사용)
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.apache.commons:commons-text:1.10.0'
-//	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	annotationProcessor 'org.projectlombok:lombok'
@@ -52,6 +52,11 @@ dependencies {
 	annotationProcessor 'jakarta.annotation:jakarta.annotation-api'
 
 	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE' //s3
+
+	// jwt
+	implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
+	implementation 'io.jsonwebtoken:jjwt-impl:0.12.3'
+	implementation 'io.jsonwebtoken:jjwt-jackson:0.12.3'
 
 }
 
