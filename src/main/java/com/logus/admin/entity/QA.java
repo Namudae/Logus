@@ -3,14 +3,11 @@ package com.logus.admin.entity;
 import com.logus.common.entity.BaseTime;
 import com.logus.member.entity.Member;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Getter
-@Setter
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class QA extends BaseTime {
 
@@ -27,24 +24,16 @@ public class QA extends BaseTime {
     private String title; // 질문 제목
 
     @Column(length = 500)
-    private String content; // 질문 내용
+    private String content; // 질문 or 답변 내용
 
     private int views; // 조회수
 
     @Column(length = 1)
-    private String status; // 질문 상태 (예: P - 공개, H - 비공개)
+    private String status; // 질문 상태
 
-    @Embedded
-    private Comment comment; // 답변 정보
+    @Column(length = 20)
+    private String adminName; // 답변한 관리자 이름
 
-    @Embeddable
-    @Getter
-    @Setter
-    public static class Comment {
-        @Column(length = 20)
-        private String adminName; // 답변한 관리자 이름
-
-        @Column(length = 500)
-        private String content; // 답변 내용
-    }
+    @Column(length = 1)
+    private String qOrA; // Q or A
 }
