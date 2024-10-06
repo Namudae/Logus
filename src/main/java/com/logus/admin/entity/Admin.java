@@ -5,15 +5,17 @@ import lombok.*;
 
 @Entity
 @Getter
-@Setter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Admin {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "admin_id", length = 20, unique = true)
-    private String id; // 관리자 ID
+    @Column(name = "admin_id", unique = true)
+    private Long id; // 관리자 PK
+
+    @Column(length = 20)
+    private String loginId; // 관리자 ID
 
     @Column(length = 20)
     private String name; // 관리자 이름

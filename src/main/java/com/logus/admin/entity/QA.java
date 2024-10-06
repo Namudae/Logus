@@ -14,7 +14,7 @@ public class QA extends BaseTime {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "qa_id")
-    private Long id;
+    private Long id; // QA PK
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
