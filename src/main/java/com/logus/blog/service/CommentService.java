@@ -12,6 +12,7 @@ import com.logus.member.entity.Member;
 import com.logus.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -23,6 +24,11 @@ public class CommentService {
     private final PostRepository postRepository;
     private final MemberService memberService;
 
+    public Comment getById(Long commentId) {
+        return commentRepository.findById(commentId)
+                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+    }
+
     public List<Comment> getByPostId(Long postId) {
         return commentRepository.findByPostId(postId);
     }
@@ -31,6 +37,14 @@ public class CommentService {
         commentRepository.save(comment);
     }
 
+    public List<CommentResponseDto> getComments(Long postId) {
+        return commentRepository.findByPostId(postId)
+                .stream()
+                .map(CommentResponseDto::new)
+                .toList();
+    }
+
+    @Transactional
     public Long createComment(CommentRequestDto commentRequestDto) {
 
         Member member = memberService.getReferenceById(commentRequestDto.getMemberId());
@@ -44,11 +58,16 @@ public class CommentService {
 
     }
 
-    public List<CommentResponseDto> getComments(Long postId) {
-        return commentRepository.findByPostId(postId)
-                .stream()
-                .map(CommentResponseDto::new)
-                .toList();
+    @Transactional
+    public Long updateComment(Long commentId, CommentRequestDto commentRequestDto) {
+        Comment comment = getById(commentId);
+        comment.updateComment(commentRequestDto);
+        return commentId;
     }
 
+    @Transactional
+    public void deleteComment(Long commentId) {
+        Comment comment = getById(commentId);
+        comment.deleteComment();
+    }
 }

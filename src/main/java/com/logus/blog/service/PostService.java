@@ -170,21 +170,18 @@ public class PostService {
             commentService.save(comment);
         });
 
-        //postTag 처리
+        //postTag delete
         tagService.deletePostTag(postId);
 
-        //썸네일 삭제
+        //썸네일 서버 삭제
         if (post.getImgUrl() != null && !post.getImgUrl().isEmpty()) {
             s3Service.deleteS3(post.getImgUrl());
         }
-
-        //이미지
+        //이미지 서버 삭제
         List<String> imageList = extractImageSrcList(post.getContent());
         for (String image : imageList) {
             s3Service.deleteS3(image);
         }
-
-        postRepository.save(post);
     }
 
     public Page<PostListResponseDto> searchBlogPostsByTag(Long blogId, String tag, Pageable pageable) {
