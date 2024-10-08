@@ -33,6 +33,7 @@ public class PostController {
     /**
      * 블로그의 전체게시글 조회
      * + Pageable
+     * http://localhost:8082/posts?blogId=1&size=10&page=0
      */
     @GetMapping("/posts")
     public ApiResponse<Page<PostListResponseDto>> selectAllBlogPosts(@RequestParam("blogId") Long blogId,

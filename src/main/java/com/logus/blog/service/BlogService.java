@@ -9,6 +9,7 @@ import com.logus.blog.repository.SeriesRepository;
 import com.logus.common.exception.CustomException;
 import com.logus.common.exception.ErrorCode;
 import com.logus.member.entity.Member;
+import com.logus.member.repository.MemberRepository;
 import com.logus.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,12 +17,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static com.logus.common.service.S3Service.CLOUD_FRONT_DOMAIN_NAME;
+
 @Service
 @RequiredArgsConstructor
 public class BlogService {
 
     private final BlogRepository blogRepository;
     private final BlogMemberRepository blogMemberRepository;
+//    private final MemberRepository memberRepository;
     private final SeriesRepository seriesRepository;
     private final MemberService memberService;
 
@@ -58,14 +62,28 @@ public class BlogService {
     public BlogResponseDto selectBlogInfo(Long blogId) {
         //블로그, 블로그멤버, 시리즈 따로따로
         Blog blog = getById(blogId);
-        List<SeriesDto> series = seriesRepository.findByBlogIdOrderBySeriesOrder(blog.getId()).stream()
-                .map(SeriesDto::new)
-                .toList();
-        List<BlogMemberResponseDto> blogMembers = blogMemberRepository.findByBlogId(blog.getId()).stream()
-                .map(BlogMemberResponseDto::fromEntity)
+
+        //블로그멤버
+        //memberId > myLogAddress: memberId로 BlogMember 검색 > 블로그 권한 'OWNER'만 Blog에서 검색 > 공유블로그여부 'N'만 찾기
+        List<BlogMemberResponseDto> blogMembers = blogMemberRepository.findByBlogId(blogId).stream()
+                .map(blogMember -> {
+                    Member member = blogMember.getMember();
+                    String myLogAddress = blogRepository.findMyLogAddress(member.getId());
+                    String imgUrl = member.getImgUrl();
+                    if (imgUrl != null) {
+                        imgUrl = CLOUD_FRONT_DOMAIN_NAME + "/" + imgUrl;
+                    }
+                    return BlogMemberResponseDto.builder()
+                            .memberId(member.getId())
+                            .nickname(member.getNickname())
+                            .blogAuth(blogMember.getBlogAuth())
+                            .imgUrl(imgUrl)
+                            .myLogAddress(myLogAddress)
+                            .build();
+                })
                 .toList();
 
-        return new BlogResponseDto(blog, blogMembers, series);
+        return new BlogResponseDto(blog, blogMembers);
     }
 
     public List<SeriesResponseDto> selectSeries(Long blogId) {
