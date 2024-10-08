@@ -64,4 +64,8 @@ public class TagService {
         return postTagRepository.selectPostTag(postId);
     }
 
+    public Tag findByTagName(String tagname) {
+        return tagRepository.findByTagName(tagname);
+    }
+
 }

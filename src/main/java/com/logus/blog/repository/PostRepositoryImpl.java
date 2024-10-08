@@ -20,6 +20,7 @@ import static com.logus.blog.entity.QCategory.category;
 import static com.logus.blog.entity.QComment.comment;
 import static com.logus.blog.entity.QLikey.likey;
 import static com.logus.blog.entity.QPost.*;
+import static com.logus.blog.entity.QPostTag.postTag;
 import static com.logus.blog.entity.QSeries.series;
 import static com.logus.member.entity.QMember.*;
 import static org.springframework.util.StringUtils.hasText;
@@ -165,7 +166,58 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         return new PageImpl<>(results, pageable, total);
     }
 
-    //여기서 postTag까지 조회
+    //tag검색
+    public Page<PostListResponseDto> searchBlogPostsByTag(Long blogId, Long tagId, Pageable pageable) {
+        JPAQuery<PostListResponseDto> query = jpaQueryFactory
+                .select(Projections.fields(PostListResponseDto.class,
+                        member.id.as("memberId"),
+                        member.nickname,
+                        category.id.as("categoryId"),
+                        category.categoryName,
+                        series.id.as("seriesId"),
+                        series.seriesName,
+                        post.id.as("postId"),
+                        post.title,
+                        post.content,
+                        post.imgUrl,
+                        post.views,
+                        post.status,
+                        post.reportStatus,
+                        post.createDate,
+                        ExpressionUtils.as(
+                                JPAExpressions.select(comment.count())
+                                        .from(comment)
+                                        .where(comment.post.eq(post)),
+                                "commentCount"
+                        ),
+                        ExpressionUtils.as(
+                                JPAExpressions.select(likey.count())
+                                        .from(likey)
+                                        .where(likey.post.eq(post)),
+                                "likeCount"
+                        )))
+                .from(postTag)
+                .join(postTag.post, post)
+                .join(post.member, member)
+                .join(post.category, category)
+                .join(post.series, series)
+                .where(
+                        post.blog.id.eq(blogId),
+                        postTag.tag.id.eq(tagId)
+                );
+
+        // 총 결과 수 조회
+        long total = query.fetchCount();
+
+        // 페이지에 맞는 결과 조회
+        List<PostListResponseDto> results = query
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        // Page 객체 생성 및 반환
+        return new PageImpl<>(results, pageable, total);
+    }
 
     private BooleanExpression blogAddressEq(String blogAddress) {
         return hasText(blogAddress) ? post.blog.blogAddress.eq(blogAddress) : null;

@@ -55,30 +55,7 @@ public class PostService {
     public Page<PostListResponseDto> selectAllBlogPosts(Long blogId, Long seriesId, Pageable pageable) {
         Page<PostListResponseDto> posts = postRepository.selectAllBlogPosts(blogId, seriesId, pageable);
 
-        List<PostListResponseDto> newPosts = posts.stream()
-                .map(dto -> {
-                    //imgUrl 처리
-                    String imgUrl = dto.getImgUrl();
-                    if (imgUrl != null) {
-                        dto.setImgUrl(CLOUD_FRONT_DOMAIN_NAME + "/" + imgUrl);
-                    }
-
-                    // content 앞 130자만 가져오기
-                    //html태그 포함인 경우...
-//                    String content = dto.getContent();
-//                    String textContent = Jsoup.parse(content).text();
-//
-//                    if (textContent != null && textContent.length() > 130) {
-//                        dto.setContent(textContent.substring(0, 130));
-//                    }
-
-                    // tags 설정
-                    List<String> tags = tagService.selectPostTags(dto.getPostId());
-                    dto.setTags(tags);
-
-                    return dto;
-                })
-                .toList();
+        List<PostListResponseDto> newPosts = toPostList(posts);
 
         return new PageImpl<>(newPosts, pageable, posts.getTotalElements());
 //        return postRepository.selectAllBlogPosts(blogAddress, pageable);
@@ -101,13 +78,10 @@ public class PostService {
         dto.setComments(comments);
         dto.setTags(tags);
         return dto;
-//        return new PostResponseDto(post, comments, tags);
     }
 
     public Page<PostListResponseDto> searchBlogPosts(Long blogId, String keyword, Pageable pageable) {
         if(keyword == null) keyword = "";
-
-//        PageRequest pageRequest = PageRequest.of(page - 1, size, Sort.by("postId").descending());
         return postRepository.searchBlogPosts(blogId, keyword, pageable);
     }
 
@@ -135,7 +109,7 @@ public class PostService {
         //Post insert
         Post savedPost = postRepository.save(post);
 
-        //Attachment insert
+        //Attachment insert(생략)
 //        for (Attachment attachment : attachments) {
 //            attachment.setPost(savedPost);
 //            attachmentRepository.save(attachment);
@@ -211,6 +185,45 @@ public class PostService {
         }
 
         postRepository.save(post);
+    }
+
+    public Page<PostListResponseDto> searchBlogPostsByTag(Long blogId, String tag, Pageable pageable) {
+        //태그명으로 tagId > post_tag에서 검색 > 반환
+        Long tagId = tagService.findByTagName(tag).getId();
+
+        //blogId, tagId로 조건걸어서 반환
+        Page<PostListResponseDto> posts = postRepository.searchBlogPostsByTag(blogId, tagId, pageable);
+        List<PostListResponseDto> newPosts = toPostList(posts);
+        return new PageImpl<>(newPosts, pageable, posts.getTotalElements());
+    }
+
+
+    //목록 조회 공통처리
+    private List<PostListResponseDto> toPostList(Page<PostListResponseDto> posts) {
+        return posts.stream()
+                .map(dto -> {
+                    //imgUrl 처리
+                    String imgUrl = dto.getImgUrl();
+                    if (imgUrl != null) {
+                        dto.setImgUrl(CLOUD_FRONT_DOMAIN_NAME + "/" + imgUrl);
+                    }
+
+                    // content 앞 130자만 가져오기
+                    //html태그 포함인 경우...
+//                    String content = dto.getContent();
+//                    String textContent = Jsoup.parse(content).text();
+//
+//                    if (textContent != null && textContent.length() > 130) {
+//                        dto.setContent(textContent.substring(0, 130));
+//                    }
+
+                    // tags 설정
+                    List<String> tags = tagService.selectPostTags(dto.getPostId());
+                    dto.setTags(tags);
+
+                    return dto;
+                })
+                .toList();
     }
 
     private List<Attachment> moveTemporaryImages(PostRequestDto postRequestDto) {

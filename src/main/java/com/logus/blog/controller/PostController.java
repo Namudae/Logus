@@ -87,13 +87,25 @@ public class PostController {
         return ApiResponse.ok();
     }
 
+    /**
+     * 태그 검색(블로그 내부)
+     * http://localhost:8082/posts/tag-search?blogId=1&tag=JAVA&size=10&page=0
+     */
+    @GetMapping("/posts/tag-search")
+    public ApiResponse<Page<PostListResponseDto>> searchBlogPostsByTag(@RequestParam("blogId") Long blogId,
+                                                                       @RequestParam("tag") String tag,
+                                                                       Pageable pageable) {
+        Page<PostListResponseDto> pagePosts = postService.searchBlogPostsByTag(blogId, tag, pageable);
+        return ApiResponse.ok(pagePosts);
+    }
+
 
     /**
      * 블로그 내부 검색(제목+내용)
      * + Pageable
      * http://localhost:8082/blog-search?blogId=1&size=10&page=0&keyword=번째
      */
-    @GetMapping("/blog-search")
+    @GetMapping("/posts/search")
     public ApiResponse<Page<PostListResponseDto>> searchBlogPosts(@RequestParam("blogId") Long blogId,
                                                                  @RequestParam(value="keyword", required = false) String keyword,
                                                                  Pageable pageable) {

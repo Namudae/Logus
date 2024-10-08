@@ -15,4 +15,6 @@ public interface PostRepositoryCustom {
     Page<PostListResponseDto> searchBlogPosts(Long blogId, String keyword, Pageable pageable);
 
     PostResponseDto selectPost(Long postId);
+
+    Page<PostListResponseDto> searchBlogPostsByTag(Long blogId, Long tagId, Pageable pageable);
 }
