@@ -3,12 +3,12 @@ package com.logus.member.entity;
 import com.logus.common.entity.Attachment;
 import com.logus.common.entity.BaseTime;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Getter
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Member extends BaseTime {
 
@@ -38,11 +38,22 @@ public class Member extends BaseTime {
 
     private String imgUrl;
 
+    private String role; //ADMIN, USER
+
     @Column(length = 1)
     private String delYn;
 
     public Member(String loginId) {
         this.loginId = loginId;
+    }
+
+    public Member(String loginId, String password) {
+        this.loginId = loginId;
+        this.password = password;
+    }
+
+    public void encodePassword(String password) {
+        this.password = password;
     }
 
 }
