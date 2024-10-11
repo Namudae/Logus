@@ -19,7 +19,7 @@ public class MemberDetailService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<Member> user = repository.findByLoginId(username);
+         Optional<Member> user = repository.findByLoginId(username);
         if (user.isPresent()) {
             var userObj = user.get();
             return User.builder()
@@ -27,6 +27,7 @@ public class MemberDetailService implements UserDetailsService {
                     .password(userObj.getPassword())
                     .roles(getRoles(userObj))
                     .build();
+//            return new UserPrincipal(userObj);
         } else {
             throw new UsernameNotFoundException(username);
         }
@@ -34,7 +35,7 @@ public class MemberDetailService implements UserDetailsService {
 
     private String[] getRoles(Member user) {
         if (user.getRole() == null) {
-            return new String[]{"USER"};
+            return new String[]{"ROLE_USER"};
         }
         return user.getRole().split(",");
     }

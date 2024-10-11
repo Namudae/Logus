@@ -10,9 +10,11 @@ import com.logus.common.entity.Attachment;
 import com.logus.common.entity.AttachmentType;
 import com.logus.common.exception.CustomException;
 import com.logus.common.exception.ErrorCode;
+import com.logus.common.security.JwtService;
 import com.logus.common.service.S3Service;
 import com.logus.member.entity.Member;
 import com.logus.member.service.MemberService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -20,6 +22,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,6 +48,9 @@ public class PostService {
     private final TagService tagService;
     private final CommentService commentService;
     private final S3Service s3Service;
+
+    @Autowired
+    private JwtService jwtService;
 
     public Post getById(Long postId) {
         return postRepository.findById(postId)
@@ -84,9 +90,17 @@ public class PostService {
 //        return postRepository.selectAllBlogPosts(blogAddress, pageable);
     }
 
-    public PostResponseDto selectPost(Long postId) {
-        //게시글 조회수+
+    public PostResponseDto selectPost(Long postId, HttpServletRequest request) {
+        //본인 확인
+        Long requestId = memberService.findIdByLoginId(jwtService.extractUsername(jwtService.getJwt(request)));
         Post post = getById(postId);
+        if (requestId != post.getMember().getId()) {
+            if(post.getStatus() != Status.PUBLIC) {
+                throw new CustomException(ErrorCode.SECRET_POST);
+            }
+        }
+
+        //게시글 조회수+
         PostResponseDto dto = postRepository.selectPost(postId);
 
         post.addViews(post.getViews()+1);

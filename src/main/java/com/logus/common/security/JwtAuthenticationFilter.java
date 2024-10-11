@@ -32,12 +32,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         String jwt = authHeader.substring(7);
-        String username = jwtService.extractUsername(jwt); //토큰에서 username 추출
+        String username = jwtService.extractUsername(jwt); //토큰에서 username 추출 > 여기서 Exception
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = myUserDetailService.loadUserByUsername(username);
             if (userDetails != null && jwtService.isTokenValid(jwt)) { //유효기간 체크
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                        username,
+//                        username,
+                        userDetails,
                         userDetails.getPassword(),
                         userDetails.getAuthorities()
                 );

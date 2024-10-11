@@ -25,4 +25,10 @@ public class MemberService {
                 memberRepository.getReferenceById(memberId);
     }
 
+    public Long findIdByLoginId(String loginId) {
+        Member member = memberRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        return member.getId();
+    }
+
 }
