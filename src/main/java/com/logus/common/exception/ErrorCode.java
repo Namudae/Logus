@@ -22,8 +22,8 @@ public enum ErrorCode {
     INVALID_TOKEN(2003, HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
 
     /* 3001~: 블로그 */
-    BLOG_NOT_FOUND(3001, HttpStatus.NOT_FOUND, "존재하지 않는 페이지입니다."),
-    POST_NOT_FOUND(3002, HttpStatus.NOT_FOUND, "존재하지 않는 페이지입니다."),
+    BLOG_NOT_FOUND(3001, HttpStatus.NOT_FOUND, "존재하지 않는 블로그입니다."),
+    POST_NOT_FOUND(3002, HttpStatus.NOT_FOUND, "존재하지 않는 게시글입니다."),
     COMMENT_NOT_FOUND(3003, HttpStatus.NOT_FOUND, "존재하지 않는 댓글입니다."),
     SECRET_POST(3004, HttpStatus.NOT_FOUND, "비공개 글입니다."),
 
