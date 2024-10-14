@@ -92,13 +92,13 @@ public class PostService {
 
     public PostResponseDto selectPost(Long postId, HttpServletRequest request) {
         //본인 확인
-        Long requestId = memberService.findIdByLoginId(jwtService.extractUsername(jwtService.getJwt(request)));
+//        Long requestId = memberService.findIdByLoginId(jwtService.extractUsername(jwtService.getJwt(request)));
         Post post = getById(postId);
-        if (requestId != post.getMember().getId()) {
-            if(post.getStatus() != Status.PUBLIC) {
-                throw new CustomException(ErrorCode.SECRET_POST);
-            }
-        }
+//        if (requestId != post.getMember().getId()) {
+//            if(post.getStatus() != Status.PUBLIC) {
+//                throw new CustomException(ErrorCode.SECRET_POST);
+//            }
+//        }
 
         //게시글 조회수+
         PostResponseDto dto = postRepository.selectPost(postId);

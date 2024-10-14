@@ -21,26 +21,6 @@ public class ContentController {
   @Autowired
   private MemberDetailService myUserDetailService;
 
-//  @GetMapping("/home")
-//  public String handleWelcome() {
-//    return "home";
-//  }
-//
-//  @GetMapping("/admin/home")
-//  public String handleAdminHome() {
-//    return "home_admin";
-//  }
-//
-//  @GetMapping("/user/home")
-//  public String handleUserHome() {
-//    return "home_user";
-//  }
-//
-//  @GetMapping("/login")
-//  public String handleLogin() {
-//    return "custom_login";
-//  }
-
   //without login
   @GetMapping("/home")
   public String handleWelcome() {
@@ -62,32 +42,12 @@ public class ContentController {
   @PostMapping("/authenticate")
   public String authenticateAndGetToken(@RequestBody LoginForm loginForm) {
     Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-            loginForm.username(), loginForm.password()
+            loginForm.loginId(), loginForm.password()
     ));
     if (authentication.isAuthenticated()) {
-      return jwtService.generateToken(myUserDetailService.loadUserByUsername(loginForm.username()));
+      return jwtService.generateToken(myUserDetailService.loadUserByUsername(loginForm.loginId()));
     } else {
       throw new UsernameNotFoundException("Invalid credentials");
     }
   }
-
-//  @PostMapping("/refresh")
-//  public ResponseEntity<String> refresh(@RequestHeader("Authorization") String authHeader) {
-//    if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-//      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid refresh token");
-//    }
-//
-//    String refreshToken = authHeader.substring(7); // Bearer 제거
-//    String username = jwtService.extractUsername(refreshToken);
-//
-//    if (username != null) {
-//      UserDetails userDetails = myUserDetailService.loadUserByUsername(username);
-//      if (userDetails != null && jwtService.isTokenValid(refreshToken)) {
-//        String newAccessToken = jwtService.generateToken(userDetails);
-//        return ResponseEntity.ok(newAccessToken);
-//      }
-//    }
-//    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Refresh token invalid or expired");
-//  }
-
 }

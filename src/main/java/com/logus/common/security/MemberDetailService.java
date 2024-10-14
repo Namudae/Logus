@@ -18,8 +18,8 @@ public class MemberDetailService implements UserDetailsService {
     private MemberRepository repository;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-         Optional<Member> user = repository.findByLoginId(username);
+    public UserDetails loadUserByUsername(String loginId) throws UsernameNotFoundException {
+         Optional<Member> user = repository.findByLoginId(loginId);
         if (user.isPresent()) {
             var userObj = user.get();
 //            return User.builder()
@@ -29,7 +29,7 @@ public class MemberDetailService implements UserDetailsService {
 //                    .build();
             return new UserPrincipal(userObj);
         } else {
-            throw new UsernameNotFoundException(username);
+            throw new UsernameNotFoundException(loginId);
         }
     }
 

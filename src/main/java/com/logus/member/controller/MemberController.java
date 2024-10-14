@@ -1,4 +1,4 @@
-package com.logus.common.security;
+package com.logus.member.controller;
 
 import com.logus.member.entity.Member;
 import com.logus.member.repository.MemberRepository;
@@ -9,17 +9,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class RegistrationController {
+public class MemberController {
 
     @Autowired
     private MemberRepository myUserRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @PostMapping("/register/user")
-    public Member createUser(@RequestBody Member user) {
-        user.encodePassword(passwordEncoder.encode(user.getPassword()));
-        return myUserRepository.save(user);
+    @PostMapping("/register/member")
+    public Member createUser(@RequestBody Member member) {
+        member.encodePassword(passwordEncoder.encode(member.getPassword()));
+        return myUserRepository.save(member);
     }
 
 }

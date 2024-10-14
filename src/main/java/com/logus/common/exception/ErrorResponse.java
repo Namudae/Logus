@@ -15,7 +15,6 @@ import java.util.Map;
 @Getter
 public class ErrorResponse {
     private final int code; //400
-//    private HttpStatus status; //Bad Request
     private final String message; //잘못된 요청입니다
     private final List<FieldException> errors;
 

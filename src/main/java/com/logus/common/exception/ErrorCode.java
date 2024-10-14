@@ -21,6 +21,7 @@ public enum ErrorCode {
     UNAUTHORIZED_TOKEN(2002, HttpStatus.UNAUTHORIZED, "권한 정보가 없는 토큰입니다."),
     EXPIRED_TOKEN(2003, HttpStatus.UNAUTHORIZED, "만료된 토큰입니다."),
     INVALID_TOKEN(2004, HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
+    NEED_LOGIN(2005, HttpStatus.UNAUTHORIZED, "로그인이 필요합니다."),
 
     /* 3001~: 블로그 */
     BLOG_NOT_FOUND(3001, HttpStatus.NOT_FOUND, "존재하지 않는 페이지입니다."),
