@@ -57,7 +57,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
             }
         } catch (MalformedJwtException | UnsupportedJwtException | ExpiredJwtException e) {
-            sendErrorResponse(response, ErrorCode.EXPIRED_TOKEN);
+            sendErrorResponse(response, ErrorCode.INVALID_TOKEN);
             return;
         }
         filterChain.doFilter(request, response);
