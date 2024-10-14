@@ -22,12 +22,12 @@ public class MemberDetailService implements UserDetailsService {
          Optional<Member> user = repository.findByLoginId(username);
         if (user.isPresent()) {
             var userObj = user.get();
-            return User.builder()
-                    .username(userObj.getLoginId())
-                    .password(userObj.getPassword())
-                    .roles(getRoles(userObj))
-                    .build();
-//            return new UserPrincipal(userObj);
+//            return User.builder()
+//                    .username(userObj.getLoginId())
+//                    .password(userObj.getPassword())
+//                    .roles(getRoles(userObj))
+//                    .build();
+            return new UserPrincipal(userObj);
         } else {
             throw new UsernameNotFoundException(username);
         }

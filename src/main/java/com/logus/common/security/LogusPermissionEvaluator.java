@@ -3,6 +3,7 @@ package com.logus.common.security;
 import com.logus.blog.repository.PostRepository;
 import com.logus.common.exception.CustomException;
 import com.logus.common.exception.ErrorCode;
+import com.logus.member.entity.Member;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.PermissionEvaluator;
@@ -29,9 +30,7 @@ public class LogusPermissionEvaluator implements PermissionEvaluator {
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         if (!post.getMember().getId().equals(userPrincipal.getMemberId())) {
-            log.error("[인가실패] 해당 사용자가 작성한 글이 아닙니다. targetId={}", targetId);
-//            new CustomException(ErrorCode.UNAUTHORIZED_REQUEST);
-            return false;
+            throw new CustomException(ErrorCode.UNAUTHORIZED_REQUEST);
         }
 
         return true;
