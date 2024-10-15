@@ -10,9 +10,11 @@ import com.logus.common.entity.Attachment;
 import com.logus.common.entity.AttachmentType;
 import com.logus.common.exception.CustomException;
 import com.logus.common.exception.ErrorCode;
+import com.logus.common.security.JwtService;
 import com.logus.common.service.S3Service;
 import com.logus.member.entity.Member;
 import com.logus.member.service.MemberService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -20,6 +22,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,14 +49,20 @@ public class PostService {
     private final CommentService commentService;
     private final S3Service s3Service;
 
+    @Autowired
+    private JwtService jwtService;
+
     public Post getById(Long postId) {
         return postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
     }
 
     //+내용 130글자까지?
-    public Page<PostListResponseDto> selectAllBlogPosts(Long blogId, Long seriesId, Pageable pageable) {
-        Page<PostListResponseDto> posts = postRepository.selectAllBlogPosts(blogId, seriesId, pageable);
+    public Page<PostListResponseDto> selectAllBlogPosts(Long blogId, Long seriesId, Pageable pageable, HttpServletRequest request) {
+        //본인 확인
+        Long requestId = memberService.getMemberIdFromJwt(request);
+
+        Page<PostListResponseDto> posts = postRepository.selectAllBlogPosts(blogId, seriesId, pageable, requestId);
 
         List<PostListResponseDto> newPosts = toPostList(posts);
 
@@ -61,9 +70,29 @@ public class PostService {
 //        return postRepository.selectAllBlogPosts(blogAddress, pageable);
     }
 
-    public PostResponseDto selectPost(Long postId) {
-        //게시글 조회수+
+    public PostResponseDto selectPost(Long postId, HttpServletRequest request) {
+        //본인 확인
+        Long requestId = memberService.getMemberIdFromJwt(request);
         Post post = getById(postId);
+
+        //작성자가 아닐 경우
+//        if (!memberService.isAuthor(requestId, post.getMember().getId())) {
+//            if(post.getStatus() != Status.PUBLIC) {
+//                throw new CustomException(ErrorCode.SECRET_POST);
+//            }
+//        }
+
+        //비밀글 > 멤버확인, 임시글 > 조회x
+        if (post.getStatus() == Status.SECRET) {
+            List<Long> blogMemberIds = blogService.blogMemberIds(post.getBlog().getId());
+            if (!blogService.isMember(requestId, blogMemberIds)) {
+                throw new CustomException(ErrorCode.SECRET_POST);
+            }
+        } else if (post.getStatus() == Status.TEMPORARY) {
+            throw new CustomException(ErrorCode.POST_NOT_FOUND);
+        }
+
+        //게시글 조회수+
         PostResponseDto dto = postRepository.selectPost(postId);
 
         post.addViews(post.getViews()+1);
@@ -88,8 +117,8 @@ public class PostService {
     @Transactional
     public Long createPost(PostRequestDto postRequestDto, MultipartFile thumbImage) throws IOException {
 
-        //1. findById > select로 인한 성능저하
-        //2. getReferenceById > 데이터 검증x ***
+        //1. findById > select 쿼리 나감
+        //2. getReferenceById > 데이터 검증x
         Member member = memberService.getById(postRequestDto.getMemberId());
         Blog blog = blogService.getReferenceById(postRequestDto.getBlogId());
         Category category = categoryService.getReferenceById(postRequestDto.getCategoryId());
@@ -162,13 +191,9 @@ public class PostService {
     @Transactional
     public void deletePost(Long postId) {
         Post post = getById(postId);
-        post.deletePost();
 
         //댓글 delete
-        commentService.getByPostId(postId).forEach(comment -> {
-            comment.delComment();
-            commentService.save(comment);
-        });
+        commentService.getByPostId(postId).forEach(commentService::delete);
 
         //postTag delete
         tagService.deletePostTag(postId);
@@ -184,6 +209,7 @@ public class PostService {
         }
     }
 
+<<<<<<< HEAD
     public Page<PostListResponseDto> searchBlogPostsByTag(Long blogId, String tag, Pageable pageable) {
         //태그명으로 tagId > post_tag에서 검색 > 반환
         Long tagId = tagService.findByTagName(tag).getId();
@@ -221,6 +247,9 @@ public class PostService {
                     return dto;
                 })
                 .toList();
+=======
+        postRepository.delete(post);
+>>>>>>> feature/security
     }
 
     private List<Attachment> moveTemporaryImages(PostRequestDto postRequestDto) {
