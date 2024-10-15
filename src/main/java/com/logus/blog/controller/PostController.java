@@ -112,11 +112,7 @@ public class PostController {
      * + Pageable
      * http://localhost:8082/blog-search?blogId=1&size=10&page=0&keyword=번째
      */
-<<<<<<< HEAD
-    @GetMapping("/posts/search")
-=======
     @GetMapping("/posts/blog-search")
->>>>>>> feature/security
     public ApiResponse<Page<PostListResponseDto>> searchBlogPosts(@RequestParam("blogId") Long blogId,
                                                                  @RequestParam(value="keyword", required = false) String keyword,
                                                                  Pageable pageable) {

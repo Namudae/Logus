@@ -17,11 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-<<<<<<< HEAD
 import static com.logus.common.service.S3Service.CLOUD_FRONT_DOMAIN_NAME;
-=======
 import static java.util.stream.Collectors.toList;
->>>>>>> feature/security
 
 @Service
 @RequiredArgsConstructor

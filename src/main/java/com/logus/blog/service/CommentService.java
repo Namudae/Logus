@@ -37,7 +37,6 @@ public class CommentService {
         commentRepository.save(comment);
     }
 
-<<<<<<< HEAD
     public List<CommentResponseDto> getComments(Long postId) {
         return commentRepository.findByPostId(postId)
                 .stream()
@@ -46,12 +45,10 @@ public class CommentService {
     }
 
     @Transactional
-=======
     public void delete(Comment comment) {
         commentRepository.delete(comment);
     }
 
->>>>>>> feature/security
     public Long createComment(CommentRequestDto commentRequestDto) {
 
         Member member = memberService.getReferenceById(commentRequestDto.getMemberId());
@@ -72,9 +69,4 @@ public class CommentService {
         return commentId;
     }
 
-    @Transactional
-    public void deleteComment(Long commentId) {
-        Comment comment = getById(commentId);
-        comment.deleteComment();
-    }
 }

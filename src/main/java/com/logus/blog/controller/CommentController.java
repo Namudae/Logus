@@ -38,10 +38,10 @@ public class CommentController {
     /**
      * 댓글 삭제
      */
-    @DeleteMapping("/comments/{commentId}")
-    public ApiResponse<String> deleteComment(@PathVariable("commentId") Long commentId) {
-        commentService.deleteComment(commentId);
-        return ApiResponse.ok();
-    }
+//    @DeleteMapping("/comments/{commentId}")
+//    public ApiResponse<String> deleteComment(@PathVariable("commentId") Long commentId) {
+//        commentService.deleteComment(commentId);
+//        return ApiResponse.ok();
+//    }
 
 }

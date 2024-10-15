@@ -209,7 +209,6 @@ public class PostService {
         }
     }
 
-<<<<<<< HEAD
     public Page<PostListResponseDto> searchBlogPostsByTag(Long blogId, String tag, Pageable pageable) {
         //태그명으로 tagId > post_tag에서 검색 > 반환
         Long tagId = tagService.findByTagName(tag).getId();
@@ -247,9 +246,6 @@ public class PostService {
                     return dto;
                 })
                 .toList();
-=======
-        postRepository.delete(post);
->>>>>>> feature/security
     }
 
     private List<Attachment> moveTemporaryImages(PostRequestDto postRequestDto) {

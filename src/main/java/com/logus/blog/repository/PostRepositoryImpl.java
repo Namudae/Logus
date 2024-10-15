@@ -176,7 +176,6 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         return new PageImpl<>(results, pageable, total);
     }
 
-<<<<<<< HEAD
     //tag검색
     public Page<PostListResponseDto> searchBlogPostsByTag(Long blogId, Long tagId, Pageable pageable) {
         JPAQuery<PostListResponseDto> query = jpaQueryFactory
@@ -230,8 +229,6 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         return new PageImpl<>(results, pageable, total);
     }
 
-=======
->>>>>>> feature/security
     private BooleanExpression blogAddressEq(String blogAddress) {
         return hasText(blogAddress) ? post.blog.blogAddress.eq(blogAddress) : null;
     }
