@@ -54,9 +54,4 @@ public class Comment extends BaseTime {
     @Column(length = 20, columnDefinition = "varchar(20)")
     private ReportStatus reportStatus;
 
-    //==비즈니스 로직==//
-    public void delComment() {
-        this.status = Status.DELETE;
-    }
-
 }
