@@ -94,11 +94,6 @@ public class Post extends BaseTime {
         this.status = status;
     }
 
-    //게시글 삭제
-    public void deletePost() {
-        this.status = Status.DELETE;
-    }
-
     public void deleteImgUrl() {
         this.imgUrl = null;
     }

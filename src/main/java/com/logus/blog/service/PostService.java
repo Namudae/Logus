@@ -202,13 +202,9 @@ public class PostService {
     @Transactional
     public void deletePost(Long postId) {
         Post post = getById(postId);
-        post.deletePost();
 
         //댓글 delete
-        commentService.getByPostId(postId).forEach(comment -> {
-            comment.delComment();
-            commentService.save(comment);
-        });
+        commentService.getByPostId(postId).forEach(commentService::delete);
 
         //postTag 처리
         tagService.deletePostTag(postId);
@@ -224,7 +220,7 @@ public class PostService {
             s3Service.deleteS3(image);
         }
 
-        postRepository.save(post);
+        postRepository.delete(post);
     }
 
     private List<Attachment> moveTemporaryImages(PostRequestDto postRequestDto) {

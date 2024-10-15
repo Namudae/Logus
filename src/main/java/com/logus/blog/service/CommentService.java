@@ -31,6 +31,10 @@ public class CommentService {
         commentRepository.save(comment);
     }
 
+    public void delete(Comment comment) {
+        commentRepository.delete(comment);
+    }
+
     public Long createComment(CommentRequestDto commentRequestDto) {
 
         Member member = memberService.getReferenceById(commentRequestDto.getMemberId());
