@@ -20,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
+import static com.logus.blog.entity.QBlogMember.blogMember;
 import static com.logus.blog.entity.QCategory.category;
 import static com.logus.blog.entity.QComment.comment;
 import static com.logus.blog.entity.QLikey.likey;
@@ -122,7 +123,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .where(
                         post.blog.id.eq(blogId),
                         seriesEq(seriesId),
-                        checkPublic(requestId, post)
+                        checkPublic(blogId, requestId, post)
                 )
                 .orderBy(post.createDate.desc());  // post.createDate 기준 오름차순 정렬;
 
@@ -237,9 +238,19 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         return seriesId != null ? post.series.id.eq(seriesId) : null;
     }
 
-    private BooleanExpression checkPublic(Long requestId, QPost post) {
+    private BooleanExpression checkPublic(Long blogId, Long requestId, QPost post) {
         return post.status.ne(Status.TEMPORARY) //임시저장글 제외
-                .and(post.member.id.eq(requestId).and(post.status.eq(Status.SECRET))) //비밀글은 본인만
+                //블로그 멤버일 경우 비밀글 조회
+                .and(
+                        JPAExpressions.selectOne()
+                                .from(blogMember)
+                                .where(
+                                        blogMember.blog.id.eq(blogId)
+                                        .and(blogMember.member.id.eq(requestId))
+                                )
+                                .exists()
+                                .and(post.status.eq(Status.SECRET))
+                )
                 .or(post.status.eq(Status.PUBLIC)); //공개글
     }
 

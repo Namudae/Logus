@@ -63,7 +63,6 @@ public class PostService {
         Long requestId = memberService.getMemberIdFromJwt(request);
 
         Page<PostListResponseDto> posts = postRepository.selectAllBlogPosts(blogId, seriesId, pageable, requestId);
-
         List<PostListResponseDto> newPosts = toPostList(posts);
 
         return new PageImpl<>(newPosts, pageable, posts.getTotalElements());
@@ -220,7 +219,12 @@ public class PostService {
     }
 
 
-    //목록 조회 공통처리
+    /**
+     * 게시글 목록 조회 공통처리
+     * - 썸네일
+     * - 태그
+     * 추가할것: 본문 n자까지만 조회
+     */
     private List<PostListResponseDto> toPostList(Page<PostListResponseDto> posts) {
         return posts.stream()
                 .map(dto -> {
