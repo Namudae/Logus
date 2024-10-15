@@ -58,8 +58,11 @@ public class PostService {
     }
 
     //+내용 130글자까지?
-    public Page<PostListResponseDto> selectAllBlogPosts(Long blogId, Long seriesId, Pageable pageable) {
-        Page<PostListResponseDto> posts = postRepository.selectAllBlogPosts(blogId, seriesId, pageable);
+    public Page<PostListResponseDto> selectAllBlogPosts(Long blogId, Long seriesId, Pageable pageable, HttpServletRequest request) {
+        //본인 확인
+        Long requestId = memberService.getMemberIdFromJwt(request);
+
+        Page<PostListResponseDto> posts = postRepository.selectAllBlogPosts(blogId, seriesId, pageable, requestId);
 
         List<PostListResponseDto> newPosts = posts.stream()
                 .map(dto -> {
@@ -92,13 +95,25 @@ public class PostService {
 
     public PostResponseDto selectPost(Long postId, HttpServletRequest request) {
         //본인 확인
-//        Long requestId = memberService.findIdByLoginId(jwtService.extractUsername(jwtService.getJwt(request)));
+        Long requestId = memberService.getMemberIdFromJwt(request);
         Post post = getById(postId);
-//        if (requestId != post.getMember().getId()) {
+
+        //작성자가 아닐 경우
+//        if (!memberService.isAuthor(requestId, post.getMember().getId())) {
 //            if(post.getStatus() != Status.PUBLIC) {
 //                throw new CustomException(ErrorCode.SECRET_POST);
 //            }
 //        }
+
+        //비밀글 > 멤버확인, 임시글 > 조회x
+        if (post.getStatus() == Status.SECRET) {
+            List<Long> blogMemberIds = blogService.blogMemberIds(post.getBlog().getId());
+            if (!blogService.isMember(requestId, blogMemberIds)) {
+                throw new CustomException(ErrorCode.SECRET_POST);
+            }
+        } else if (post.getStatus() == Status.TEMPORARY) {
+            throw new CustomException(ErrorCode.POST_NOT_FOUND);
+        }
 
         //게시글 조회수+
         PostResponseDto dto = postRepository.selectPost(postId);
@@ -128,8 +143,8 @@ public class PostService {
     @Transactional
     public Long createPost(PostRequestDto postRequestDto, MultipartFile thumbImage) throws IOException {
 
-        //1. findById > select로 인한 성능저하
-        //2. getReferenceById > 데이터 검증x ***
+        //1. findById > select 쿼리 나감
+        //2. getReferenceById > 데이터 검증x
         Member member = memberService.getById(postRequestDto.getMemberId());
         Blog blog = blogService.getReferenceById(postRequestDto.getBlogId());
         Category category = categoryService.getReferenceById(postRequestDto.getCategoryId());

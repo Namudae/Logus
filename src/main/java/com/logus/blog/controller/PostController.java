@@ -41,8 +41,9 @@ public class PostController {
     @GetMapping("/posts")
     public ApiResponse<Page<PostListResponseDto>> selectAllBlogPosts(@RequestParam("blogId") Long blogId,
                                                                      @RequestParam(value = "seriesId", required = false) Long seriesId,
-                                                                     Pageable pageable) {
-        Page<PostListResponseDto> posts = postService.selectAllBlogPosts(blogId, seriesId, pageable);
+                                                                     Pageable pageable,
+                                                                     HttpServletRequest request) {
+        Page<PostListResponseDto> posts = postService.selectAllBlogPosts(blogId, seriesId, pageable, request);
 
         return ApiResponse.ok(posts);
     }

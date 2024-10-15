@@ -3,6 +3,9 @@ package com.logus.blog.repository;
 import com.logus.blog.dto.PostListResponseDto;
 import com.logus.blog.dto.PostRequestDto;
 import com.logus.blog.dto.PostResponseDto;
+import com.logus.blog.entity.QPost;
+import com.logus.blog.entity.Status;
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -10,6 +13,7 @@ import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -77,7 +81,11 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     /**
      * 블로그 내 모든 포스트 조회
      */
-    public Page<PostListResponseDto> selectAllBlogPosts(Long blogId, Long seriesId, Pageable pageable) {
+    public Page<PostListResponseDto> selectAllBlogPosts(Long blogId, Long seriesId, Pageable pageable, Long requestId) {
+
+        // Author 확인
+        BooleanExpression isAuthor = post.member.id.eq(requestId);
+
         JPAQuery<PostListResponseDto> query = jpaQueryFactory
                 .select(Projections.fields(PostListResponseDto.class,
                         member.id.as("memberId"),
@@ -112,8 +120,10 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .leftJoin(post.series, series)
                 .where(
                         post.blog.id.eq(blogId),
-                        seriesEq(seriesId)
-                );
+                        seriesEq(seriesId),
+                        checkPublic(requestId, post)
+                )
+                .orderBy(post.createDate.desc());  // post.createDate 기준 오름차순 정렬;
 
         // 총 결과 수 조회
         long total = query.fetchCount();
@@ -165,8 +175,6 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         return new PageImpl<>(results, pageable, total);
     }
 
-    //여기서 postTag까지 조회
-
     private BooleanExpression blogAddressEq(String blogAddress) {
         return hasText(blogAddress) ? post.blog.blogAddress.eq(blogAddress) : null;
     }
@@ -174,6 +182,15 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     private BooleanExpression seriesEq(Long seriesId) {
         return seriesId != null ? post.series.id.eq(seriesId) : null;
     }
+
+    private BooleanExpression checkPublic(Long requestId, QPost post) {
+        return post.status.ne(Status.TEMPORARY) //임시저장글 제외
+                .and(post.member.id.eq(requestId).and(post.status.eq(Status.SECRET))) //비밀글은 본인만
+                .or(post.status.eq(Status.PUBLIC)); //공개글
+    }
+
+
+
 
 
 }

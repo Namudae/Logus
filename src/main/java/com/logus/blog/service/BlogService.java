@@ -16,6 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static java.util.stream.Collectors.toList;
+
 @Service
 @RequiredArgsConstructor
 public class BlogService {
@@ -78,5 +80,17 @@ public class BlogService {
     public Long getBlogIdByAddress(String blogAddress) {
         return blogRepository.findByBlogAddress(blogAddress)
                 .orElseThrow(() -> new CustomException(ErrorCode.BLOG_NOT_FOUND)).getId();
+    }
+
+    public boolean isMember(Long loginId, List<Long> blogMemberIds) {
+        return blogMemberIds.stream()
+                .anyMatch(memberId -> memberId.equals(loginId));
+    }
+
+    public List<Long> blogMemberIds(Long blogId) {
+//        return blogMemberRepository.findMemberIdByBlogId(blogId);
+        return blogMemberRepository.findByBlogId(blogId).stream()
+                .map(blogMember -> blogMember.getMember().getId())
+                .collect(toList());
     }
 }
