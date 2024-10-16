@@ -93,15 +93,17 @@ public class PostService {
 
         //게시글 조회수+
         PostResponseDto dto = postRepository.selectPost(postId);
-
         post.addViews(post.getViews()+1);
         postRepository.save(post);
+
         //댓글 조회
         List<CommentResponseDto> comments = commentService.getComments(postId);
         //태그 조회
         List<String> tags = tagService.selectPostTags(postId);
-
-        //+ 이전게시글, 다음게시글(전체조회 or 시리즈조회)
+        //이전게시글, 다음게시글(전체조회 기준, PUBLIC)
+        PostResponseDto pre = postRepository.selectPrePost(post.getBlog().getId(), post.getCreateDate());
+        PostResponseDto next = postRepository.selectNextPost(post.getBlog().getId(),  post.getCreateDate());
+        dto.setPreNext(pre, next);
 
         dto.setComments(comments);
         dto.setTags(tags);
