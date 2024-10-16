@@ -100,6 +100,9 @@ public class BlogService {
     }
 
     public boolean isMember(Long loginId, List<Long> blogMemberIds) {
+        if (loginId == null) {
+            return false;
+        }
         return blogMemberIds.stream()
                 .anyMatch(memberId -> memberId.equals(loginId));
     }
