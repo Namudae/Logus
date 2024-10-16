@@ -82,9 +82,10 @@ public class PostService {
 //        }
 
         //비밀글 > 멤버확인, 임시글 > 조회x
+        List<Long> blogMemberIds = blogService.blogMemberIds(post.getBlog().getId());
+        boolean isMember = blogService.isMember(requestId, blogMemberIds);
         if (post.getStatus() == Status.SECRET) {
-            List<Long> blogMemberIds = blogService.blogMemberIds(post.getBlog().getId());
-            if (!blogService.isMember(requestId, blogMemberIds)) {
+            if (!isMember) {
                 throw new CustomException(ErrorCode.SECRET_POST);
             }
         } else if (post.getStatus() == Status.TEMPORARY) {
@@ -98,11 +99,17 @@ public class PostService {
 
         //댓글 조회
         List<CommentResponseDto> comments = commentService.getComments(postId);
+        // + 전체 조회후 비밀댓글 여기서 처리
+        if (!isMember) {
+            comments.stream()
+                    .filter(comment -> comment.getStatus() == Status.SECRET)
+                    .forEach(CommentResponseDto::secretComment);
+        }
         //태그 조회
         List<String> tags = tagService.selectPostTags(postId);
         //이전게시글, 다음게시글(전체조회 기준, PUBLIC)
         PostResponseDto pre = postRepository.selectPrePost(post.getBlog().getId(), post.getCreateDate());
-        PostResponseDto next = postRepository.selectNextPost(post.getBlog().getId(),  post.getCreateDate());
+        PostResponseDto next = postRepository.selectNextPost(post.getBlog().getId(), post.getCreateDate());
         dto.setPreNext(pre, next);
 
         dto.setComments(comments);
