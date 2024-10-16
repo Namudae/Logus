@@ -48,11 +48,17 @@ public class JwtService {
     }
 
     public String extractUsername(String jwt) {
+        if (jwt == null) {
+            return null;
+        }
         Claims claims = getClaims(jwt);
         return claims.getSubject();
     }
 
     private Claims getClaims(String jwt) {
+        if (jwt == null) {
+            return null;
+        }
         return Jwts.parser()
                 .verifyWith(generateKey())
                 .build()
@@ -61,6 +67,9 @@ public class JwtService {
     }
 
     public boolean isTokenValid(String jwt) {
+        if (jwt == null) {
+            return false;
+        }
         Claims claims = getClaims(jwt);
         return claims.getExpiration().after(Date.from(Instant.now()));
     }

@@ -32,6 +32,9 @@ public class MemberService {
     }
 
     public Long findIdByLoginId(String loginId) {
+        if (loginId == null) {
+            return null;
+        }
         Member member = memberRepository.findByLoginId(loginId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
         return member.getId();
