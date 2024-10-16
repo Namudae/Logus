@@ -46,4 +46,20 @@ public class BlogRepositoryImpl implements BlogRepositoryCustom {
 //                .where(post.id.eq(postId))
                 .fetchOne();
     }
+
+    /**
+     * My-Log 검색
+     */
+    @Override
+    public String findMyLogAddress(Long memberId) {
+        return jpaQueryFactory
+                .select(blog.blogAddress)
+                .from(blog)
+                .leftJoin(blog.blogMembers, blogMember)
+                .where(
+                        blogMember.member.id.eq(memberId),
+                        blog.shareYn.eq("N")
+                )
+                .fetchOne();
+    }
 }

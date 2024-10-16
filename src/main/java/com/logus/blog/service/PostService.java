@@ -63,31 +63,7 @@ public class PostService {
         Long requestId = memberService.getMemberIdFromJwt(request);
 
         Page<PostListResponseDto> posts = postRepository.selectAllBlogPosts(blogId, seriesId, pageable, requestId);
-
-        List<PostListResponseDto> newPosts = posts.stream()
-                .map(dto -> {
-                    //imgUrl 처리
-                    String imgUrl = dto.getImgUrl();
-                    if (imgUrl != null) {
-                        dto.setImgUrl(CLOUD_FRONT_DOMAIN_NAME + "/" + imgUrl);
-                    }
-
-                    // content 앞 130자만 가져오기
-                    //html태그 포함인 경우...
-//                    String content = dto.getContent();
-//                    String textContent = Jsoup.parse(content).text();
-//
-//                    if (textContent != null && textContent.length() > 130) {
-//                        dto.setContent(textContent.substring(0, 130));
-//                    }
-
-                    // tags 설정
-                    List<String> tags = tagService.selectPostTags(dto.getPostId());
-                    dto.setTags(tags);
-
-                    return dto;
-                })
-                .toList();
+        List<PostListResponseDto> newPosts = toPostList(posts);
 
         return new PageImpl<>(newPosts, pageable, posts.getTotalElements());
 //        return postRepository.selectAllBlogPosts(blogAddress, pageable);
@@ -117,26 +93,25 @@ public class PostService {
 
         //게시글 조회수+
         PostResponseDto dto = postRepository.selectPost(postId);
-
         post.addViews(post.getViews()+1);
         postRepository.save(post);
+
         //댓글 조회
         List<CommentResponseDto> comments = commentService.getComments(postId);
         //태그 조회
         List<String> tags = tagService.selectPostTags(postId);
-
-        //+ 이전게시글, 다음게시글(전체조회 or 시리즈조회)
+        //이전게시글, 다음게시글(전체조회 기준, PUBLIC)
+        PostResponseDto pre = postRepository.selectPrePost(post.getBlog().getId(), post.getCreateDate());
+        PostResponseDto next = postRepository.selectNextPost(post.getBlog().getId(),  post.getCreateDate());
+        dto.setPreNext(pre, next);
 
         dto.setComments(comments);
         dto.setTags(tags);
         return dto;
-//        return new PostResponseDto(post, comments, tags);
     }
 
     public Page<PostListResponseDto> searchBlogPosts(Long blogId, String keyword, Pageable pageable) {
         if(keyword == null) keyword = "";
-
-//        PageRequest pageRequest = PageRequest.of(page - 1, size, Sort.by("postId").descending());
         return postRepository.searchBlogPosts(blogId, keyword, pageable);
     }
 
@@ -164,7 +139,7 @@ public class PostService {
         //Post insert
         Post savedPost = postRepository.save(post);
 
-        //Attachment insert
+        //Attachment insert(생략)
 //        for (Attachment attachment : attachments) {
 //            attachment.setPost(savedPost);
 //            attachmentRepository.save(attachment);
@@ -221,21 +196,62 @@ public class PostService {
         //댓글 delete
         commentService.getByPostId(postId).forEach(commentService::delete);
 
-        //postTag 처리
+        //postTag delete
         tagService.deletePostTag(postId);
 
-        //썸네일 삭제
+        //썸네일 서버 삭제
         if (post.getImgUrl() != null && !post.getImgUrl().isEmpty()) {
             s3Service.deleteS3(post.getImgUrl());
         }
-
-        //이미지
+        //이미지 서버 삭제
         List<String> imageList = extractImageSrcList(post.getContent());
         for (String image : imageList) {
             s3Service.deleteS3(image);
         }
+    }
 
-        postRepository.delete(post);
+    public Page<PostListResponseDto> searchBlogPostsByTag(Long blogId, String tag, Pageable pageable) {
+        //태그명으로 tagId > post_tag에서 검색 > 반환
+        Long tagId = tagService.findByTagName(tag).getId();
+
+        //blogId, tagId로 조건걸어서 반환
+        Page<PostListResponseDto> posts = postRepository.searchBlogPostsByTag(blogId, tagId, pageable);
+        List<PostListResponseDto> newPosts = toPostList(posts);
+        return new PageImpl<>(newPosts, pageable, posts.getTotalElements());
+    }
+
+
+    /**
+     * 게시글 목록 조회 공통처리
+     * - 썸네일
+     * - 태그
+     * 추가할것: 본문 n자까지만 조회
+     */
+    private List<PostListResponseDto> toPostList(Page<PostListResponseDto> posts) {
+        return posts.stream()
+                .map(dto -> {
+                    //imgUrl 처리
+                    String imgUrl = dto.getImgUrl();
+                    if (imgUrl != null) {
+                        dto.setImgUrl(CLOUD_FRONT_DOMAIN_NAME + "/" + imgUrl);
+                    }
+
+                    // content 앞 130자만 가져오기
+                    //html태그 포함인 경우...
+//                    String content = dto.getContent();
+//                    String textContent = Jsoup.parse(content).text();
+//
+//                    if (textContent != null && textContent.length() > 130) {
+//                        dto.setContent(textContent.substring(0, 130));
+//                    }
+
+                    // tags 설정
+                    List<String> tags = tagService.selectPostTags(dto.getPostId());
+                    dto.setTags(tags);
+
+                    return dto;
+                })
+                .toList();
     }
 
     private List<Attachment> moveTemporaryImages(PostRequestDto postRequestDto) {

@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface PostRepositoryCustom {
@@ -16,4 +17,9 @@ public interface PostRepositoryCustom {
     Page<PostListResponseDto> searchBlogPosts(Long blogId, String keyword, Pageable pageable);
 
     PostResponseDto selectPost(Long postId);
+
+    Page<PostListResponseDto> searchBlogPostsByTag(Long blogId, Long tagId, Pageable pageable);
+
+    PostResponseDto selectPrePost(Long blogId, LocalDateTime createDate);
+    PostResponseDto selectNextPost(Long blogId, LocalDateTime createDate);
 }

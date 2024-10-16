@@ -2,6 +2,7 @@ package com.logus.blog.dto;
 
 import com.logus.blog.entity.BlogAuth;
 import com.logus.blog.entity.BlogMember;
+import com.logus.member.entity.Member;
 import lombok.*;
 
 @AllArgsConstructor
@@ -14,13 +15,7 @@ public class BlogMemberResponseDto {
     private Long memberId;
     private String nickname;
     private BlogAuth blogAuth;
-
-    public static BlogMemberResponseDto fromEntity(BlogMember blogMember) {
-        return BlogMemberResponseDto.builder()
-                .memberId(blogMember.getMember().getId())
-                .nickname(blogMember.getMember().getNickname())
-                .blogAuth(blogMember.getBlogAuth())
-                .build();
-    }
+    private String imgUrl;
+    private String myLogAddress;
 
 }

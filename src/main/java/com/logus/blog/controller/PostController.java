@@ -37,6 +37,7 @@ public class PostController {
     /**
      * 블로그의 전체게시글 조회
      * + Pageable
+     * http://localhost:8082/posts?blogId=1&size=10&page=0
      */
     @GetMapping("/posts")
     public ApiResponse<Page<PostListResponseDto>> selectAllBlogPosts(@RequestParam("blogId") Long blogId,
@@ -91,6 +92,18 @@ public class PostController {
     public ApiResponse<String> deletePost(@PathVariable("postId") Long postId) throws MethodArgumentNotValidException {
         postService.deletePost(postId);
         return ApiResponse.ok();
+    }
+
+    /**
+     * 태그 검색(블로그 내부)
+     * http://localhost:8082/posts/tag-search?blogId=1&tag=JAVA&size=10&page=0
+     */
+    @GetMapping("/posts/tag-search")
+    public ApiResponse<Page<PostListResponseDto>> searchBlogPostsByTag(@RequestParam("blogId") Long blogId,
+                                                                       @RequestParam("tag") String tag,
+                                                                       Pageable pageable) {
+        Page<PostListResponseDto> pagePosts = postService.searchBlogPostsByTag(blogId, tag, pageable);
+        return ApiResponse.ok(pagePosts);
     }
 
 

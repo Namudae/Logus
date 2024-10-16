@@ -32,9 +32,9 @@ public class PostListResponseDto {
     private ReportStatus reportStatus;
     @JsonFormat(shape= JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createDate;
-    private List<String> tags;
     private Long likeCount;
     private Long commentCount;
+    private List<String> tags;
 
     /* Entity -> Dto */
     public PostListResponseDto(Post post) {

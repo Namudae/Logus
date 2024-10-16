@@ -44,7 +44,9 @@ public class PostResponseDto {
     private List<CommentResponseDto> comments;
 
     //이전게시글&다음게시글
+    private Long preId;
     private String preTitle;
+    private Long nextId;
     private String nextTitle;
 
     /* Entity -> Dto */
@@ -79,6 +81,17 @@ public class PostResponseDto {
 
     public PostResponseDto(Long postId) {
         this.postId = postId;
+    }
+
+    public void setPreNext(PostResponseDto pre, PostResponseDto next) {
+        if (pre != null) {
+            this.preId = pre.getPreId();
+            this.preTitle = pre.getPreTitle();
+        }
+        if (next != null) {
+            this.nextId = next.getNextId();
+            this.nextTitle = next.getNextTitle();
+        }
     }
 
 }
