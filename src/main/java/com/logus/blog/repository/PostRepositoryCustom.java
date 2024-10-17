@@ -22,4 +22,6 @@ public interface PostRepositoryCustom {
 
     PostResponseDto selectPrePost(Post post);
     PostResponseDto selectNextPost(Post post);
+
+    Long selectTemp(Long blogId, Long memberId);
 }

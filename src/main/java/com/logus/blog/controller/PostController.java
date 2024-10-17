@@ -96,6 +96,15 @@ public class PostController {
     }
 
     /**
+     * 임시저장 게시글 조회
+     */
+    public ApiResponse<PostResponseDto> selectTempPost(@RequestParam("blogId") Long blogId, HttpServletRequest request) {
+
+        return ApiResponse.ok(postService.selectTempPost(blogId, request));
+    }
+
+
+    /**
      * 태그 검색(블로그 내부)
      * http://localhost:8082/posts/tag-search?blogId=1&tag=JAVA&size=10&page=0
      */

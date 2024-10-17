@@ -139,12 +139,23 @@ public class PostService {
 
         //썸네일 업로드
         String thumbUrl = null;
-        if (thumbImage != null || !thumbImage.isEmpty()) {
+        if (thumbImage != null && !thumbImage.isEmpty()) {
             thumbUrl = s3Service.thumbUpload(thumbImage);
         }
 
+        //임시저장글일 경우, 기존 임시저장글 update
+        if (postRequestDto.getStatus() == Status.TEMPORARY) {
+            //temporary인 post 찾아서 update
+            Long tempPostId = postRepository.selectTemp(postRequestDto.getBlogId(), postRequestDto.getMemberId());
+            if (tempPostId != null) {
+                Post post = postRequestDto.toEntity(member, blog, category, series, thumbUrl, tempPostId);
+                //update
+                postRepository.save(post);
+                tagService.savePostTag(postRequestDto, post);
+                return tempPostId;
+            }
+        }
         Post post = postRequestDto.toEntity(member, blog, category, series, thumbUrl);
-
         //Post insert
         Post savedPost = postRepository.save(post);
 
@@ -219,6 +230,11 @@ public class PostService {
         }
 
         postRepository.delete(post);
+    }
+
+    public PostResponseDto selectTempPost(Long blogId, HttpServletRequest request) {
+        //blogId&memberId 로 TEMPORARY 게시글 하나만 존재... (게시글 등록시 중복 > update)
+        return null;
     }
 
     public Page<PostListResponseDto> searchBlogPostsByTag(Long blogId, String tag, Pageable pageable) {
@@ -345,5 +361,4 @@ public class PostService {
         }
         return true;
     }
-
 }

@@ -20,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static com.logus.blog.entity.QBlog.blog;
 import static com.logus.blog.entity.QBlogMember.blogMember;
 import static com.logus.blog.entity.QCategory.category;
 import static com.logus.blog.entity.QComment.comment;
@@ -268,6 +269,25 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 
         // Page 객체 생성 및 반환
         return new PageImpl<>(results, pageable, total);
+    }
+
+    /**
+     * 임시저장글 조회
+     */
+    @Override
+    public Long selectTemp(Long blogId, Long memberId) {
+        return jpaQueryFactory
+                .select(
+                        post.id.as("postId"))
+                .from(post)
+                .where(
+                        post.blog.id.eq(blogId),
+                        post.member.id.eq(memberId),
+                        post.status.eq(Status.TEMPORARY)
+                )
+                .join(post.member, member)
+                .leftJoin(post.blog, blog)
+                .fetchOne();
     }
 
     private BooleanExpression blogAddressEq(String blogAddress) {

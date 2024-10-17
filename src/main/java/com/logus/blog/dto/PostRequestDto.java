@@ -55,6 +55,20 @@ public class PostRequestDto {
                     .build();
         }
 
+        public Post toEntity(Member member, Blog blog, Category category, Series series, String imgUrl, Long postId) {
+                return Post.builder()
+                        .id(postId)
+                        .member(member)
+                        .blog(blog)
+                        .category(category)
+                        .series(series)
+                        .title(title)
+                        .content(content)
+                        .imgUrl(imgUrl)
+                        .status(status)
+                        .build();
+        }
+
         public Post toEntity(Category category, Series series) {
             return Post.builder()
                     .id(postId)
@@ -66,13 +80,5 @@ public class PostRequestDto {
                     .build();
         }
 
-//        public void validate() {
-//                String specialCharacters = "[!@#$%^&*(),.?\":{}|<>]";
-//                for (String tag : tags) {
-//                        if (tag.matches(".*" + specialCharacters + ".*")) {
-//                                throw new InvalidRequest("tags", "태그에 특수문자를 포함할 수 없습니다.");
-//                        }
-//                }
-//        }
 
 }
