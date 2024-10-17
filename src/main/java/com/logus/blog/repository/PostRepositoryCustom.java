@@ -20,6 +20,6 @@ public interface PostRepositoryCustom {
 
     Page<PostListResponseDto> searchBlogPostsByTag(Long blogId, Long tagId, Pageable pageable);
 
-    PostResponseDto selectPrePost(Long blogId, LocalDateTime createDate);
-    PostResponseDto selectNextPost(Long blogId, LocalDateTime createDate);
+    PostResponseDto selectPrePost(Post post);
+    PostResponseDto selectNextPost(Post post);
 }

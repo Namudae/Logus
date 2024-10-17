@@ -108,8 +108,8 @@ public class PostService {
         //태그 조회
         List<String> tags = tagService.selectPostTags(postId);
         //이전게시글, 다음게시글(전체조회 기준, PUBLIC)
-        PostResponseDto pre = postRepository.selectPrePost(post.getBlog().getId(), post.getCreateDate());
-        PostResponseDto next = postRepository.selectNextPost(post.getBlog().getId(), post.getCreateDate());
+        PostResponseDto pre = postRepository.selectPrePost(post);
+        PostResponseDto next = postRepository.selectNextPost(post);
         dto.setPreNext(pre, next);
 
         dto.setComments(comments);

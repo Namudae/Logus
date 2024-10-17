@@ -2,6 +2,7 @@ package com.logus.blog.repository;
 
 import com.logus.blog.dto.PostListResponseDto;
 import com.logus.blog.dto.PostResponseDto;
+import com.logus.blog.entity.Post;
 import com.logus.blog.entity.QPost;
 import com.logus.blog.entity.Status;
 import com.querydsl.core.types.ExpressionUtils;
@@ -140,7 +141,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     }
 
     @Override
-    public PostResponseDto selectPrePost(Long blogId, LocalDateTime createDate) {
+    public PostResponseDto selectPrePost(Post p) {
 
         return jpaQueryFactory
                 .select(Projections.fields(PostResponseDto.class,
@@ -149,8 +150,9 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 )
                 .from(post)
                 .where(
-                        post.blog.id.eq(blogId),
-                        dateLoe(createDate), //이전 게시글
+                        post.blog.id.eq(p.getBlog().getId()),
+                        dateLoe(p.getCreateDate()), //이전 게시글
+                        post.series.eq(p.getSeries()), //같은 시리즈
                         post.status.eq(Status.PUBLIC)
                 )
                 .orderBy(post.createDate.desc())
@@ -160,7 +162,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     }
 
     @Override
-    public PostResponseDto selectNextPost(Long blogId, LocalDateTime createDate) {
+    public PostResponseDto selectNextPost(Post p) {
 
         return jpaQueryFactory
                 .select(Projections.fields(PostResponseDto.class,
@@ -169,11 +171,12 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 )
                 .from(post)
                 .where(
-                        post.blog.id.eq(blogId),
-                        dateGoe(createDate), //이이후 게시글
+                        post.blog.id.eq(p.getBlog().getId()),
+                        dateGoe(p.getCreateDate()), //이후 게시글
+                        post.series.eq(p.getSeries()), //같은 시리즈
                         post.status.eq(Status.PUBLIC)
                 )
-                .orderBy(post.createDate.desc())
+                .orderBy(post.createDate.asc())
                 .limit(1)
                 .fetchOne();
     }
