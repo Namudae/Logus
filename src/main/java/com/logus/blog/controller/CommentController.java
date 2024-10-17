@@ -6,6 +6,7 @@ import com.logus.blog.service.CommentService;
 import com.logus.common.controller.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -28,6 +29,7 @@ public class CommentController {
     /**
      * 댓글 수정
      */
+    @PreAuthorize("@commentService.hasPermissionToComment(#commentId, authentication)")
     @PutMapping("/comments/{commentId}")
     public ApiResponse<Map<String, Long>> updateComment(@PathVariable("commentId") Long commentId,
                                                      @RequestPart("requestDto") @Valid CommentRequestDto commentRequestDto) {
@@ -38,10 +40,11 @@ public class CommentController {
     /**
      * 댓글 삭제
      */
-//    @DeleteMapping("/comments/{commentId}")
-//    public ApiResponse<String> deleteComment(@PathVariable("commentId") Long commentId) {
-//        commentService.deleteComment(commentId);
-//        return ApiResponse.ok();
-//    }
+    @PreAuthorize("@commentService.hasPermissionToComment(#commentId, authentication)")
+    @DeleteMapping("/comments/{commentId}")
+    public ApiResponse<String> deleteComment(@PathVariable("commentId") Long commentId) {
+        commentService.deleteComment(commentId);
+        return ApiResponse.ok();
+    }
 
 }

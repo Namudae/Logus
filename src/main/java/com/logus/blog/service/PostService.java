@@ -11,6 +11,7 @@ import com.logus.common.entity.AttachmentType;
 import com.logus.common.exception.CustomException;
 import com.logus.common.exception.ErrorCode;
 import com.logus.common.security.JwtService;
+import com.logus.common.security.UserPrincipal;
 import com.logus.common.service.S3Service;
 import com.logus.member.entity.Member;
 import com.logus.member.service.MemberService;
@@ -24,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -201,7 +203,7 @@ public class PostService {
         Post post = getById(postId);
 
         //댓글 delete
-        commentService.getByPostId(postId).forEach(commentService::delete);
+        commentService.getByPostId(postId).forEach(comment -> commentService.deleteComment(comment.getId()));
 
         //postTag delete
         tagService.deletePostTag(postId);
@@ -215,6 +217,8 @@ public class PostService {
         for (String image : imageList) {
             s3Service.deleteS3(image);
         }
+
+        postRepository.delete(post);
     }
 
     public Page<PostListResponseDto> searchBlogPostsByTag(Long blogId, String tag, Pageable pageable) {
@@ -324,6 +328,22 @@ public class PostService {
             imageList.add(imagePath);
         }
         return imageList;
+    }
+
+    //=====인가
+    public boolean hasPermissionToPost(Long postId, Authentication authentication) {
+        // 로그인이 안 되어 있거나, 익명 사용자인 경우 예외 발생
+        if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
+            throw new CustomException(ErrorCode.NEED_LOGIN);
+        }
+
+        var userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        var post = postRepository.findById((Long) postId)
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+        if (!post.getMember().getId().equals(userPrincipal.getMemberId())) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_REQUEST);
+        }
+        return true;
     }
 
 }
