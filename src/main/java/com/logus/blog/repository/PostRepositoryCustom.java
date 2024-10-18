@@ -19,7 +19,7 @@ public interface PostRepositoryCustom {
 
     PostResponseDto selectPost(Long postId);
 
-    Page<PostListResponseDto> searchBlogPostsByTag(Long blogId, Long tagId, Pageable pageable);
+    Page<PostListResponseDto> searchBlogPostsByTag(Long blogId, Long tagId, Pageable pageable, Long requestId);
 
     PostResponseDto selectPrePost(Post post);
     PostResponseDto selectNextPost(Post post);

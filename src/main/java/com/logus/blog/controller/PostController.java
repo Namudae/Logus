@@ -88,7 +88,6 @@ public class PostController {
     /**
      * 글 삭제
      */
-//    @PreAuthorize("hasRole('ROLE_USER') && hasPermission(#postId, 'Post', 'DELETE')")
     @PreAuthorize("@postService.hasPermissionToPost(#postId, authentication)")
     @DeleteMapping("/posts/{postId}")
     public ApiResponse<String> deletePost(@PathVariable("postId") Long postId) throws MethodArgumentNotValidException {
@@ -99,7 +98,7 @@ public class PostController {
     /**
      * 임시저장 게시글 조회
      */
-    @GetMapping("posts/temp")
+    @GetMapping("/posts/temp")
     public ApiResponse<TempPostResponseDto> selectTempPost(@RequestParam("blogId") Long blogId, HttpServletRequest request) {
         return ApiResponse.ok(postService.selectTempPost(blogId, request));
     }
@@ -132,14 +131,4 @@ public class PostController {
         return ApiResponse.ok(pagePosts);
     }
 
-    /**
-     * 글 등록(임시)
-     */
-//    @PostMapping("/{blogAddress}/postv1")
-//    public String createPostV1(@PathVariable("blogAddress") String blogAddress,
-//                             @RequestBody PostRequestDto postRequestDto) {
-//        Long postId = postService.createPost(postRequestDto, null);
-//        return "redirect:/" + blogAddress + "/" + postId;
-////        return ApiResponse.ok(new PostResponseDto(postId));
-//    }
 }

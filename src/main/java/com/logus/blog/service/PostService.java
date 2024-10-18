@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -123,10 +124,16 @@ public class PostService {
 
     @Transactional
     public Long createPost(PostRequestDto postRequestDto, MultipartFile thumbImage) throws IOException {
+        // memberId
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
+            throw new CustomException(ErrorCode.NEED_LOGIN);
+        }
+        Long memberId = ((UserPrincipal) authentication.getPrincipal()).getMemberId();
 
         //1. findById > select 쿼리 나감
         //2. getReferenceById > 데이터 검증x
-        Member member = memberService.getById(postRequestDto.getMemberId());
+        Member member = memberService.getById(memberId);
         Blog blog = blogService.getReferenceById(postRequestDto.getBlogId());
         Category category = categoryService.getReferenceById(postRequestDto.getCategoryId());
         Series series = seriesService.getReferenceById(postRequestDto.getSeriesId());
@@ -143,7 +150,7 @@ public class PostService {
         //임시저장글일 경우, 기존 임시저장글 삭제, 새로 insert ***
         if (postRequestDto.getStatus() == Status.TEMPORARY) {
             //temporary인 post 찾아서 update
-            Long tempPostId = postRepository.selectTemp(postRequestDto.getBlogId(), postRequestDto.getMemberId()).getPostId();
+            Long tempPostId = postRepository.selectTemp(postRequestDto.getBlogId(), memberId).getPostId();
             if (tempPostId != null) {
                 deletePost(tempPostId);
             }
@@ -227,6 +234,9 @@ public class PostService {
 
     public TempPostResponseDto selectTempPost(Long blogId, HttpServletRequest request) {
         TempPostResponseDto temp = postRepository.selectTemp(blogId, memberService.getMemberIdFromJwt(request));
+        if (temp == null) {
+            return null;
+        }
         //태그 조회
         List<String> tags = tagService.selectPostTags(temp.getPostId());
         temp.setTags(tags);
@@ -234,11 +244,18 @@ public class PostService {
     }
 
     public Page<PostListResponseDto> searchBlogPostsByTag(Long blogId, String tag, Pageable pageable) {
+        // memberId
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Long memberId = null;
+        if (authentication != null && authentication.isAuthenticated() && !authentication.getPrincipal().equals("anonymousUser")) {
+            memberId = ((UserPrincipal) authentication.getPrincipal()).getMemberId();
+        }
+
         //태그명으로 tagId > post_tag에서 검색 > 반환
         Long tagId = tagService.findByTagName(tag).getId();
 
         //blogId, tagId로 조건걸어서 반환
-        Page<PostListResponseDto> posts = postRepository.searchBlogPostsByTag(blogId, tagId, pageable);
+        Page<PostListResponseDto> posts = postRepository.searchBlogPostsByTag(blogId, tagId, pageable, memberId);
         List<PostListResponseDto> newPosts = toPostList(posts);
         return new PageImpl<>(newPosts, pageable, posts.getTotalElements());
     }

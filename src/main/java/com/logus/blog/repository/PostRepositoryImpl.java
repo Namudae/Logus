@@ -88,9 +88,6 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
      */
     public Page<PostListResponseDto> selectAllBlogPosts(Long blogId, Long seriesId, Pageable pageable, Long requestId) {
 
-        // Author 확인
-        BooleanExpression isAuthor = post.member.id.eq(requestId);
-
         JPAQuery<PostListResponseDto> query = jpaQueryFactory
                 .select(Projections.fields(PostListResponseDto.class,
                         member.id.as("memberId"),
@@ -126,7 +123,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .where(
                         post.blog.id.eq(blogId),
                         seriesEq(seriesId),
-                        checkPublic(blogId, requestId, post)
+                        (requestId != null ? checkPublic(blogId, requestId, post) : post.status.eq(Status.PUBLIC))
                 )
                 .orderBy(post.createDate.desc());  // post.createDate 기준 오름차순 정렬
 
@@ -221,7 +218,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     }
 
     //tag검색
-    public Page<PostListResponseDto> searchBlogPostsByTag(Long blogId, Long tagId, Pageable pageable) {
+    public Page<PostListResponseDto> searchBlogPostsByTag(Long blogId, Long tagId, Pageable pageable, Long requestId) {
         JPAQuery<PostListResponseDto> query = jpaQueryFactory
                 .select(Projections.fields(PostListResponseDto.class,
                         member.id.as("memberId"),
@@ -253,11 +250,12 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .from(postTag)
                 .join(postTag.post, post)
                 .join(post.member, member)
-                .join(post.category, category)
-                .join(post.series, series)
+                .leftJoin(post.category, category)
+                .leftJoin(post.series, series)
                 .where(
                         post.blog.id.eq(blogId),
-                        postTag.tag.id.eq(tagId)
+                        postTag.tag.id.eq(tagId),
+                        (requestId != null ? checkPublic(blogId, requestId, post) : post.status.eq(Status.PUBLIC))
                 );
 
         // 총 결과 수 조회
