@@ -20,7 +20,7 @@ public class CommentController {
     /**
      * 댓글 등록
      */
-    @PostMapping("/comment")
+    @PostMapping("/comments")
     public ApiResponse<Map<String, Long>> createPost(@RequestPart("requestDto") @Valid CommentRequestDto commentRequestDto) {
         Long commentId = commentService.createComment(commentRequestDto);
         return ApiResponse.ok(Map.of("commentId", commentId));

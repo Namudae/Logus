@@ -13,6 +13,7 @@ import com.logus.member.entity.Member;
 import com.logus.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,8 +49,14 @@ public class CommentService {
 
     @Transactional
     public Long createComment(CommentRequestDto commentRequestDto) {
+        // memberId
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
+            throw new CustomException(ErrorCode.NEED_LOGIN);
+        }
+        Long memberId = ((UserPrincipal) authentication.getPrincipal()).getMemberId();
 
-        Member member = memberService.getReferenceById(commentRequestDto.getMemberId());
+        Member member = memberService.getReferenceById(memberId);
         Post post = postRepository.getReferenceById(commentRequestDto.getPostId());
         Comment parent = commentRepository.getReferenceById(commentRequestDto.getParentId());
 
