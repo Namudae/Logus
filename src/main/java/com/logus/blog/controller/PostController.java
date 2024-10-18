@@ -3,6 +3,7 @@ package com.logus.blog.controller;
 import com.logus.blog.dto.PostListResponseDto;
 import com.logus.blog.dto.PostRequestDto;
 import com.logus.blog.dto.PostResponseDto;
+import com.logus.blog.dto.TempPostResponseDto;
 import com.logus.blog.entity.Post;
 import com.logus.blog.service.PostService;
 import com.logus.common.controller.ApiResponse;
@@ -98,8 +99,8 @@ public class PostController {
     /**
      * 임시저장 게시글 조회
      */
-    public ApiResponse<PostResponseDto> selectTempPost(@RequestParam("blogId") Long blogId, HttpServletRequest request) {
-
+    @GetMapping("posts/temp")
+    public ApiResponse<TempPostResponseDto> selectTempPost(@RequestParam("blogId") Long blogId, HttpServletRequest request) {
         return ApiResponse.ok(postService.selectTempPost(blogId, request));
     }
 

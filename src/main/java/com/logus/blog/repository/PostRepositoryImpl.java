@@ -1,7 +1,9 @@
 package com.logus.blog.repository;
 
 import com.logus.blog.dto.PostListResponseDto;
+import com.logus.blog.dto.PostRequestDto;
 import com.logus.blog.dto.PostResponseDto;
+import com.logus.blog.dto.TempPostResponseDto;
 import com.logus.blog.entity.Post;
 import com.logus.blog.entity.QPost;
 import com.logus.blog.entity.Status;
@@ -275,10 +277,21 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
      * 임시저장글 조회
      */
     @Override
-    public Long selectTemp(Long blogId, Long memberId) {
+    public TempPostResponseDto selectTemp(Long blogId, Long memberId) {
         return jpaQueryFactory
-                .select(
-                        post.id.as("postId"))
+                .select(Projections.fields(TempPostResponseDto.class,
+                        post.id.as("postId"),
+                        post.member.id.as("memberId"),
+                        post.blog.id.as("blogId"),
+                        post.category.id.as("categoryId"),
+                        post.category.categoryName,
+                        post.series.id.as("seriesId"),
+                        post.title,
+                        post.content,
+                        post.imgUrl,
+                        post.status,
+                        post.createDate
+                ))
                 .from(post)
                 .where(
                         post.blog.id.eq(blogId),
@@ -287,6 +300,8 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 )
                 .join(post.member, member)
                 .leftJoin(post.blog, blog)
+                .leftJoin(post.category, category)
+                .leftJoin(post.series, series)
                 .fetchOne();
     }
 

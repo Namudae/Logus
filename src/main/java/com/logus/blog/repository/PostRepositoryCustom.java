@@ -3,6 +3,7 @@ package com.logus.blog.repository;
 import com.logus.blog.dto.PostListResponseDto;
 import com.logus.blog.dto.PostRequestDto;
 import com.logus.blog.dto.PostResponseDto;
+import com.logus.blog.dto.TempPostResponseDto;
 import com.logus.blog.entity.Post;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
@@ -23,5 +24,5 @@ public interface PostRepositoryCustom {
     PostResponseDto selectPrePost(Post post);
     PostResponseDto selectNextPost(Post post);
 
-    Long selectTemp(Long blogId, Long memberId);
+    TempPostResponseDto selectTemp(Long blogId, Long memberId);
 }

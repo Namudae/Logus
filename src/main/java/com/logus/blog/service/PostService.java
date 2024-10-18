@@ -1,9 +1,6 @@
 package com.logus.blog.service;
 
-import com.logus.blog.dto.CommentResponseDto;
-import com.logus.blog.dto.PostListResponseDto;
-import com.logus.blog.dto.PostRequestDto;
-import com.logus.blog.dto.PostResponseDto;
+import com.logus.blog.dto.*;
 import com.logus.blog.entity.*;
 import com.logus.blog.repository.*;
 import com.logus.common.entity.Attachment;
@@ -143,16 +140,12 @@ public class PostService {
             thumbUrl = s3Service.thumbUpload(thumbImage);
         }
 
-        //임시저장글일 경우, 기존 임시저장글 update
+        //임시저장글일 경우, 기존 임시저장글 삭제, 새로 insert ***
         if (postRequestDto.getStatus() == Status.TEMPORARY) {
             //temporary인 post 찾아서 update
-            Long tempPostId = postRepository.selectTemp(postRequestDto.getBlogId(), postRequestDto.getMemberId());
+            Long tempPostId = postRepository.selectTemp(postRequestDto.getBlogId(), postRequestDto.getMemberId()).getPostId();
             if (tempPostId != null) {
-                Post post = postRequestDto.toEntity(member, blog, category, series, thumbUrl, tempPostId);
-                //update
-                postRepository.save(post);
-                tagService.savePostTag(postRequestDto, post);
-                return tempPostId;
+                deletePost(tempPostId);
             }
         }
         Post post = postRequestDto.toEntity(member, blog, category, series, thumbUrl);
@@ -232,9 +225,12 @@ public class PostService {
         postRepository.delete(post);
     }
 
-    public PostResponseDto selectTempPost(Long blogId, HttpServletRequest request) {
-        //blogId&memberId 로 TEMPORARY 게시글 하나만 존재... (게시글 등록시 중복 > update)
-        return null;
+    public TempPostResponseDto selectTempPost(Long blogId, HttpServletRequest request) {
+        TempPostResponseDto temp = postRepository.selectTemp(blogId, memberService.getMemberIdFromJwt(request));
+        //태그 조회
+        List<String> tags = tagService.selectPostTags(temp.getPostId());
+        temp.setTags(tags);
+        return temp;
     }
 
     public Page<PostListResponseDto> searchBlogPostsByTag(Long blogId, String tag, Pageable pageable) {
