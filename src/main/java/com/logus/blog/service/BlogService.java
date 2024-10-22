@@ -16,6 +16,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.logus.common.service.S3Service.CLOUD_FRONT_DOMAIN_NAME;
 import static java.util.stream.Collectors.toList;
@@ -48,6 +51,64 @@ public class BlogService {
         saveBlogMembers(blogRequestDto.getBlogMembers(), savedBlog);
 
         return savedBlog.getId();
+    }
+
+    @Transactional
+    public Long updateBlog(Long blogId, BlogRequestDto blogRequestDto) {
+        Blog blog = getById(blogId);
+        //블로그 멤버
+        //oldMember 중 new에 없는 멤버 delete
+        List<BlogMember> oldBlogMembers = blogMemberRepository.findByBlogId(blogId);
+        List<BlogMemberRequestDto> newBlogMembers = blogRequestDto.getBlogMembers();
+
+        // 기존 블로그 멤버를 ID로 매핑하여 쉽게 찾을 수 있도록 함
+        Set<Long> newMemberIds = newBlogMembers.stream()
+                .map(BlogMemberRequestDto::getMemberId)
+                .collect(Collectors.toSet());
+
+        // 1. 기존 멤버 삭제: newBlogMembers에 없는 oldBlogMembers 삭제
+        oldBlogMembers.stream()
+                .filter(oldMember -> !newMemberIds.contains(oldMember.getMember().getId()))
+                .forEach(blogMemberRepository::delete);
+
+        // 2. 새로운 멤버 추가 및 기존 멤버 업데이트
+        newBlogMembers.forEach(newMember -> {
+            BlogMember existingMember = oldBlogMembers.stream()
+                    .filter(oldMember -> oldMember.getMember().getId().equals(newMember.getMemberId()))
+                    .findFirst()
+                    .orElse(null);
+
+            if (existingMember != null) {
+                // 기존 멤버의 blogAuth 업데이트
+                existingMember.updateBlogAuth(newMember.getBlogAuth());
+            } else {
+                // 새로운 멤버 추가
+                Member member = memberService.getById(newMember.getMemberId());
+                BlogMember blogMember = newMember.toEntity(member, blog);
+                blogMemberRepository.save(blogMember);
+            }
+        });
+
+//        oldBlogMembers.stream()
+//                .filter(oldMember -> newBlogMembers.stream()
+//                        .noneMatch(newMember -> newMember.getMemberId().equals(oldMember.getMember().getId())))
+//                .forEach(blogMemberRepository::delete);
+//
+//        //newMember 중 old에 없는 멤버 insert
+//        newBlogMembers.stream()
+//                .filter(newMember -> oldBlogMembers.stream()
+//                        .noneMatch(oldMember -> oldMember.getMember().getId().equals(newMember.getMemberId())))
+//                .forEach(newMember -> {
+//                    // Member 가져오기
+//                    Member member = memberService.getById(newMember.getMemberId());
+//                    // BlogMember 엔티티로 변환하여 저장
+//                    BlogMember blogMember = newMember.toEntity(member, blog);
+//                    blogMemberRepository.save(blogMember);
+//                });
+
+        blog.updateBlogInfo(blogRequestDto);
+
+        return blogId;
     }
 
     private void saveBlogMembers(List<BlogMemberRequestDto> blogMembers, Blog savedBlog) {
@@ -112,5 +173,11 @@ public class BlogService {
         return blogMemberRepository.findByBlogId(blogId).stream()
                 .map(blogMember -> blogMember.getMember().getId())
                 .collect(toList());
+    }
+
+    public void duplicateBlogAddress(String blogAddress) {
+        if (blogRepository.existsByBlogAddress(blogAddress)) {
+            throw new CustomException(ErrorCode.DUPLICATE_BLOG_ADDRESS);
+        }
     }
 }

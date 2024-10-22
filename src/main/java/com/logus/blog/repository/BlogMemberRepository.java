@@ -9,4 +9,5 @@ import java.util.List;
 
 public interface BlogMemberRepository extends JpaRepository<BlogMember, Long> {
     List<BlogMember> findByBlogId(Long blogId);
+
 }

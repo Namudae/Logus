@@ -1,5 +1,6 @@
 package com.logus.blog.entity;
 
+import com.logus.blog.dto.BlogRequestDto;
 import com.logus.common.entity.BaseCreateTime;
 import com.logus.member.entity.Member;
 import jakarta.persistence.*;
@@ -31,5 +32,12 @@ public class BlogMember extends BaseCreateTime {
     @Enumerated(EnumType.STRING)
     @Column(length = 20, columnDefinition = "varchar(20)")
     private BlogAuth blogAuth;
+
+
+    //==비즈니스 로직==//
+    //블로그 정보 수정
+    public void updateBlogAuth(BlogAuth blogAuth) {
+        this.blogAuth = blogAuth;
+    }
 
 }

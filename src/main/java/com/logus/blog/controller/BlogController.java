@@ -31,10 +31,29 @@ public class BlogController {
     /**
      * 블로그 등록
      */
-    @PostMapping("/new-blog")
+    @PostMapping("/register/blog")
     public ApiResponse<Map<String, Long>> createBlog(@RequestBody BlogRequestDto blogRequestDto) {
         Long blogId = blogService.createBlog(blogRequestDto);
         return ApiResponse.ok(Map.of("blogId", blogId));
+    }
+
+    /**
+     * 블로그 정보 변경
+     */
+    @PutMapping("/blog/setting")
+    public ApiResponse<Map<String, Long>> updateBlog(@RequestParam("blogId") Long blogId,
+                                                     @RequestBody BlogRequestDto blogRequestDto) {
+        blogService.updateBlog(blogId, blogRequestDto);
+        return ApiResponse.ok(Map.of("blogId", blogId));
+    }
+
+    /**
+     * 블로그 주소 중복 확인
+     */
+    @GetMapping("/blog/address-dupl")
+    public ApiResponse<String> duplicateBlogAddress(@RequestParam String blogAddress) {
+        blogService.duplicateBlogAddress(blogAddress);
+        return ApiResponse.ok();
     }
 
     /**
