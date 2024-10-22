@@ -19,4 +19,8 @@ public class BaseCreateTime {
     @Column(updatable = false)
     private LocalDateTime createDate;
 
+    public void changeCreateDate(LocalDateTime changeDate) {
+        this.createDate = changeDate;
+    }
+
 }

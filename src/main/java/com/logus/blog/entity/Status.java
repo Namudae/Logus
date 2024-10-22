@@ -9,8 +9,7 @@ public enum Status {
 
     PUBLIC("공개"),
     SECRET("비밀글"),
-    TEMPORARY("임시저장"),
-    DELETE("삭제");
+    TEMPORARY("임시저장");
 
     private final String title;
 }

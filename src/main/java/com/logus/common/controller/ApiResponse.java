@@ -35,7 +35,7 @@ public class ApiResponse<T> {
     }
 
     public static ApiResponse<String> ok() {
-        return ApiResponse.of(HttpStatus.OK, HttpStatus.OK.name());
+        return ApiResponse.of(HttpStatus.OK, HttpStatus.OK.name(), null);
     }
 
 }

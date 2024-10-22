@@ -1,6 +1,7 @@
 package com.logus.blog.entity;
 
 import com.logus.admin.entity.ReportStatus;
+import com.logus.blog.dto.CommentRequestDto;
 import com.logus.common.entity.BaseTime;
 import com.logus.member.entity.Member;
 import jakarta.persistence.*;
@@ -54,4 +55,10 @@ public class Comment extends BaseTime {
     @Column(length = 20, columnDefinition = "varchar(20)")
     private ReportStatus reportStatus;
 
+    //==비즈니스 로직==//
+    //댓글 수정
+    public void updateComment(CommentRequestDto commentRequestDto) {
+        this.content = commentRequestDto.getContent();
+        this.status = commentRequestDto.getStatus();
+    }
 }

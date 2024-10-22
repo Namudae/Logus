@@ -40,16 +40,11 @@ public class CommentResponseDto {
         this.createDate = comment.getCreateDate();
     }
 
-//    public CommentResponseDto(LocalDateTime createDate, ReportStatus reportStatus, Status status, String content, Byte depth, Long parentId, String nickname, Long memberId, Long commentId) {
-//        this.createDate = createDate;
-//        this.reportStatus = reportStatus;
-//        this.status = status;
-//        this.content = content;
-//        this.depth = depth;
-//        this.parentId = parentId;
-//        this.nickname = nickname;
-//        this.memberId = memberId;
-//        this.commentId = commentId;
-//    }
+    //비밀글 처리
+    public void secretComment() {
+        this.memberId = null;
+        this.nickname = null;
+        this.content = null;
+    }
 
 }

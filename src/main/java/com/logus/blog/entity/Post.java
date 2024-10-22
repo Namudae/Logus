@@ -7,6 +7,7 @@ import com.logus.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -94,14 +95,22 @@ public class Post extends BaseTime {
         this.status = status;
     }
 
-    //게시글 삭제
-    public void deletePost() {
-        this.status = Status.DELETE;
+    public void deleteImgUrl() {
+        this.imgUrl = null;
+    }
+
+    public void changeImgUrl(String imgUrl) {
+        this.imgUrl = imgUrl;
     }
 
     //조회수 증가
     public void addViews(Long views) {
         this.views = views;
+    }
+
+    //임시저장글 작성날짜 변경
+    public void changeTempDate(LocalDateTime changeDate) {
+        this.changeCreateDate(changeDate);
     }
 
     //    @OneToMany(mappedBy = "post")

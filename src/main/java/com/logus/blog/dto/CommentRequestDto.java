@@ -5,6 +5,8 @@ import com.logus.blog.entity.Comment;
 import com.logus.blog.entity.Post;
 import com.logus.blog.entity.Status;
 import com.logus.member.entity.Member;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 @Getter
@@ -20,7 +22,11 @@ public class CommentRequestDto {
     private Long postId;
     private Long parentId;
     private Byte depth;
+
+    @NotBlank(message = "댓글을 입력하세요.")
+    @Size(max=500, message = "댓글의 최대 글자수는 500자입니다.")
     private String content;
+
     private Status status;
 
     /*

@@ -56,12 +56,16 @@ public class TagService {
         }
     }
 
-    public void deleteOldPostTag(Long postId) {
+    public void deletePostTag(Long postId) {
         postTagRepository.deleteAllByPostId(postId);
     }
 
     public List<String> selectPostTags(Long postId) {
         return postTagRepository.selectPostTag(postId);
+    }
+
+    public Tag findByTagName(String tagname) {
+        return tagRepository.findByTagName(tagname);
     }
 
 }

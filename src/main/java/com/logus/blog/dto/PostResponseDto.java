@@ -38,14 +38,14 @@ public class PostResponseDto {
     private ReportStatus reportStatus;
     @JsonFormat(shape= JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createDate;
-    private List<String> tags;
     private Long likeCount;
     private Long commentCount;
-    private List<CommentResponseDto> comments;
-
-    //이전게시글&다음게시글
+    private List<String> tags;
+    private Long preId;
     private String preTitle;
+    private Long nextId;
     private String nextTitle;
+    private List<CommentResponseDto> comments;
 
     /* Entity -> Dto */
     public PostResponseDto(Post post) {
@@ -79,6 +79,17 @@ public class PostResponseDto {
 
     public PostResponseDto(Long postId) {
         this.postId = postId;
+    }
+
+    public void setPreNext(PostResponseDto pre, PostResponseDto next) {
+        if (pre != null) {
+            this.preId = pre.getPreId();
+            this.preTitle = pre.getPreTitle();
+        }
+        if (next != null) {
+            this.nextId = next.getNextId();
+            this.nextTitle = next.getNextTitle();
+        }
     }
 
 }

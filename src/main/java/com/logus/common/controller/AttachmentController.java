@@ -39,7 +39,7 @@ public class AttachmentController {
         try {
             imageDto = s3Service.tempUpload(image);
         }  catch (Exception e) {
-            throw new CustomException(ErrorCode.IMAGE_SERVER_ERROR);
+            throw new CustomException(ErrorCode.AMAZON_SERVICE_ERROR);
         }
 
         return ApiResponse.ok(imageDto);
