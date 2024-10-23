@@ -21,16 +21,16 @@ public class Member extends BaseTime {
 
     private String accessToken;
 
-    @Column(length = 20)
+    @Column(length = 20, unique = true, nullable = false) // 아이디는 유니크해야 함
     private String loginId;
 
-    @Column(length = 100)
+    @Column(length = 100, nullable = false) // 비밀번호는 필수
     private String password;
 
     @Column(length = 30)
     private String nickname;
 
-    @Column(length = 50)
+    @Column(length = 50, unique = true, nullable = false) // 이메일도 유니크해야 함
     private String email;
 
     @Column(length = 100)
@@ -42,6 +42,9 @@ public class Member extends BaseTime {
 
     @Column(length = 1)
     private String delYn;
+
+    @Column(length = 15)
+    private String phone; // 전화번호(관리자 전용)
 
     public Member(String loginId) {
         this.loginId = loginId;
@@ -56,4 +59,12 @@ public class Member extends BaseTime {
         this.password = password;
     }
 
+    // 중복 체크 메서드
+    public boolean isLoginIdDuplicate(String loginId) {
+        return this.loginId.equals(loginId);
+    }
+
+    public boolean isEmailDuplicate(String email) {
+        return this.email.equals(email);
+    }
 }
