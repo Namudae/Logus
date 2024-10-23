@@ -4,9 +4,11 @@ import com.logus.blog.dto.BlogMemberResponseDto;
 import com.logus.blog.dto.BlogRequestDto;
 import com.logus.blog.dto.BlogResponseDto;
 import com.logus.blog.dto.SeriesResponseDto;
+import com.logus.blog.service.BlogFacadeService;
 import com.logus.blog.service.BlogService;
 import com.logus.common.controller.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,6 +19,7 @@ import java.util.Map;
 public class BlogController {
 
     private final BlogService blogService;
+    private final BlogFacadeService blogFacadeService;
 
     /**
      * 블로그 정보 조회
@@ -44,6 +47,16 @@ public class BlogController {
     public ApiResponse<Map<String, Long>> updateBlog(@RequestParam("blogId") Long blogId,
                                                      @RequestBody BlogRequestDto blogRequestDto) {
         blogService.updateBlog(blogId, blogRequestDto);
+        return ApiResponse.ok(Map.of("blogId", blogId));
+    }
+
+    /**
+     * 블로그 삭제
+     */
+    @PreAuthorize("hasRole('ROLE_ADMIN') || @blogService.hasPermissionToBlog(#blogId, authentication)")
+    @DeleteMapping("/blog/setting")
+    public ApiResponse<Map<String, Long>> deleteBlog(@RequestParam("blogId") Long blogId) {
+        blogFacadeService.deleteBlog(blogId);
         return ApiResponse.ok(Map.of("blogId", blogId));
     }
 

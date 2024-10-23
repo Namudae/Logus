@@ -2,16 +2,18 @@ package com.logus.blog.service;
 
 import com.logus.blog.dto.*;
 import com.logus.blog.entity.Blog;
+import com.logus.blog.entity.BlogAuth;
 import com.logus.blog.entity.BlogMember;
-import com.logus.blog.repository.BlogMemberRepository;
-import com.logus.blog.repository.BlogRepository;
-import com.logus.blog.repository.SeriesRepository;
+import com.logus.blog.entity.Post;
+import com.logus.blog.repository.*;
 import com.logus.common.exception.CustomException;
 import com.logus.common.exception.ErrorCode;
+import com.logus.common.security.UserPrincipal;
 import com.logus.member.entity.Member;
 import com.logus.member.repository.MemberRepository;
 import com.logus.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,7 +31,6 @@ public class BlogService {
 
     private final BlogRepository blogRepository;
     private final BlogMemberRepository blogMemberRepository;
-//    private final MemberRepository memberRepository;
     private final SeriesRepository seriesRepository;
     private final MemberService memberService;
 
@@ -88,29 +89,11 @@ public class BlogService {
                 blogMemberRepository.save(blogMember);
             }
         });
-
-//        oldBlogMembers.stream()
-//                .filter(oldMember -> newBlogMembers.stream()
-//                        .noneMatch(newMember -> newMember.getMemberId().equals(oldMember.getMember().getId())))
-//                .forEach(blogMemberRepository::delete);
-//
-//        //newMember 중 old에 없는 멤버 insert
-//        newBlogMembers.stream()
-//                .filter(newMember -> oldBlogMembers.stream()
-//                        .noneMatch(oldMember -> oldMember.getMember().getId().equals(newMember.getMemberId())))
-//                .forEach(newMember -> {
-//                    // Member 가져오기
-//                    Member member = memberService.getById(newMember.getMemberId());
-//                    // BlogMember 엔티티로 변환하여 저장
-//                    BlogMember blogMember = newMember.toEntity(member, blog);
-//                    blogMemberRepository.save(blogMember);
-//                });
-
         blog.updateBlogInfo(blogRequestDto);
-
         return blogId;
     }
 
+    @Transactional
     private void saveBlogMembers(List<BlogMemberRequestDto> blogMembers, Blog savedBlog) {
         if (blogMembers != null) {
             for (BlogMemberRequestDto blogMemberRequestDto : blogMembers) {
@@ -169,7 +152,6 @@ public class BlogService {
     }
 
     public List<Long> blogMemberIds(Long blogId) {
-//        return blogMemberRepository.findMemberIdByBlogId(blogId);
         return blogMemberRepository.findByBlogId(blogId).stream()
                 .map(blogMember -> blogMember.getMember().getId())
                 .collect(toList());
@@ -179,5 +161,24 @@ public class BlogService {
         if (blogRepository.existsByBlogAddress(blogAddress)) {
             throw new CustomException(ErrorCode.DUPLICATE_BLOG_ADDRESS);
         }
+    }
+
+    //=====인가
+    public boolean hasPermissionToBlog(Long blogId, Authentication authentication) {
+        // 로그인이 안 되어 있거나, 익명 사용자인 경우 예외 발생
+        if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
+            throw new CustomException(ErrorCode.NEED_LOGIN);
+        }
+
+        var userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        var blog = blogRepository.findById((Long) blogId)
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+        if (blog.getBlogMembers().stream()
+                .filter(member -> member.getBlogAuth().equals(BlogAuth.OWNER)) //소유자 권한을 가진 멤버 필터링
+                .map(member -> member.getMember().getId())
+                .noneMatch(ownerId -> ownerId.equals(userPrincipal.getMemberId()))) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_REQUEST);
+        }
+        return true;
     }
 }

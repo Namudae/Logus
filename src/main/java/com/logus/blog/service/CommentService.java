@@ -80,6 +80,11 @@ public class CommentService {
         commentRepository.delete(comment);
     }
 
+    @Transactional
+    public void bulkDeleteComment(Long postId) {
+        commentRepository.bulkDeleteByPostId(postId);
+    }
+
 
     //=====인가
     public boolean hasPermissionToComment(Long commentId, Authentication authentication) {

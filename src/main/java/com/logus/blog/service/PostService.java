@@ -48,6 +48,7 @@ public class PostService {
     private final TagService tagService;
     private final CommentService commentService;
     private final S3Service s3Service;
+    private final LikeyRepository likeyRepository;
 
     @Autowired
     private JwtService jwtService;
@@ -213,10 +214,11 @@ public class PostService {
     public void deletePost(Long postId) {
         Post post = getById(postId);
 
-        //댓글 delete
-        commentService.getByPostId(postId).forEach(comment -> commentService.deleteComment(comment.getId()));
-
-        //postTag delete
+        //댓글
+        commentService.bulkDeleteComment(postId);
+        //좋아요
+        likeyRepository.bulkDeleteByPostId(postId);
+        //postTag
         tagService.deletePostTag(postId);
 
         //썸네일 서버 삭제
