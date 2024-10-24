@@ -1,11 +1,16 @@
 package com.logus.blog.entity;
 
+import com.logus.blog.dto.CommentRequestDto;
+import com.logus.blog.dto.SeriesOrderRequestDto;
+import com.logus.blog.dto.SeriesRequestDto;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Getter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Series {
 
     @Id
@@ -26,6 +31,22 @@ public class Series {
 
 //    @OneToMany(mappedBy = "series")
 //    private List<Post> posts = new ArrayList<>();
+
+    //=====비즈니스 로직
+    public void deleteImgUrl() {
+        this.imgUrl = null;
+    }
+
+    public void updateSeries(SeriesRequestDto seriesRequestDto, String imgUrl) {
+        this.seriesName = seriesRequestDto.getSeriesName();
+        this.seriesOrder = seriesRequestDto.getSeriesOrder();
+        this.imgUrl = imgUrl;
+    }
+
+    public void updateSeries(SeriesOrderRequestDto.SeriesDto seriesRequestDto) {
+        this.id = seriesRequestDto.getSeriesId();
+        this.seriesOrder = seriesRequestDto.getSeriesOrder();
+    }
 
 
 }

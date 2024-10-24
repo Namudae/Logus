@@ -1,16 +1,16 @@
 package com.logus.blog.controller;
 
-import com.logus.blog.dto.BlogMemberResponseDto;
-import com.logus.blog.dto.BlogRequestDto;
-import com.logus.blog.dto.BlogResponseDto;
-import com.logus.blog.dto.SeriesResponseDto;
+import com.logus.blog.dto.*;
 import com.logus.blog.service.BlogFacadeService;
 import com.logus.blog.service.BlogService;
 import com.logus.common.controller.ApiResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -53,7 +53,8 @@ public class BlogController {
     /**
      * 블로그 삭제
      */
-    @PreAuthorize("hasRole('ROLE_ADMIN') || @blogService.hasPermissionToBlog(#blogId, authentication)")
+//    @PreAuthorize("hasRole('ROLE_ADMIN') || @blogService.hasPermissionToBlogOwner(#blogId, authentication)")
+    @PreAuthorize("hasRole('ROLE_ADMIN') || @blogService.hasPermissionToBlog(#blogId, 'BLOG', 'OWNER', authentication)")
     @DeleteMapping("/blog/setting")
     public ApiResponse<Map<String, Long>> deleteBlog(@RequestParam("blogId") Long blogId) {
         blogFacadeService.deleteBlog(blogId);
@@ -70,6 +71,16 @@ public class BlogController {
     }
 
     /**
+     * 블로그 id 조회
+     */
+    @GetMapping("/blog-id")
+    public ApiResponse<Map<String, Long>> getBlogIdByAddress(@RequestParam("blogAddress") String blogAddress) {
+        Long blogId = blogService.getBlogIdByAddress(blogAddress);
+
+        return ApiResponse.ok(Map.of("blogId", blogId));
+    }
+
+    /**
      * 시리즈 조회
      */
     @GetMapping("/series")
@@ -80,13 +91,46 @@ public class BlogController {
     }
 
     /**
-     * 블로그 id 조회
+     * 시리즈 등록
      */
-    @GetMapping("/blog-id")
-    public ApiResponse<Map<String, Long>> getBlogIdByAddress(@RequestParam("blogAddress") String blogAddress) {
-        Long blogId = blogService.getBlogIdByAddress(blogAddress);
+    @PreAuthorize("hasRole('ROLE_ADMIN') || @blogService.hasPermissionToBlog(#seriesRequestDto.blogId, 'BLOG', 'ADMIN', authentication)")
+    @PostMapping("/series")
+    public ApiResponse<Map<String, Long>> createSeries(@RequestPart("requestDto") @Valid SeriesRequestDto seriesRequestDto,
+                                                       @RequestPart(value = "img", required = false) MultipartFile img) throws IOException {
+        Long seriesId = blogFacadeService.createSeries(seriesRequestDto, img);
+        return ApiResponse.ok(Map.of("seriesId", seriesId));
+    }
 
-        return ApiResponse.ok(Map.of("blogId", blogId));
+    /**
+     * 시리즈 수정
+     */
+    @PreAuthorize("hasRole('ROLE_ADMIN') || @blogService.hasPermissionToBlog(#seriesId, 'SERIES', 'ADMIN', authentication)")
+    @PutMapping("/series/{seriesId}")
+    public ApiResponse<Map<String, Long>> updateSeries(@PathVariable("seriesId") Long seriesId,
+                                                       @RequestPart("requestDto") @Valid SeriesRequestDto seriesRequestDto,
+                                                       @RequestPart(value = "img", required = false) MultipartFile img,
+                                                       @RequestParam(value = "deleteImg", required = false, defaultValue = "false") Boolean deleteImg) throws IOException {
+        blogFacadeService.updateSeries(seriesId, seriesRequestDto, img, deleteImg);
+        return ApiResponse.ok(Map.of("seriesId", seriesId));
+    }
+
+    /**
+     * 시리즈 삭제
+     */
+    @PreAuthorize("hasRole('ROLE_ADMIN') || @blogService.hasPermissionToBlog(#seriesId, 'SERIES', 'ADMIN', authentication)")
+    @DeleteMapping("/series/{seriesId}")
+    public ApiResponse<String> deleteSeries(@PathVariable("seriesId") Long seriesId) throws IOException {
+        blogFacadeService.deleteSeries(seriesId);
+        return ApiResponse.ok();
+    }
+
+    /**
+     * 시리즈 순서 일괄 수정
+     */
+    @PostMapping("/series/order")
+    public ApiResponse<String> updateSeriesOrder(@RequestPart("requestDto") @Valid SeriesOrderRequestDto seriesOrderRequestDto) throws IOException {
+        blogFacadeService.updateSeriesOrder(seriesOrderRequestDto);
+        return ApiResponse.ok();
     }
 
 }

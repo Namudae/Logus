@@ -89,11 +89,11 @@ public class S3Service {
     /**
      * S3 썸네일 업로드
      */
-    public String thumbUpload(MultipartFile file) throws IOException {
+    public String thumbUpload(MultipartFile file, AttachmentType attachmentType) throws IOException {
         String storeFileName;
         String originalFilename = file.getOriginalFilename();
         storeFileName = createStoreFileName(originalFilename);
-        String filepath = createPath(storeFileName, AttachmentType.THUMB);
+        String filepath = createPath(storeFileName, attachmentType);
 
         //이미지 가로세로 크기
         int width = 0, height = 0;
@@ -190,6 +190,8 @@ public class S3Service {
             viaPath = AttachmentType.IMAGE.getPath() + "/";
         } else if (attachmentType == AttachmentType.TEMP) {
             viaPath = AttachmentType.TEMP.getPath() + "/";
+        } else if (attachmentType == AttachmentType.SERIES) {
+            viaPath = AttachmentType.SERIES.getPath() + "/";
         } else if (attachmentType == AttachmentType.THUMB) {
             viaPath = AttachmentType.THUMB.getPath() + "/";
         } else if (attachmentType == AttachmentType.PROFILE) {
