@@ -63,6 +63,7 @@ public class PostController {
     /**
      * 글 등록
      */
+    @PreAuthorize("hasRole('ROLE_ADMIN') || @blogService.hasPermissionToBlog(#postRequestDto.blogId, 'BLOG', 'EDITOR', authentication)")
     @PostMapping("/posts")
     public ApiResponse<Map<String, Long>> createPost(@RequestPart("requestDto") @Valid PostRequestDto postRequestDto,
                                                      @RequestPart(value = "thumbImg", required = false) MultipartFile thumbImg

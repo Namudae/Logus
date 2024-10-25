@@ -40,7 +40,7 @@ public class CommentController {
     /**
      * 댓글 삭제
      */
-    @PreAuthorize("@commentService.hasPermissionToComment(#commentId, authentication)")
+    @PreAuthorize("hasRole('ROLE_ADMIN') || @commentService.hasPermissionToComment(#commentId, authentication)")
     @DeleteMapping("/comments/{commentId}")
     public ApiResponse<String> deleteComment(@PathVariable("commentId") Long commentId) {
         commentService.deleteComment(commentId);
