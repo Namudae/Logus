@@ -34,8 +34,8 @@ public class BlogController {
     /**
      * 블로그 등록
      */
-    @PostMapping("/register/blog")
-    public ApiResponse<Map<String, Long>> createBlog(@RequestBody BlogRequestDto blogRequestDto) {
+    @PostMapping("/blog/setting")
+    public ApiResponse<Map<String, Long>> createBlog(@RequestBody @Valid BlogRequestDto blogRequestDto) {
         Long blogId = blogService.createBlog(blogRequestDto);
         return ApiResponse.ok(Map.of("blogId", blogId));
     }
@@ -45,7 +45,7 @@ public class BlogController {
      */
     @PutMapping("/blog/setting")
     public ApiResponse<Map<String, Long>> updateBlog(@RequestParam("blogId") Long blogId,
-                                                     @RequestBody BlogRequestDto blogRequestDto) {
+                                                     @RequestBody @Valid BlogRequestDto blogRequestDto) {
         blogService.updateBlog(blogId, blogRequestDto);
         return ApiResponse.ok(Map.of("blogId", blogId));
     }

@@ -53,7 +53,13 @@ public class BlogFacadeService {
         for (Post post : posts) {
             postService.deletePost(post.getId());
         }
-        //시리즈 > imgUrl 서버에서 삭제
+        //시리즈
+        List<Series> series = seriesRepository.findByBlogIdOrderBySeriesOrder(blogId);
+        for (Series s : series) {
+            if (s.getImgUrl() != null || !s.getImgUrl().equals("")) {
+                s3Service.deleteS3(s.getImgUrl());
+            }
+        }
         seriesRepository.bulkDeleteByBlogId(blogId);
         //팔로우
         followRepository.bulkDeleteByBlogId(blogId);
