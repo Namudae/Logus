@@ -48,6 +48,7 @@ public class PostService {
     private final TagService tagService;
     private final CommentService commentService;
     private final S3Service s3Service;
+    private final LikeyRepository likeyRepository;
 
     @Autowired
     private JwtService jwtService;
@@ -144,7 +145,7 @@ public class PostService {
         //썸네일 업로드
         String thumbUrl = null;
         if (thumbImage != null && !thumbImage.isEmpty()) {
-            thumbUrl = s3Service.thumbUpload(thumbImage);
+            thumbUrl = s3Service.thumbUpload(thumbImage, AttachmentType.THUMB);
         }
 
         //임시저장글일 경우, 기존 임시저장글 삭제, 새로 insert ***
@@ -186,7 +187,7 @@ public class PostService {
         }
         //thumbImage 빈값아니면 썸네일 업로드
         if (thumbImage != null && !thumbImage.isEmpty()) {
-            String thumbUrl = s3Service.thumbUpload(thumbImage);
+            String thumbUrl = s3Service.thumbUpload(thumbImage, AttachmentType.THUMB);
             post.changeImgUrl(thumbUrl);
         }
 
@@ -213,10 +214,11 @@ public class PostService {
     public void deletePost(Long postId) {
         Post post = getById(postId);
 
-        //댓글 delete
-        commentService.getByPostId(postId).forEach(comment -> commentService.deleteComment(comment.getId()));
-
-        //postTag delete
+        //댓글
+        commentService.bulkDeleteComment(postId);
+        //좋아요
+        likeyRepository.bulkDeleteByPostId(postId);
+        //postTag
         tagService.deletePostTag(postId);
 
         //썸네일 서버 삭제

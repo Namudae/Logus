@@ -63,6 +63,7 @@ public class PostController {
     /**
      * 글 등록
      */
+    @PreAuthorize("hasRole('ROLE_ADMIN') || @blogService.hasPermissionToBlog(#postRequestDto.blogId, 'BLOG', 'EDITOR', authentication)")
     @PostMapping("/posts")
     public ApiResponse<Map<String, Long>> createPost(@RequestPart("requestDto") @Valid PostRequestDto postRequestDto,
                                                      @RequestPart(value = "thumbImg", required = false) MultipartFile thumbImg
@@ -74,7 +75,7 @@ public class PostController {
     /**
      * 글 수정
      */
-    @PreAuthorize("@postService.hasPermissionToPost(#postId, authentication)")
+    @PreAuthorize("hasRole('ROLE_ADMIN') || @postService.hasPermissionToPost(#postId, authentication)")
     @PutMapping("/posts/{postId}")
     public ApiResponse<Map<String, Long>> updatePost(@PathVariable("postId") Long postId,
                                                      @RequestPart("requestDto") @Valid PostRequestDto postRequestDto,
@@ -88,7 +89,7 @@ public class PostController {
     /**
      * 글 삭제
      */
-    @PreAuthorize("@postService.hasPermissionToPost(#postId, authentication)")
+    @PreAuthorize("hasRole('ROLE_ADMIN') || @postService.hasPermissionToPost(#postId, authentication)")
     @DeleteMapping("/posts/{postId}")
     public ApiResponse<String> deletePost(@PathVariable("postId") Long postId) throws MethodArgumentNotValidException {
         postService.deletePost(postId);

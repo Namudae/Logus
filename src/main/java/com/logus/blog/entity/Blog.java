@@ -1,5 +1,6 @@
 package com.logus.blog.entity;
 
+import com.logus.blog.dto.BlogRequestDto;
 import com.logus.common.entity.BaseCreateTime;
 import jakarta.persistence.*;
 import lombok.*;
@@ -49,6 +50,19 @@ public class Blog extends BaseCreateTime {
             this.delYn = "N";
         }
     }
+
+    //==비즈니스 로직==//
+    //블로그 정보 수정
+    public void updateBlogInfo(BlogRequestDto blogRequestDto) {
+        this.blogName = blogRequestDto.getBlogName();
+        this.blogAddress = blogRequestDto.getBlogAddress();
+        this.introduce = blogRequestDto.getIntroduce();
+//        this.blogMembers = blogMembers;
+        // 기존 멤버 삭제 및 새로운 멤버 추가
+//        this.blogMembers.clear(); // 기존 멤버 삭제
+//        this.blogMembers.addAll(blogMembers); // 새로운 멤버 추가
+    }
+
 
 //    @OneToMany(mappedBy = "blog")
 //    private List<Visit> visits = new ArrayList<>();
