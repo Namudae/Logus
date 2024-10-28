@@ -13,6 +13,7 @@ import com.logus.member.entity.Member;
 import com.logus.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,10 +44,17 @@ public class BlogService {
 
     @Transactional
     public Long createBlog(BlogRequestDto blogRequestDto) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
+            throw new CustomException(ErrorCode.NEED_LOGIN);
+        }
+        //본인만 BlogAuth = ADMIN, 나머지 EDITOR
+        Long memberId = ((UserPrincipal) authentication.getPrincipal()).getMemberId();
+
         Blog blog = blogRequestDto.toEntity();
         Blog savedBlog = blogRepository.save(blog);
 
-        saveBlogMembers(blogRequestDto.getBlogMembers(), savedBlog);
+        saveBlogMembers(blogRequestDto.getBlogMembers(), savedBlog, memberId);
 
         return savedBlog.getId();
     }
@@ -59,43 +67,42 @@ public class BlogService {
         List<BlogMember> oldBlogMembers = blogMemberRepository.findByBlogId(blogId);
         List<BlogMemberRequestDto> newBlogMembers = blogRequestDto.getBlogMembers();
 
-        // 기존 블로그 멤버를 ID로 매핑하여 쉽게 찾을 수 있도록 함
+        // 기존 블로그 멤버 ID
         Set<Long> newMemberIds = newBlogMembers.stream()
                 .map(BlogMemberRequestDto::getMemberId)
                 .collect(Collectors.toSet());
 
         // 1. 기존 멤버 삭제: newBlogMembers에 없는 oldBlogMembers 삭제
         oldBlogMembers.stream()
-                .filter(oldMember -> !newMemberIds.contains(oldMember.getMember().getId()))
+                .filter(oldMember -> !newMemberIds.contains(oldMember.getMember().getId())
+                        && !oldMember.getBlogAuth().equals(BlogAuth.OWNER)) //소유자 삭제X
                 .forEach(blogMemberRepository::delete);
 
-        // 2. 새로운 멤버 추가 및 기존 멤버 업데이트
-        newBlogMembers.forEach(newMember -> {
-            BlogMember existingMember = oldBlogMembers.stream()
-                    .filter(oldMember -> oldMember.getMember().getId().equals(newMember.getMemberId()))
-                    .findFirst()
-                    .orElse(null);
-
-            if (existingMember != null) {
-                // 기존 멤버의 blogAuth 업데이트
-                existingMember.updateBlogAuth(newMember.getBlogAuth());
-            } else {
-                // 새로운 멤버 추가
-                Member member = memberService.getById(newMember.getMemberId());
-                BlogMember blogMember = newMember.toEntity(member, blog);
-                blogMemberRepository.save(blogMember);
-            }
-        });
+        // 2. 새로운 멤버 추가: 기존에 없는 멤버는 새로 추가
+        newBlogMembers.stream()
+                .filter(newMember -> oldBlogMembers.stream()
+                        .noneMatch(oldMember -> oldMember.getMember().getId().equals(newMember.getMemberId())))
+                .forEach(newMember -> {
+                    Member member = memberService.getById(newMember.getMemberId());
+                    BlogMember blogMember = newMember.toEntity(member, blog, BlogAuth.EDITOR);
+                    blogMemberRepository.save(blogMember);
+                });
         blog.updateBlogInfo(blogRequestDto);
         return blogId;
     }
 
     @Transactional
-    private void saveBlogMembers(List<BlogMemberRequestDto> blogMembers, Blog savedBlog) {
+    private void saveBlogMembers(List<BlogMemberRequestDto> blogMembers, Blog savedBlog, Long ownerId) {
         if (blogMembers != null) {
             for (BlogMemberRequestDto blogMemberRequestDto : blogMembers) {
                 Member member = memberService.getById(blogMemberRequestDto.getMemberId());
-                BlogMember blogMember = blogMemberRequestDto.toEntity(member, savedBlog);
+                BlogAuth blogAuth = null;
+                if (blogMemberRequestDto.getMemberId() == ownerId) {
+                    blogAuth = BlogAuth.OWNER;
+                } else {
+                    blogAuth = BlogAuth.EDITOR;
+                }
+                BlogMember blogMember = blogMemberRequestDto.toEntity(member, savedBlog, blogAuth);
                 blogMemberRepository.save(blogMember);
             }
         }
@@ -106,8 +113,14 @@ public class BlogService {
         Blog blog = getById(blogId);
 
         //블로그멤버
-        //memberId > myLogAddress: memberId로 BlogMember 검색 > 블로그 권한 'OWNER'만 Blog에서 검색 > 공유블로그여부 'N'만 찾기
-        List<BlogMemberResponseDto> blogMembers = blogMemberRepository.findByBlogId(blogId).stream()
+        List<BlogMemberResponseDto> blogMembers = selectBlogAuth(blogId);
+
+        return new BlogResponseDto(blog, blogMembers);
+    }
+
+
+    public List<BlogMemberResponseDto> selectBlogAuth(Long blogId) {
+        return blogMemberRepository.findByBlogId(blogId).stream()
                 .map(blogMember -> {
                     Member member = blogMember.getMember();
                     String myLogAddress = blogRepository.findMyLogAddress(member.getId());
@@ -121,11 +134,30 @@ public class BlogService {
                             .blogAuth(blogMember.getBlogAuth())
                             .imgUrl(imgUrl)
                             .myLogAddress(myLogAddress)
+                            .createDate(blogMember.getCreateDate())
                             .build();
                 })
                 .toList();
 
-        return new BlogResponseDto(blog, blogMembers);
+    }
+
+    public List<BlogMemberResponseDto> updateBlogAuth(Long blogId, List<BlogMemberRequestDto> blogMemberRequestDto) {
+        Blog blog = getById(blogId);
+
+        blogMemberRequestDto.stream()
+                .filter(updateMember -> updateMember.getBlogAuth() != BlogAuth.OWNER)  // OWNER 제외
+                .forEach(updateMember -> {
+                    Member member = memberService.getById(updateMember.getMemberId());
+                    BlogMember existingMember = blogMemberRepository.findByBlogAndMember(blog, member);
+
+                    if (existingMember != null && existingMember.getBlogAuth() != BlogAuth.OWNER) {
+                        // 기존 멤버의 blogAuth가 OWNER가 아닌 경우에만 업데이트 수행
+                        existingMember.updateBlogAuth(updateMember.getBlogAuth());
+                        blogMemberRepository.save(existingMember);
+                    }
+                });
+
+        return null;
     }
 
     public List<SeriesResponseDto> selectSeries(Long blogId) {
@@ -257,4 +289,6 @@ public class BlogService {
             throw new CustomException(ErrorCode.NEED_LOGIN);
         }
     }
+
+
 }

@@ -81,6 +81,27 @@ public class BlogController {
     }
 
     /**
+     * 블로그 권한 조회
+     */
+    @GetMapping("/blog/auth")
+    public ApiResponse<List<BlogMemberResponseDto>> selectBlogAuth(@RequestParam("blogId") Long blogId) {
+        List<BlogMemberResponseDto> members = blogService.selectBlogAuth(blogId);
+
+        return ApiResponse.ok(members);
+    }
+
+    /**
+     * 블로그 권한 수정
+     */
+    @PutMapping("/blog/auth")
+    public ApiResponse<String> updateBlogAuth(@RequestParam("blogId") Long blogId,
+                                              @RequestBody List<BlogMemberRequestDto> blogMemberRequestDtos) {
+        blogService.updateBlogAuth(blogId, blogMemberRequestDtos);
+
+        return ApiResponse.ok();
+    }
+
+    /**
      * 시리즈 조회
      */
     @GetMapping("/series")
@@ -128,7 +149,7 @@ public class BlogController {
      * 시리즈 순서 일괄 수정
      */
     @PostMapping("/series/order")
-    public ApiResponse<String> updateSeriesOrder(@RequestPart("requestDto") @Valid SeriesOrderRequestDto seriesOrderRequestDto) throws IOException {
+    public ApiResponse<String> updateSeriesOrder(@RequestBody @Valid SeriesOrderRequestDto seriesOrderRequestDto) throws IOException {
         blogFacadeService.updateSeriesOrder(seriesOrderRequestDto);
         return ApiResponse.ok();
     }
