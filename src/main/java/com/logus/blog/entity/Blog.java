@@ -57,10 +57,6 @@ public class Blog extends BaseCreateTime {
         this.blogName = blogRequestDto.getBlogName();
         this.blogAddress = blogRequestDto.getBlogAddress();
         this.introduce = blogRequestDto.getIntroduce();
-//        this.blogMembers = blogMembers;
-        // 기존 멤버 삭제 및 새로운 멤버 추가
-//        this.blogMembers.clear(); // 기존 멤버 삭제
-//        this.blogMembers.addAll(blogMembers); // 새로운 멤버 추가
     }
 
 

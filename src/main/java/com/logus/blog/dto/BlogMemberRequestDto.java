@@ -16,6 +16,14 @@ public class BlogMemberRequestDto {
     private Long memberId;
     private BlogAuth blogAuth;
 
+    public BlogMember toEntity(Member member, Blog blog, BlogAuth blogAuth) {
+        return BlogMember.builder()
+                .member(member)
+                .blog(blog)
+                .blogAuth(blogAuth)
+                .build();
+    }
+
     public BlogMember toEntity(Member member, Blog blog) {
         return BlogMember.builder()
                 .member(member)
