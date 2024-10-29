@@ -1,6 +1,8 @@
 package com.logus.blog.repository;
 
 import com.logus.blog.dto.*;
+import com.logus.blog.entity.BlogAuth;
+import com.logus.blog.entity.QBlogMember;
 import com.logus.blog.entity.Status;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
@@ -68,6 +70,32 @@ public class BlogRepositoryImpl implements BlogRepositoryCustom {
                         blog.shareYn.eq("N")
                 )
                 .fetchOne();
+    }
+
+    /**
+     * Our-Log 조회
+     */
+    @Override
+    public List<OurLogResponseDto> findByMemberId(Long memberId) {
+        QBlogMember ownerBlogMember = new QBlogMember("ownerBlogMember");
+
+        return jpaQueryFactory
+                .select(Projections.fields(OurLogResponseDto.class,
+                        blog.id.as("blogId"),
+                        blog.blogName,
+                        blog.blogAddress,
+                        blog.introduce,
+                        blog.shareYn,
+                        ownerBlogMember.member.id.as("memberId"),
+                        ownerBlogMember.member.nickname.as("nickname"),
+                        ownerBlogMember.member.imgUrl.as("imgUrl")
+                ))
+                .from(blogMember)
+                .join(blogMember.blog, blog)
+                .join(ownerBlogMember).on(ownerBlogMember.blog.eq(blog)
+                        .and(ownerBlogMember.blogAuth.eq(BlogAuth.OWNER)))
+                .where(blogMember.member.id.eq(memberId))
+                .fetch();
     }
 
     /**

@@ -105,6 +105,15 @@ public class BlogController {
     }
 
     /**
+     * 내 블로그 목록 조회(our-log)
+     */
+    @GetMapping("/blog/our-log")
+    public ApiResponse<List<OurLogResponseDto>> selectOurLog() {
+        List<OurLogResponseDto> blogs = blogFacadeService.selectOurLog();
+        return ApiResponse.ok(blogs);
+    }
+
+    /**
      * 시리즈 조회
      */
     @GetMapping("/series")

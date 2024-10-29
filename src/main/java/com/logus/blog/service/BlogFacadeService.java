@@ -177,5 +177,10 @@ public class BlogFacadeService {
         blogService.hasPermissionToBlog(follow.getBlog().getId(), "BLOG", "ADMIN", authentication);
         followRepository.delete(follow);
     }
+
+    public List<OurLogResponseDto> selectOurLog() {
+        Long memberId = blogService.authMemberId();
+        return blogRepository.findByMemberId(memberId);
+    }
 }
 
