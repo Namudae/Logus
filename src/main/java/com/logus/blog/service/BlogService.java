@@ -44,12 +44,7 @@ public class BlogService {
 
     @Transactional
     public Long createBlog(BlogRequestDto blogRequestDto) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
-            throw new CustomException(ErrorCode.NEED_LOGIN);
-        }
-        //본인만 BlogAuth = ADMIN, 나머지 EDITOR
-        Long memberId = ((UserPrincipal) authentication.getPrincipal()).getMemberId();
+        Long memberId = authMemberId();
 
         Blog blog = blogRequestDto.toEntity();
         Blog savedBlog = blogRepository.save(blog);
@@ -290,5 +285,10 @@ public class BlogService {
         }
     }
 
+    public Long authMemberId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        validateAuthentication(authentication);
+        return ((UserPrincipal) authentication.getPrincipal()).getMemberId();
+    }
 
 }
