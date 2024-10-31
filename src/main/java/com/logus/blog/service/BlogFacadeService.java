@@ -1,17 +1,23 @@
 package com.logus.blog.service;
 
-import com.logus.blog.dto.SeriesOrderRequestDto;
-import com.logus.blog.dto.SeriesRequestDto;
+import com.logus.blog.dto.*;
 import com.logus.blog.entity.Blog;
+import com.logus.blog.entity.Follow;
 import com.logus.blog.entity.Post;
 import com.logus.blog.entity.Series;
 import com.logus.blog.repository.*;
 import com.logus.common.entity.AttachmentType;
+import com.logus.common.exception.CustomException;
+import com.logus.common.exception.ErrorCode;
 import com.logus.common.security.UserPrincipal;
 import com.logus.common.service.S3Service;
+import com.logus.member.entity.Member;
 import com.logus.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -27,6 +33,7 @@ public class BlogFacadeService {
 
     private final PostService postService;
     private final BlogService blogService;
+    private final MemberService memberService;
     private final SeriesService seriesService;
     private final S3Service s3Service;
 
@@ -126,7 +133,54 @@ public class BlogFacadeService {
             blogService.hasPermissionToBlogUserPrincipal(series.getId(), "SERIES", "ADMIN", userPrincipal);
             series.updateSeries(seriesDto);
         }
+    }
 
+
+    public Page<FollowResponseDto> selectFollow(Pageable pageable) {
+        Long memberId = blogService.authMemberId();
+
+        return blogRepository.selectFollows(memberId, pageable);
+    }
+
+    public void createFollow(Long blogId) {
+        Long memberId = blogService.authMemberId();
+
+        Blog blog = blogService.getById(blogId);
+        Member member = memberService.getById(memberId);
+
+        Follow follow = Follow.builder()
+                .blog(blog)
+                .member(member)
+                .build();
+        followRepository.save(follow);
+    }
+
+    public void deleteFollow(Long followId) {
+        Long memberId = blogService.authMemberId();
+        Follow follow = followRepository.getReferenceById(followId);
+        if (follow.getMember().getId() != memberId) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_REQUEST);
+        }
+
+        followRepository.delete(follow);
+    }
+
+    public Page<FollowerResponseDto> selectFollower(Long blogId, Pageable pageable) {
+        //인가 추가
+        return blogRepository.selectFollowers(blogId, pageable);
+    }
+
+    public void deleteFollower(Long followId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        blogService.validateAuthentication(authentication);
+        Follow follow = followRepository.getReferenceById(followId);
+        blogService.hasPermissionToBlog(follow.getBlog().getId(), "BLOG", "ADMIN", authentication);
+        followRepository.delete(follow);
+    }
+
+    public List<OurLogResponseDto> selectOurLog() {
+        Long memberId = blogService.authMemberId();
+        return blogRepository.findByMemberId(memberId);
     }
 }
 

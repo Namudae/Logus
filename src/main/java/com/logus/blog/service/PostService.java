@@ -3,6 +3,7 @@ package com.logus.blog.service;
 import com.logus.blog.dto.*;
 import com.logus.blog.entity.*;
 import com.logus.blog.repository.*;
+import com.logus.common.config.CustomHtmlEscapeUtil;
 import com.logus.common.entity.Attachment;
 import com.logus.common.entity.AttachmentType;
 import com.logus.common.exception.CustomException;
@@ -75,13 +76,6 @@ public class PostService {
         Long requestId = memberService.getMemberIdFromJwt(request);
         Post post = getById(postId);
 
-        //작성자가 아닐 경우
-//        if (!memberService.isAuthor(requestId, post.getMember().getId())) {
-//            if(post.getStatus() != Status.PUBLIC) {
-//                throw new CustomException(ErrorCode.SECRET_POST);
-//            }
-//        }
-
         //비밀글 > 멤버확인, 임시글 > 조회x
         List<Long> blogMemberIds = blogService.blogMemberIds(post.getBlog().getId());
         boolean isMember = blogService.isMember(requestId, blogMemberIds);
@@ -148,7 +142,11 @@ public class PostService {
             thumbUrl = s3Service.thumbUpload(thumbImage, AttachmentType.THUMB);
         }
 
-        //임시저장글일 경우, 기존 임시저장글 삭제, 새로 insert ***
+        //이스케이프
+        postRequestDto.setContent(CustomHtmlEscapeUtil.escapeCustom(postRequestDto.getContent()));
+        postRequestDto.setTitle(CustomHtmlEscapeUtil.escapeCustom(postRequestDto.getTitle()));
+
+        //임시저장글일 경우, 기존 임시저장글 삭제, 새로 insert
         if (postRequestDto.getStatus() == Status.TEMPORARY) {
             //temporary인 post 찾아서 update
             Long tempPostId = postRepository.selectTemp(postRequestDto.getBlogId(), memberId).getPostId();
@@ -196,6 +194,10 @@ public class PostService {
 
         //임시폴더 이미지 images 폴더로
         moveTemporaryImages(postRequestDto);
+
+        //이스케이프
+        postRequestDto.setContent(CustomHtmlEscapeUtil.escapeCustom(postRequestDto.getContent()));
+        postRequestDto.setTitle(CustomHtmlEscapeUtil.escapeCustom(postRequestDto.getTitle()));
 
         post.updatePost(category, series, postRequestDto.getTitle(), postRequestDto.getContent(), postRequestDto.getStatus());
 
@@ -297,6 +299,10 @@ public class PostService {
     }
 
     private List<Attachment> moveTemporaryImages(PostRequestDto postRequestDto) {
+
+        //이스케이프 해제 > Jsoup 파싱 > 다시 이스케이프
+//        String unescapedContent = CustomHtmlEscapeUtil.unescapeCustom(postRequestDto.getContent());
+
         List<Attachment> attachments = new ArrayList<>();
         Document document = Jsoup.parse(postRequestDto.getContent());
         String content = postRequestDto.getContent();

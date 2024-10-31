@@ -3,12 +3,15 @@ package com.logus.blog.entity;
 import com.logus.common.entity.BaseCreateTime;
 import com.logus.member.entity.Member;
 import jakarta.persistence.*;
-import lombok.Getter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Follow extends BaseCreateTime {
 
     @Id

@@ -12,6 +12,7 @@ import java.util.List;
 @Builder
 public class BlogResponseDto {
 
+    private Long blogId;
     private String blogName;
     private String blogAddress;
     private String introduce;
