@@ -5,6 +5,7 @@ import com.logus.blog.dto.PostRequestDto;
 import com.logus.blog.dto.PostResponseDto;
 import com.logus.blog.dto.TempPostResponseDto;
 import com.logus.blog.entity.Post;
+import com.logus.blog.service.BlogService;
 import com.logus.blog.service.PostService;
 import com.logus.common.controller.ApiResponse;
 import com.logus.common.security.JwtService;
@@ -33,6 +34,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class PostController {
 
+    private final BlogService blogService;
     private final PostService postService;
 
     /**

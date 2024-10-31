@@ -8,24 +8,46 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
 @Configuration
-public class WebMvcConfig {
+public class WebMvcConfig implements WebMvcConfigurer {
 
+    // 이스케이프 1
+//    private final ObjectMapper objectMapper;
+//
 //    @Bean
-    public MappingJackson2HttpMessageConverter jsonEscapeConverter() {
-        ObjectMapper objectMapper = new ObjectMapper();
+//    public MappingJackson2HttpMessageConverter jsonEscapeConverter() {
+//        ObjectMapper copy = objectMapper.copy();
+//        copy.getFactory().setCharacterEscapes(new HtmlCharacterEscapes());
+//        return new MappingJackson2HttpMessageConverter(copy);
+//    }
 
-        // LocalDateTime 직렬화를 위한 JavaTimeModule 등록
-        objectMapper.registerModule(new JavaTimeModule());
-        // LocalDateTime 직렬화를 위한 설정 (ISO-8601 포맷을 사용하거나 원하는 포맷을 설정 가능)
-        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-
-        objectMapper.getFactory().setCharacterEscapes(new HtmlCharacterEscapes());
-        return new MappingJackson2HttpMessageConverter(objectMapper);
-    }
+    //이스케이프 2 (implements WebMvcConfigurer)
+//    @Override
+//    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+//        converters.add(escapingConverter());
+//    }
+//
+//    @Bean
+//    public HttpMessageConverter escapingConverter() {
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        objectMapper.getFactory().setCharacterEscapes(new HtmlCharacterEscapes());
+//
+//        // JavaTimeModule 등록 및 설정 추가
+//        objectMapper.registerModule(new JavaTimeModule());
+//        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+//
+//        MappingJackson2HttpMessageConverter escapingConverter = new MappingJackson2HttpMessageConverter();
+//        escapingConverter.setObjectMapper(objectMapper);
+//
+//        return escapingConverter;
+//    }
 
 }
