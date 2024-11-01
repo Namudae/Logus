@@ -18,7 +18,7 @@ import java.util.List;
 
 import static com.logus.blog.entity.QBlog.blog;
 import static com.logus.blog.entity.QBlogMember.blogMember;
-import static com.logus.blog.entity.QCategory.category;
+import static com.logus.admin.entity.QCategory.category;
 import static com.logus.blog.entity.QComment.comment;
 import static com.logus.blog.entity.QFollow.follow;
 import static com.logus.blog.entity.QLikey.likey;

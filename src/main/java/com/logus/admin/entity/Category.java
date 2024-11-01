@@ -1,15 +1,18 @@
-package com.logus.blog.entity;
+package com.logus.admin.entity;
 
+import com.logus.admin.dto.CategoryRequestDto;
+import com.logus.blog.dto.BlogRequestDto;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Getter
-@Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Category {
 
     @Id
@@ -35,9 +38,16 @@ public class Category {
 //    private List<Post> posts = new ArrayList<>();
 
     //==연관관계 메서드==//
-    public void addChildCategory(Category child) {
-        this.child.add(child);
-        child.setParent(this);
+//    public void addChildCategory(Category child) {
+//        this.child.add(child);
+//        child.setParent(this);
+//    }
+
+    //==비즈니스 로직==//
+    //카테고리 수정
+    public void updateCategory(CategoryRequestDto categoryRequestDto) {
+        this.categoryName = categoryRequestDto.getCategoryName();
+        this.orderSeq = categoryRequestDto.getOrderSeq();
     }
 
 }

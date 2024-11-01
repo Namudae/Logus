@@ -1,5 +1,6 @@
 package com.logus.blog.dto;
 
+import com.logus.admin.entity.Category;
 import com.logus.blog.entity.*;
 import com.logus.member.entity.Member;
 import jakarta.validation.constraints.NotBlank;

@@ -1,5 +1,6 @@
 package com.logus.blog.entity;
 
+import com.logus.admin.entity.Category;
 import com.logus.admin.entity.ReportStatus;
 import com.logus.common.entity.Attachment;
 import com.logus.common.entity.BaseTime;
