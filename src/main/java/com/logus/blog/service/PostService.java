@@ -1,5 +1,7 @@
 package com.logus.blog.service;
 
+import com.logus.admin.entity.Category;
+import com.logus.admin.service.CategoryService;
 import com.logus.blog.dto.*;
 import com.logus.blog.entity.*;
 import com.logus.blog.repository.*;

@@ -28,6 +28,10 @@ public enum ErrorCode {
     SECRET_POST(3004, HttpStatus.NOT_FOUND, "비공개 글입니다."),
     DUPLICATE_BLOG_ADDRESS(3005, HttpStatus.CONFLICT, "중복된 블로그 주소가 존재합니다."),
     SERIES_NOT_FOUND(3006, HttpStatus.NOT_FOUND, "존재하지 않는 시리즈입니다."),
+    CATEGORY_NOT_FOUND(3007, HttpStatus.NOT_FOUND, "존재하지 않는 카테고리입니다."),
+
+    /* 4001~: 관리자 */
+    REPORT_NOT_FOUND(4001, HttpStatus.NOT_FOUND, "존재하지 않는 신고입니다."),
 
     /* 1000번대 이하: 상태 코드 */
     INTERNAL_SERVER_ERROR(500, HttpStatus.INTERNAL_SERVER_ERROR, "내부 서버 오류입니다.");
