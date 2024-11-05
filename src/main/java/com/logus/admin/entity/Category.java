@@ -10,6 +10,7 @@ import java.util.List;
 
 @Entity
 @Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -25,7 +26,7 @@ public class Category {
     @JoinColumn(name = "parent_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Category parent;
 
-    @OneToMany(mappedBy = "parent")
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true) //부모 카테고리 영향을 받음
     private List<Category> child = new ArrayList<>();
 
     private Integer orderSeq;
@@ -33,15 +34,14 @@ public class Category {
     @Column(length = 30)
     private String categoryName;
 
-
 //    @OneToMany(mappedBy = "category")
 //    private List<Post> posts = new ArrayList<>();
 
     //==연관관계 메서드==//
-//    public void addChildCategory(Category child) {
-//        this.child.add(child);
-//        child.setParent(this);
-//    }
+    public void addChildCategory(Category child) {
+        this.child.add(child);
+        child.setParent(this);
+    }
 
     //==비즈니스 로직==//
     //카테고리 수정

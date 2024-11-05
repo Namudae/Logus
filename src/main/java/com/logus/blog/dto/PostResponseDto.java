@@ -1,6 +1,7 @@
 package com.logus.blog.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.logus.admin.entity.Category;
 import com.logus.admin.entity.ReportStatus;
 import com.logus.blog.entity.Post;
 import com.logus.blog.entity.Status;
@@ -27,6 +28,8 @@ public class PostResponseDto {
     private Long postId;
     private Long memberId;
     private String nickname;
+    private Long parentCategoryId; //부모카테고리
+    private String parentCategoryName;
     private Long categoryId;
     private String categoryName;
     private Long seriesId;
@@ -90,6 +93,11 @@ public class PostResponseDto {
             this.nextId = next.getNextId();
             this.nextTitle = next.getNextTitle();
         }
+    }
+
+    public void setParentCategory(Category category) {
+        this.parentCategoryId = category.getId();
+        this.parentCategoryName = category.getCategoryName();
     }
 
 }

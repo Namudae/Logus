@@ -31,6 +31,7 @@ public class CategoryController {
 
     /**
      * 카테고리 등록
+     * + 카테고리명 중복 체크
      */
     @PostMapping("/category")
     public ApiResponse<Map<String, Long>> createCategory(@RequestBody @Valid CategoryRequestDto categoryRequestDto) {
@@ -42,6 +43,7 @@ public class CategoryController {
 
     /**
      * 카테고리 수정
+     * + 카테고리명 중복 체크
      */
     @PutMapping("/category")
     public ApiResponse<Map<String, Long>> updateCategory(@RequestParam("categoryId") Long categoryId,
