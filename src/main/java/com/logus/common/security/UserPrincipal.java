@@ -9,13 +9,6 @@ import java.util.List;
 
 public class UserPrincipal extends User {
 
-//    private final Long memberId;
-//
-//    public UserPrincipal(Member member) {
-//        super(member.getLoginId(), member.getPassword(), getAuthorities(member)); // 동적 권한 설정
-//        this.memberId = member.getId();
-//    }
-
     private final Member member;
 
     public UserPrincipal(Member member) {
@@ -44,5 +37,9 @@ public class UserPrincipal extends User {
 
     public String getNickname() {
         return member.getNickname();
+    }
+
+    public boolean isAdmin() {
+        return member.getRole().equals("ADMIN");
     }
 }

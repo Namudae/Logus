@@ -26,6 +26,7 @@ public class JwtService {
         Map<String, String> claims = new HashMap<>();
         claims.put("iss", "https://blog.logus.com/");
         claims.put("nickname", ((UserPrincipal) userDetails).getNickname());
+        claims.put("isAdmin", String.valueOf(((UserPrincipal) userDetails).isAdmin()));
         return Jwts.builder()
                 .claims(claims)
                 .subject(userDetails.getUsername())
