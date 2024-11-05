@@ -1,5 +1,6 @@
 package com.logus.blog.repository;
 
+import com.logus.admin.entity.QCategory;
 import com.logus.blog.dto.PostListResponseDto;
 import com.logus.blog.dto.PostRequestDto;
 import com.logus.blog.dto.PostResponseDto;
@@ -47,12 +48,16 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
      */
     @Override
     public PostResponseDto selectPost(Long postId) {
+        QCategory parentCategory = new QCategory("parentCategory");
+
         return jpaQueryFactory
                 .select(Projections.fields(PostResponseDto.class,
                         member.id.as("memberId"),
                         member.nickname,
                         category.id.as("categoryId"),
                         category.categoryName,
+                        category.parent.id.as("parentCategoryId"),
+                        category.parent.categoryName.as("parentCategoryName"),
                         series.id.as("seriesId"),
                         series.seriesName,
                         post.id.as("postId"),
@@ -79,6 +84,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .join(post.member, member)
                 .leftJoin(post.category, category)
                 .leftJoin(post.series, series)
+                .leftJoin(category.parent, parentCategory)
                 .where(post.id.eq(postId))
                 .fetchOne();
     }

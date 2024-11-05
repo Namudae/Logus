@@ -40,6 +40,12 @@ public class CategoryService {
         }
 
         Category category = categoryRequestDto.toEntity(parent);
+
+        // 부모 카테고리가 있을 경우 자식 카테고리 추가
+        if (parent != null) {
+            parent.addChildCategory(category);
+        }
+
         categoryRepository.save(category);
 
         return category.getId();
