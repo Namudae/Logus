@@ -1,6 +1,7 @@
 package com.logus.admin.entity;
 
 
+import com.logus.blog.entity.Comment;
 import com.logus.blog.entity.Post;
 import com.logus.common.entity.BaseTime;
 import com.logus.member.entity.Member;
@@ -29,6 +30,10 @@ public class Report extends BaseTime {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Post post;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "comment_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    private Comment comment;
 
     @Enumerated(EnumType.STRING)
     @Column(length = 30, columnDefinition = "varchar(30)")

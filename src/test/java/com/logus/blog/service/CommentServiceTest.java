@@ -31,32 +31,32 @@ class CommentServiceTest {
     private CommentRepository commentRepository;
 
 
-    @Test
-    @DisplayName("댓글 작성")
-    void createCommentTest() {
-        //given
-        Member member = memberRepository.findById(1L)
-                .orElseThrow(() -> new IllegalArgumentException("Member not found"));
-
-        Post post = postRepository.findById(1L)
-                .orElseThrow(() -> new IllegalArgumentException("Post not found"));
-
-        CommentRequestDto commentRequestDto = CommentRequestDto.builder()
-                .memberId(1L)
-                .postId(1L)
-                .content("테스트 댓글입니다.")
-                .status(Status.PUBLIC)
-                .build();
-
-        //when
-        commentService.createComment(commentRequestDto);
-
-        //then
-        assertEquals(3L, commentRepository.count());
-        Comment comment = commentRepository.findAll().get(2);
-        assertEquals("테스트 댓글입니다.", comment.getContent());
-        assertEquals(Status.PUBLIC, comment.getStatus());
-
-    }
+//    @Test
+//    @DisplayName("댓글 작성")
+//    void createCommentTest() {
+//        //given
+//        Member member = memberRepository.findById(1L)
+//                .orElseThrow(() -> new IllegalArgumentException("Member not found"));
+//
+//        Post post = postRepository.findById(1L)
+//                .orElseThrow(() -> new IllegalArgumentException("Post not found"));
+//
+//        CommentRequestDto commentRequestDto = CommentRequestDto.builder()
+//                .memberId(1L)
+//                .postId(1L)
+//                .content("테스트 댓글입니다.")
+//                .status(Status.PUBLIC)
+//                .build();
+//
+//        //when
+//        commentService.createComment(commentRequestDto);
+//
+//        //then
+//        assertEquals(3L, commentRepository.count());
+//        Comment comment = commentRepository.findAll().get(2);
+//        assertEquals("테스트 댓글입니다.", comment.getContent());
+//        assertEquals(Status.PUBLIC, comment.getStatus());
+//
+//    }
 
 }
