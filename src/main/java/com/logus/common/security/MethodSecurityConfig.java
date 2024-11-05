@@ -13,12 +13,13 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 @RequiredArgsConstructor
 public class MethodSecurityConfig {
 
-    private final PostRepository postRepository;
+//    private final PostRepository postRepository;
+//
+//    @Bean
+//    public MethodSecurityExpressionHandler methodSecurityExpressionHandler() {
+//        var handler = new DefaultMethodSecurityExpressionHandler();
+//        handler.setPermissionEvaluator(new LogusPermissionEvaluator(postRepository));
+//        return handler;
+//    }
 
-    @Bean
-    public MethodSecurityExpressionHandler methodSecurityExpressionHandler() {
-        var handler = new DefaultMethodSecurityExpressionHandler();
-        handler.setPermissionEvaluator(new LogusPermissionEvaluator(postRepository));
-        return handler;
-    }
 }
