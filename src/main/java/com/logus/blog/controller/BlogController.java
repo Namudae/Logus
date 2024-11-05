@@ -39,7 +39,7 @@ public class BlogController {
      */
     @PostMapping("/blog/setting")
     public ApiResponse<Map<String, Long>> createBlog(@RequestBody @Valid BlogRequestDto blogRequestDto) {
-        Long blogId = blogService.createBlog(blogRequestDto);
+        Long blogId = blogFacadeService.createBlog(blogRequestDto);
         return ApiResponse.ok(Map.of("blogId", blogId));
     }
 
@@ -49,7 +49,7 @@ public class BlogController {
     @PutMapping("/blog/setting")
     public ApiResponse<Map<String, Long>> updateBlog(@RequestParam("blogId") Long blogId,
                                                      @RequestBody @Valid BlogRequestDto blogRequestDto) {
-        blogService.updateBlog(blogId, blogRequestDto);
+        blogFacadeService.updateBlog(blogId, blogRequestDto);
         return ApiResponse.ok(Map.of("blogId", blogId));
     }
 
@@ -99,7 +99,7 @@ public class BlogController {
     @PutMapping("/blog/auth")
     public ApiResponse<String> updateBlogAuth(@RequestParam("blogId") Long blogId,
                                               @RequestBody List<BlogMemberRequestDto> blogMemberRequestDtos) {
-        blogService.updateBlogAuth(blogId, blogMemberRequestDtos);
+        blogFacadeService.updateBlogAuth(blogId, blogMemberRequestDtos);
 
         return ApiResponse.ok();
     }

@@ -49,7 +49,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(registry -> {
                     registry.requestMatchers("/home", "/register/**", "/authenticate", "/", "/login", "/error").permitAll(); //인증이 필요 없는 경로
                     registry.requestMatchers("/admin/**").hasRole("ADMIN"); // ADMIN 역할을 가진 사용자만 접근 가능
-                    registry.requestMatchers("/user/**").hasRole("USER"); // USER 역할을 가진 사용자만 접근 가능
+//                    registry.requestMatchers("/user/**").hasRole("USER"); // USER 역할을 가진 사용자만 접근 가능
 //                    registry.requestMatchers(HttpMethod.POST, "/posts/**").authenticated(); //인가자만 허용
 //                    registry.anyRequest().authenticated();
                     registry.anyRequest().permitAll();

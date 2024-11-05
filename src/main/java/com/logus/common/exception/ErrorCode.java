@@ -20,6 +20,7 @@ public enum ErrorCode {
     MEMBER_NOT_FOUND(2001, HttpStatus.NOT_FOUND, "존재하지 않는 회원입니다."),
     NEED_LOGIN(2002, HttpStatus.UNAUTHORIZED, "로그인이 필요한 요청입니다."),
     INVALID_TOKEN(2003, HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
+    DUPLICATE_LOGIN_ID(2004, HttpStatus.CONFLICT, "중복된 아이디가 존재합니다."),
 
     /* 3001~: 블로그 */
     BLOG_NOT_FOUND(3001, HttpStatus.NOT_FOUND, "존재하지 않는 블로그입니다."),

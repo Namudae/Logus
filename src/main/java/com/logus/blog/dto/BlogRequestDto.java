@@ -16,14 +16,14 @@ import java.util.List;
 @Builder
 public class BlogRequestDto {
 
-    @NotBlank(message = "블로그명을 입력하세요.")
-    @Size(max=20, message = "블로그명을 20자 이내로 작성해 주세요.")
-    @Pattern(regexp = "^[가-힣a-zA-Z0-9\\s-_]+$", message = "한글, 영문, 숫자, 특수문자(-, _)를 사용하여 입력해 주세요.")
+//    @NotBlank(message = "블로그명을 입력하세요.")
+//    @Size(max=20, message = "블로그명을 20자 이내로 작성해 주세요.")
+    @Pattern(regexp = "^[가-힣a-zA-Z0-9\\s-_]{1,20}$", message = "한글, 영문, 숫자, 특수문자(-, _)를 사용하여 1~20자로 입력해 주세요.")
     private String blogName;
 
-    @NotBlank(message = "블로그 주소를 입력하세요.")
-    @Size(min=4, max=30, message = "블로그 주소 4-32자를 입력해 주세요.")
-    @Pattern(regexp = "^[a-z0-9-]+$", message = "영문 소문자, 숫자, 특수문자(-)를 사용하여 입력해 주세요.")
+//    @NotBlank(message = "블로그 주소를 입력하세요.")
+//    @Size(min=4, max=30, message = "블로그 주소 4-32자를 입력해 주세요.")
+    @Pattern(regexp = "^[a-z0-9-]{4,32}$", message = "영문 소문자, 숫자, 특수문자(-)를 사용하여 4~32자로 입력해 주세요.")
     private String blogAddress;
 
     @Size(max=100, message = "블로그 소개를 100자 이내로 작성해 주세요.")
