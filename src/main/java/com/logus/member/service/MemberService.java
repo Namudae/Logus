@@ -1,6 +1,5 @@
 package com.logus.member.service;
 
-import com.logus.blog.entity.Category;
 import com.logus.common.exception.CustomException;
 import com.logus.common.exception.ErrorCode;
 import com.logus.common.security.JwtService;
