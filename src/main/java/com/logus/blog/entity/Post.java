@@ -114,9 +114,9 @@ public class Post extends BaseTime {
         this.changeCreateDate(changeDate);
     }
 
-    //    @OneToMany(mappedBy = "post")
-//    private List<Likey> likeys = new ArrayList<>();
-//
+    @OneToMany(mappedBy = "post")
+    private List<Likey> likeys = new ArrayList<>();
+
 //    @OneToMany(mappedBy = "post")
 //    private List<Alarm> alarms = new ArrayList<>();
 
