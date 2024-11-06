@@ -36,50 +36,52 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
      */
     @Override
     public Page<MemberListResponse> searchMembers(String loginId, String nickname, String blogName, String blogAddress, Pageable pageable) {
-        JPAQuery<MemberListResponse> query = jpaQueryFactory
-                .select(Projections.fields(MemberListResponse.class,
-                        member.id.as("memberId"),
-                        member.nickname,
-                        blog.blogName,
-                        blog.blogAddress
-                ))
-                .from(member)
-                .leftJoin(blogMember)
-                .on(blogMember.member.eq(member)
-                        .and(blogMember.blogAuth.eq(BlogAuth.OWNER))
-//                        .and(blogMember.blog.shareYn.eq("N"))
-                )
-                .leftJoin(blogMember.blog, blog)
-                .where(
-                    member.role.eq("USER"),
-                    containLoginId(loginId),
-                    containNickname(nickname),
-                    containBlogName(blogName),
-                    containBlogAddress(blogAddress)
-                )
-                .orderBy(member.loginId.asc());
+//        JPAQuery<MemberListResponse> query = jpaQueryFactory
+//                .select(Projections.fields(MemberListResponse.class,
+//                        member.id.as("memberId"),
+//                        member.nickname,
+//                        blog.blogName,
+//                        blog.blogAddress
+//                ))
+//                .from(member)
+//                .leftJoin(blogMember)
+//                .on(blogMember.member.eq(member)
+//                        .and(blogMember.blogAuth.eq(BlogAuth.OWNER))
+////                        .and(blogMember.blog.shareYn.eq("N"))
+//                )
+//                .leftJoin(blogMember.blog, blog)
+//                .where(
+//                    member.role.eq("USER"),
+//                    containLoginId(loginId),
+//                    containNickname(nickname),
+//                    containBlogName(blogName),
+//                    containBlogAddress(blogAddress)
+//                )
+//                .orderBy(member.loginId.asc());
+//
+//        // 총 결과 수 조회
+//        long total = query.fetchCount();
+//
+//        // 페이지에 맞는 결과 조회
+//        List<MemberListResponse> results = query
+//                .offset(pageable.getOffset())
+//                .limit(pageable.getPageSize())
+//                .fetch();
+//
+//        // 결과 필터링 (예시: 조건에 맞는 9개로 필터링)
+//        List<MemberListResponse> filteredResults = results.stream()
+//                .filter(result -> )
+//                .collect(Collectors.toList());
+//
+//        // 필터링된 결과의 총 개수 (전체 데이터에서 필터링된 결과의 개수)
+//        long filteredTotal = filteredResults.size();
+//
+//        // 새로운 Page 객체 생성 및 반환 (필터링된 결과와 새로운 total을 사용)
+//        return new PageImpl<>(filteredResults, pageable, filteredTotal);
 
-        // 총 결과 수 조회
-        long total = query.fetchCount();
-
-        // 페이지에 맞는 결과 조회
-        List<MemberListResponse> results = query
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
-
-        // 결과 필터링 (예시: 조건에 맞는 9개로 필터링)
-        List<MemberListResponse> filteredResults = results.stream()
-                .filter(result -> )
-                .collect(Collectors.toList());
-
-        // 필터링된 결과의 총 개수 (전체 데이터에서 필터링된 결과의 개수)
-        long filteredTotal = filteredResults.size();
-
-        // 새로운 Page 객체 생성 및 반환 (필터링된 결과와 새로운 total을 사용)
-        return new PageImpl<>(filteredResults, pageable, filteredTotal);
 //        // Page 객체 생성 및 반환
 //        return new PageImpl<>(results, pageable, total);
+        return null;
     }
 
     private BooleanExpression containLoginId(String loginId) {
