@@ -34,8 +34,8 @@ public class Alarm extends BaseCreateTime {
     @Column(length = 1)
     private String readYn;
 
-    @Column(length = 1)
-    private String delYn;
+//    @Column(length = 1)
+//    private String delYn;
 
 
 }

@@ -29,7 +29,7 @@ public class Notice extends BaseTime {
 
     private Long views;
 
-    @Column(length = 1)
-    private String delYn;
+//    @Column(length = 1)
+//    private String delYn;
 
 }
