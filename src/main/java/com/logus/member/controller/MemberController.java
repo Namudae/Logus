@@ -1,22 +1,20 @@
 package com.logus.member.controller;
 
-import com.logus.blog.dto.PostRequestDto;
 import com.logus.common.controller.ApiResponse;
 import com.logus.common.security.JwtService;
 import com.logus.common.security.LoginForm;
 import com.logus.common.security.MemberDetailService;
+import com.logus.member.dto.MemberListResponse;
 import com.logus.member.dto.RegisterRequest;
-import com.logus.member.entity.Member;
-import com.logus.member.repository.MemberRepository;
 import com.logus.member.service.MemberService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -31,6 +29,9 @@ public class MemberController {
     private final JwtService jwtService;
     private final MemberDetailService myUserDetailService;
 
+    /**
+     * 로그인
+     */
     @PostMapping("/login")
     public String authenticateAndGetToken(@RequestBody LoginForm loginForm) {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
@@ -61,6 +62,21 @@ public class MemberController {
     public ApiResponse<String> duplicateLoginId(@RequestParam String loginId) {
         memberService.duplicateLoginId(loginId);
         return ApiResponse.ok();
+    }
+
+    /**
+     * 회원 정보 검색
+     * - 아이디, 닉네임, 블로그명, 블로그 주소
+     */
+    @GetMapping("/user")
+    public ApiResponse<Page<MemberListResponse>> searchMembers(@RequestParam(value = "loginId", required = false) String loginId,
+                                                               @RequestParam(value = "nickname", required = false) String nickname,
+                                                               @RequestParam(value = "blogName", required = false) String blogName,
+                                                               @RequestParam(value = "blogAddress", required = false) String blogAddress,
+                                                               Pageable pageable) {
+        Page<MemberListResponse> memberLists = memberService.searchMembers(loginId, nickname, blogName, blogAddress, pageable);
+
+        return ApiResponse.ok(memberLists);
     }
 
 }

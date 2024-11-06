@@ -5,12 +5,14 @@ import com.logus.blog.service.BlogService;
 import com.logus.common.exception.CustomException;
 import com.logus.common.exception.ErrorCode;
 import com.logus.common.security.JwtService;
+import com.logus.member.dto.MemberListResponse;
 import com.logus.member.dto.RegisterRequest;
 import com.logus.member.entity.Member;
 import com.logus.member.repository.MemberRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -74,4 +76,10 @@ public class MemberService {
             throw new CustomException(ErrorCode.DUPLICATE_LOGIN_ID);
         }
     }
+
+    public Page<MemberListResponse> searchMembers(String loginId, String nickname, String blogName, String blogAddress, Pageable pageable) {
+        //keyword: 아이디, 닉네임, 블로그명, 블로그 주소
+        return memberRepository.searchMembers(loginId, nickname, blogName, blogAddress, pageable);
+    }
+
 }
