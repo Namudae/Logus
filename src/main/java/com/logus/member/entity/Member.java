@@ -40,8 +40,8 @@ public class Member extends BaseTime {
 
     private String role; //ADMIN, USER
 
-    @Column(length = 1)
-    private String delYn;
+//    @Column(length = 1)
+//    private String delYn;
 
     public Member(String loginId) {
         this.loginId = loginId;

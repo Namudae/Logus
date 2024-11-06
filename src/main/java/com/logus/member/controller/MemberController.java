@@ -20,6 +20,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Map;
+
 @RestController
 @RequiredArgsConstructor
 public class MemberController {
@@ -45,10 +47,11 @@ public class MemberController {
      * 회원가입
      */
     @PostMapping("/register")
-    public String createUser(@RequestPart("requestDto") @Valid RegisterRequest registerRequest,
-                             @RequestPart(value = "memberImg", required = false) MultipartFile memberImg,
-                             @RequestPart(value = "blogImg", required = false) MultipartFile blogImg) {
-        return memberService.createMember(registerRequest, memberImg, blogImg);
+    public ApiResponse<Map<String, Long>> createUser(@RequestPart("requestDto") @Valid RegisterRequest registerRequest,
+                                                     @RequestPart(value = "memberImg", required = false) MultipartFile memberImg,
+                                                     @RequestPart(value = "blogImg", required = false) MultipartFile blogImg) {
+        Long blogId = memberService.createMember(registerRequest, memberImg, blogImg);
+        return ApiResponse.ok(Map.of("blogId", blogId));
     }
 
     /**

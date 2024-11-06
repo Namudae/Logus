@@ -53,7 +53,12 @@ public class MemberService {
         return loginId.equals(authorId);
     }
 
-    public String createMember(RegisterRequest registerRequest, MultipartFile memberImg, MultipartFile blogImg) {
+    public Long createMember(RegisterRequest registerRequest, MultipartFile memberImg, MultipartFile blogImg) {
+
+        //멤버 중복체크
+        duplicateLoginId(registerRequest.getLoginId());
+        //블로그 중복체크
+        blogService.duplicateBlogAddress(registerRequest.getBlogRequestDto().getBlogAddress());
 
         Member member = registerRequest.toEntity();
         member.encodePassword(passwordEncoder.encode(member.getPassword()));
@@ -61,7 +66,7 @@ public class MemberService {
 
         Blog blog = blogService.registerBlog(member, registerRequest.getBlogRequestDto());
 
-        return blog.getBlogAddress();
+        return blog.getId();
     }
 
     public void duplicateLoginId(String loginId) {
