@@ -31,25 +31,13 @@ public class Blog extends BaseCreateTime {
     @Column(length = 1)
     private String shareYn;
 
-//    @Column(length = 1)
-//    private String delYn;
+    private Long views;
 
     @OneToMany(mappedBy = "blog")
     private List<Series> series = new ArrayList<>();
 
     @OneToMany(mappedBy = "blog")
     private List<BlogMember> blogMembers = new ArrayList<>();
-
-//    public void setDelYn(String delYn) {
-//        this.delYn = delYn;
-//    }
-//
-//    @PrePersist
-//    public void prePersist() {
-//        if (this.delYn == null) {
-//            this.delYn = "N";
-//        }
-//    }
 
     //==비즈니스 로직==//
     //블로그 정보 수정
