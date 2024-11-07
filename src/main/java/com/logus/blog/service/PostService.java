@@ -145,7 +145,7 @@ public class PostService {
         //썸네일 업로드
         String thumbUrl = null;
         if (thumbImage != null && !thumbImage.isEmpty()) {
-            thumbUrl = s3Service.thumbUpload(thumbImage, AttachmentType.THUMB);
+            thumbUrl = s3Service.imgUpload(thumbImage, AttachmentType.THUMB);
         }
 
         //이스케이프
@@ -191,7 +191,7 @@ public class PostService {
         }
         //thumbImage 빈값아니면 썸네일 업로드
         if (thumbImage != null && !thumbImage.isEmpty()) {
-            String thumbUrl = s3Service.thumbUpload(thumbImage, AttachmentType.THUMB);
+            String thumbUrl = s3Service.imgUpload(thumbImage, AttachmentType.THUMB);
             post.changeImgUrl(thumbUrl);
         }
 

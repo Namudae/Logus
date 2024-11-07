@@ -29,7 +29,7 @@ public class RegisterRequest {
     @Pattern(regexp = "^[가-힣a-zA-Z0-9\\s-_]{1,20}$", message = "한글, 영문, 숫자, 특수기호(-),(_)를 사용하여 1~20자로 입력해 주세요.")
     private String nickname;
 
-    private String memberImg;
+    private String imgUrl;
 
     @Pattern(
             regexp = "^(?=.*[A-Za-z])(?=.*\\d|.*[^A-Za-z\\d])[A-Za-z\\d!@#$%^&*()-_=+|{};:,<.>?]{8,16}$",
@@ -44,12 +44,12 @@ public class RegisterRequest {
     @Valid
     private BlogRequestDto blogRequestDto;
 
-    public Member toEntity() {
+    public Member toEntity(String imgUrl) {
         return Member.builder()
                 .loginId(loginId)
                 .nickname(nickname)
                 .email(email)
-                .imgUrl(memberImg)
+                .imgUrl(imgUrl)
                 .password(password)
                 .role("USER")
                 .socialType(socialType)

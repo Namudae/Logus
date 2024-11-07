@@ -8,8 +8,6 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.logus.common.dto.AttachmentRequestDto;
 import com.logus.common.entity.AttachmentType;
-import com.logus.common.exception.CustomException;
-import com.logus.common.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -87,9 +85,9 @@ public class S3Service {
     }
 
     /**
-     * S3 썸네일 업로드
+     * S3 이미지 업로드
      */
-    public String thumbUpload(MultipartFile file, AttachmentType attachmentType) throws IOException {
+    public String imgUpload(MultipartFile file, AttachmentType attachmentType) throws IOException {
         String storeFileName;
         String originalFilename = file.getOriginalFilename();
         storeFileName = createStoreFileName(originalFilename);

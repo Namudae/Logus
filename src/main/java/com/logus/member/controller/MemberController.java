@@ -18,6 +18,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Map;
 
 @RestController
@@ -49,9 +50,8 @@ public class MemberController {
      */
     @PostMapping("/register")
     public ApiResponse<Map<String, Long>> createUser(@RequestPart("requestDto") @Valid RegisterRequest registerRequest,
-                                                     @RequestPart(value = "memberImg", required = false) MultipartFile memberImg,
-                                                     @RequestPart(value = "blogImg", required = false) MultipartFile blogImg) {
-        Long blogId = memberService.createMember(registerRequest, memberImg, blogImg);
+                                                     @RequestPart(value = "memberImg", required = false) MultipartFile memberImg) throws IOException {
+        Long blogId = memberService.createMember(registerRequest, memberImg);
         return ApiResponse.ok(Map.of("blogId", blogId));
     }
 
@@ -65,6 +65,7 @@ public class MemberController {
     }
 
     /**
+     * *수정 필요
      * 회원 정보 검색
      * - 아이디, 닉네임, 블로그명, 블로그 주소
      */

@@ -2,9 +2,11 @@ package com.logus.member.service;
 
 import com.logus.blog.entity.Blog;
 import com.logus.blog.service.BlogService;
+import com.logus.common.entity.AttachmentType;
 import com.logus.common.exception.CustomException;
 import com.logus.common.exception.ErrorCode;
 import com.logus.common.security.JwtService;
+import com.logus.common.service.S3Service;
 import com.logus.member.dto.MemberListResponse;
 import com.logus.member.dto.RegisterRequest;
 import com.logus.member.entity.Member;
@@ -17,6 +19,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+
 @Service
 @RequiredArgsConstructor
 public class MemberService {
@@ -24,6 +28,7 @@ public class MemberService {
 //    @Autowired
     private final JwtService jwtService;
     private final BlogService blogService;
+    private final S3Service s3Service;
     private final PasswordEncoder passwordEncoder;
     private final MemberRepository memberRepository;
 
@@ -55,14 +60,20 @@ public class MemberService {
         return loginId.equals(authorId);
     }
 
-    public Long createMember(RegisterRequest registerRequest, MultipartFile memberImg, MultipartFile blogImg) {
+    public Long createMember(RegisterRequest registerRequest, MultipartFile memberImg) throws IOException {
 
         //멤버 중복체크
         duplicateLoginId(registerRequest.getLoginId());
         //블로그 중복체크
         blogService.duplicateBlogAddress(registerRequest.getBlogRequestDto().getBlogAddress());
 
-        Member member = registerRequest.toEntity();
+        //프로필 이미지
+        String imgUrl = null;
+        if (memberImg != null && !memberImg.isEmpty()) {
+            imgUrl = s3Service.imgUpload(memberImg, AttachmentType.PROFILE);
+        }
+
+        Member member = registerRequest.toEntity(imgUrl);
         member.encodePassword(passwordEncoder.encode(member.getPassword()));
         memberRepository.save(member);
 
