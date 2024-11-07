@@ -95,6 +95,9 @@ public class PostService {
         post.addViews(post.getViews()+1);
         postRepository.save(post);
 
+        //이스케이프
+        dto.setContent(CustomHtmlEscapeUtil.escapeCustom(dto.getContent()));
+
         //좋아요 조회
         if (likeyRepository.findByMemberIdAndPostId(memberId, postId).isPresent()) {
             dto.setLiked(true);
@@ -153,7 +156,7 @@ public class PostService {
         }
 
         //이스케이프
-        postRequestDto.setContent(CustomHtmlEscapeUtil.escapeCustom(postRequestDto.getContent()));
+//        postRequestDto.setContent(CustomHtmlEscapeUtil.escapeCustom(postRequestDto.getContent()));
         postRequestDto.setTitle(CustomHtmlEscapeUtil.escapeCustom(postRequestDto.getTitle()));
 
         //임시저장글일 경우, 기존 임시저장글 삭제, 새로 insert
