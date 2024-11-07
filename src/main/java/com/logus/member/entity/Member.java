@@ -33,9 +33,6 @@ public class Member extends BaseTime {
     @Column(length = 50)
     private String email;
 
-    @Column(length = 100)
-    private String introduce;
-
     private String imgUrl;
 
     private String role; //ADMIN, USER
