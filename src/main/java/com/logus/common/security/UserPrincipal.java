@@ -35,9 +35,9 @@ public class UserPrincipal extends User {
         return member.getId();
     }
 
-    public String getNickname() {
-        return member.getNickname();
-    }
+//    public String getNickname() {
+//        return member.getNickname();
+//    }
 
     public boolean isAdmin() {
         return member.getRole().equals("ADMIN");

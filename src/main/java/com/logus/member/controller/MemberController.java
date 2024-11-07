@@ -5,6 +5,7 @@ import com.logus.common.security.JwtService;
 import com.logus.common.security.LoginForm;
 import com.logus.common.security.MemberDetailService;
 import com.logus.member.dto.MemberListResponse;
+import com.logus.member.dto.MemberResponse;
 import com.logus.member.dto.RegisterRequest;
 import com.logus.member.service.MemberService;
 import jakarta.validation.Valid;
@@ -26,23 +27,15 @@ import java.util.Map;
 public class MemberController {
 
     private final MemberService memberService;
-    private final AuthenticationManager authenticationManager;
-    private final JwtService jwtService;
-    private final MemberDetailService myUserDetailService;
 
     /**
      * 로그인
      */
     @PostMapping("/login")
-    public String authenticateAndGetToken(@RequestBody LoginForm loginForm) {
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                loginForm.loginId(), loginForm.password()
-        ));
-        if (authentication.isAuthenticated()) {
-            return jwtService.generateToken(myUserDetailService.loadUserByUsername(loginForm.loginId()));
-        } else {
-            throw new UsernameNotFoundException("Invalid credentials");
-        }
+//    @RequestMapping(value = {"/login"}, method = {RequestMethod.POST, RequestMethod.GET})
+    public ApiResponse<MemberResponse> authenticateAndGetToken(@RequestBody LoginForm loginForm) {
+        MemberResponse response = memberService.login(loginForm);
+        return ApiResponse.ok(response);
     }
 
     /**

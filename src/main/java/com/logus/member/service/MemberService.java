@@ -6,8 +6,11 @@ import com.logus.common.entity.AttachmentType;
 import com.logus.common.exception.CustomException;
 import com.logus.common.exception.ErrorCode;
 import com.logus.common.security.JwtService;
+import com.logus.common.security.LoginForm;
+import com.logus.common.security.MemberDetailService;
 import com.logus.common.service.S3Service;
 import com.logus.member.dto.MemberListResponse;
+import com.logus.member.dto.MemberResponse;
 import com.logus.member.dto.RegisterRequest;
 import com.logus.member.entity.Member;
 import com.logus.member.repository.MemberRepository;
@@ -15,11 +18,17 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+
+import static com.logus.common.service.S3Service.CLOUD_FRONT_DOMAIN_NAME;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +40,8 @@ public class MemberService {
     private final S3Service s3Service;
     private final PasswordEncoder passwordEncoder;
     private final MemberRepository memberRepository;
+    private final AuthenticationManager authenticationManager;
+    private final MemberDetailService memberDetailService;
 
     public Member getById(Long memberId) {
         Member member = memberRepository.findById(memberId)
@@ -85,4 +96,27 @@ public class MemberService {
         return memberRepository.searchMembers(loginId, nickname, blogName, blogAddress, pageable);
     }
 
+    public MemberResponse login(LoginForm loginForm) {
+        Member member = memberRepository.findByLoginId(loginForm.loginId())
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                loginForm.loginId(), loginForm.password()
+        ));
+        if (authentication.isAuthenticated()) {
+            return MemberResponse.builder()
+                    .memberId(member.getId())
+                    .loginId(member.getLoginId())
+                    .nickname(member.getNickname())
+                    .imgUrl(
+                            (member.getImgUrl()!=null ? CLOUD_FRONT_DOMAIN_NAME + "/" + member.getImgUrl() : null)
+                    )
+                    .email(member.getEmail())
+                    .jwtToken(jwtService.generateToken(memberDetailService.loadUserByUsername(loginForm.loginId())))
+                    .build();
+//            response.setJwtToken(jwtService.generateToken(memberDetailService.loadUserByUsername(loginForm.loginId())));
+        } else {
+            throw new CustomException(ErrorCode.LOGIN_FAIL);
+        }
+    }
 }

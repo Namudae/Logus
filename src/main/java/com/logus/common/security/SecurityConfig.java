@@ -60,7 +60,7 @@ public class SecurityConfig {
 //                            .successHandler(new AuthenticationSuccessHandler())
 //                            .permitAll();
 //                })
-                .formLogin(AbstractAuthenticationFilterConfigurer::permitAll)
+//                .formLogin(AbstractAuthenticationFilterConfigurer::permitAll)
                 .exceptionHandling(e -> {
                     // 권한이 없을 때 커스텀 핸들러로 처리
                     e.accessDeniedHandler(new Http403Handler(objectMapper));
