@@ -163,8 +163,12 @@ public class BlogFacadeService {
     }
 
     public Page<FollowerResponseDto> selectFollower(Long blogId, Pageable pageable) {
-        //인가 추가
-        return blogRepository.selectFollowers(blogId, pageable);
+        Page<FollowerResponseDto> followers = blogRepository.selectFollowers(blogId, pageable);
+
+        // 각 FollowerResponseDto의 imgUrl을 가공
+        followers.forEach(FollowerResponseDto::processImgUrl);
+
+        return followers;
     }
 
     public void deleteFollower(Long followId) {

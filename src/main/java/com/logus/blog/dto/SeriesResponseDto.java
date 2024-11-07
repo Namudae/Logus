@@ -3,6 +3,8 @@ package com.logus.blog.dto;
 import com.logus.blog.entity.Series;
 import lombok.*;
 
+import static com.logus.common.service.S3Service.CLOUD_FRONT_DOMAIN_NAME;
+
 @AllArgsConstructor
 @RequiredArgsConstructor
 @Getter
@@ -19,5 +21,8 @@ public class SeriesResponseDto {
         this.seriesName = series.getSeriesName();
         this.seriesOrder = series.getSeriesOrder();
         this.imgUrl = series.getImgUrl();
+        if (this.imgUrl != null) {
+            this.imgUrl = CLOUD_FRONT_DOMAIN_NAME + "/" + this.imgUrl;
+        }
     }
 }
