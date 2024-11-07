@@ -11,9 +11,7 @@ import com.logus.common.service.S3Service;
 import com.logus.member.entity.Member;
 import com.logus.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -84,7 +82,7 @@ public class BlogFacadeService {
         //이미지 업로드
         String imgUrl = null;
         if (img != null && !img.isEmpty()) {
-            imgUrl = s3Service.thumbUpload(img, AttachmentType.SERIES);
+            imgUrl = s3Service.imgUpload(img, AttachmentType.SERIES);
         }
 
         Series series = seriesRequestDto.toEntity(blog, imgUrl);
@@ -105,7 +103,7 @@ public class BlogFacadeService {
         //이미지 업로드
         String imgUrl = null;
         if (img != null && !img.isEmpty()) {
-            imgUrl = s3Service.thumbUpload(img, AttachmentType.SERIES);
+            imgUrl = s3Service.imgUpload(img, AttachmentType.SERIES);
         }
 
         series.updateSeries(seriesRequestDto, imgUrl);

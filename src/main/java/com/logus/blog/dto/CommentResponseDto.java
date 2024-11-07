@@ -9,6 +9,8 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
+import static com.logus.common.service.S3Service.CLOUD_FRONT_DOMAIN_NAME;
+
 @AllArgsConstructor
 @RequiredArgsConstructor
 @Getter
@@ -18,6 +20,7 @@ public class CommentResponseDto {
 
     private Long commentId;
     private Long memberId;
+    private String imgUrl;
     private String nickname;
     private Long parentId;
     private Byte depth;
@@ -31,6 +34,10 @@ public class CommentResponseDto {
     public CommentResponseDto(Comment comment) {
         this.commentId = comment.getId();
         this.memberId = comment.getMember().getId();
+        this.imgUrl = comment.getMember().getImgUrl();
+        if (this.imgUrl != null) {
+            this.imgUrl = CLOUD_FRONT_DOMAIN_NAME + "/" + this.imgUrl;
+        }
         this.nickname = comment.getMember().getNickname();
         this.parentId = (comment.getParent() != null) ? comment.getParent().getId() : null; //null처리 여기서?
         this.depth = comment.getDepth();
