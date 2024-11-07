@@ -74,10 +74,9 @@ public class PostService {
 //        return postRepository.selectAllBlogPosts(blogAddress, pageable);
     }
 
-    public PostResponseDto selectPost(Long postId, HttpServletRequest httpRequest) {
+    public PostResponseDto selectPost(Long postId) {
         //본인 확인
         Long memberId = blogService.authMemberIdOrNull();
-//        Long memberId = memberService.getMemberIdFromJwt(httpRequest);
         Post post = getById(postId);
 
         //비밀글 > 멤버확인, 임시글 > 조회x

@@ -58,9 +58,9 @@ public class PostController {
      * 글 한개 조회
      */
     @GetMapping("/posts/{postId}")
-    public ApiResponse<PostResponseDto> selectPost(@PathVariable("postId") Long postId, HttpServletRequest httpRequest) {
+    public ApiResponse<PostResponseDto> selectPost(@PathVariable("postId") Long postId) {
 
-        return ApiResponse.ok(postService.selectPost(postId, httpRequest));
+        return ApiResponse.ok(postService.selectPost(postId));
     }
 
 
