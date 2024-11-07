@@ -215,6 +215,7 @@ public class BlogService {
         }
     }
 
+    //로그인 필요
     public void validateAuthentication(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
             throw new CustomException(ErrorCode.NEED_LOGIN);
@@ -224,6 +225,14 @@ public class BlogService {
     public Long authMemberId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         validateAuthentication(authentication);
+        return ((UserPrincipal) authentication.getPrincipal()).getMemberId();
+    }
+
+    public Long authMemberIdOrNull() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
+            return null;
+        }
         return ((UserPrincipal) authentication.getPrincipal()).getMemberId();
     }
 

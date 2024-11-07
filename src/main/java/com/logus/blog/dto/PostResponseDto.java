@@ -41,6 +41,7 @@ public class PostResponseDto {
     private ReportStatus reportStatus;
     @JsonFormat(shape= JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createDate;
+    private boolean liked;
     private Long likeCount;
     private Long commentCount;
     private List<String> tags;

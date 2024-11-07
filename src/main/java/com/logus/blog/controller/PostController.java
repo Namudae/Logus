@@ -48,9 +48,8 @@ public class PostController {
     @GetMapping("/posts")
     public ApiResponse<Page<PostListResponseDto>> selectAllBlogPosts(@RequestParam("blogId") Long blogId,
                                                                      @RequestParam(value = "seriesId", required = false) Long seriesId,
-                                                                     Pageable pageable,
-                                                                     HttpServletRequest request) {
-        Page<PostListResponseDto> posts = postService.selectAllBlogPosts(blogId, seriesId, pageable, request);
+                                                                     Pageable pageable) {
+        Page<PostListResponseDto> posts = postService.selectAllBlogPosts(blogId, seriesId, pageable);
 
         return ApiResponse.ok(posts);
     }
@@ -59,9 +58,9 @@ public class PostController {
      * 글 한개 조회
      */
     @GetMapping("/posts/{postId}")
-    public ApiResponse<PostResponseDto> selectPost(@PathVariable("postId") Long postId, HttpServletRequest request) {
+    public ApiResponse<PostResponseDto> selectPost(@PathVariable("postId") Long postId, HttpServletRequest httpRequest) {
 
-        return ApiResponse.ok(postService.selectPost(postId, request));
+        return ApiResponse.ok(postService.selectPost(postId, httpRequest));
     }
 
 
@@ -105,8 +104,8 @@ public class PostController {
      * 임시저장 게시글 조회
      */
     @GetMapping("/posts/temp")
-    public ApiResponse<TempPostResponseDto> selectTempPost(@RequestParam("blogId") Long blogId, HttpServletRequest request) {
-        return ApiResponse.ok(postService.selectTempPost(blogId, request));
+    public ApiResponse<TempPostResponseDto> selectTempPost(@RequestParam("blogId") Long blogId) {
+        return ApiResponse.ok(postService.selectTempPost(blogId));
     }
 
 

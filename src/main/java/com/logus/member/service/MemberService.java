@@ -52,14 +52,6 @@ public class MemberService {
         return member.getId();
     }
 
-    public Long getMemberIdFromJwt(HttpServletRequest request) {
-        return findIdByLoginId(jwtService.extractUsername(jwtService.getJwt(request)));
-    }
-
-    public boolean isAuthor(Long loginId, Long authorId) {
-        return loginId.equals(authorId);
-    }
-
     public Long createMember(RegisterRequest registerRequest, MultipartFile memberImg) throws IOException {
 
         //멤버 중복체크

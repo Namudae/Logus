@@ -27,7 +27,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -64,9 +63,9 @@ public class PostService {
     }
 
     //+내용 130글자까지?
-    public Page<PostListResponseDto> selectAllBlogPosts(Long blogId, Long seriesId, Pageable pageable, HttpServletRequest request) {
+    public Page<PostListResponseDto> selectAllBlogPosts(Long blogId, Long seriesId, Pageable pageable) {
         //본인 확인
-        Long requestId = memberService.getMemberIdFromJwt(request);
+        Long requestId = blogService.authMemberIdOrNull();
 
         Page<PostListResponseDto> posts = postRepository.selectAllBlogPosts(blogId, seriesId, pageable, requestId);
         List<PostListResponseDto> newPosts = toPostList(posts);
@@ -75,14 +74,15 @@ public class PostService {
 //        return postRepository.selectAllBlogPosts(blogAddress, pageable);
     }
 
-    public PostResponseDto selectPost(Long postId, HttpServletRequest request) {
+    public PostResponseDto selectPost(Long postId, HttpServletRequest httpRequest) {
         //본인 확인
-        Long requestId = memberService.getMemberIdFromJwt(request);
+        Long memberId = blogService.authMemberIdOrNull();
+//        Long memberId = memberService.getMemberIdFromJwt(httpRequest);
         Post post = getById(postId);
 
         //비밀글 > 멤버확인, 임시글 > 조회x
         List<Long> blogMemberIds = blogService.blogMemberIds(post.getBlog().getId());
-        boolean isMember = blogService.isMember(requestId, blogMemberIds);
+        boolean isMember = blogService.isMember(memberId, blogMemberIds);
         if (post.getStatus() == Status.SECRET) {
             if (!isMember) {
                 throw new CustomException(ErrorCode.SECRET_POST);
@@ -97,6 +97,11 @@ public class PostService {
         postRepository.save(post);
 
         //좋아요 조회
+        if (likeyRepository.findByMemberIdAndPostId(memberId, postId).isPresent()) {
+            dto.setLiked(true);
+        } else {
+            dto.setLiked(false);
+        }
 
         //댓글 조회
         List<CommentResponseDto> comments = commentService.getComments(postId);
@@ -242,8 +247,8 @@ public class PostService {
         postRepository.delete(post);
     }
 
-    public TempPostResponseDto selectTempPost(Long blogId, HttpServletRequest request) {
-        TempPostResponseDto temp = postRepository.selectTemp(blogId, memberService.getMemberIdFromJwt(request));
+    public TempPostResponseDto selectTempPost(Long blogId) {
+        TempPostResponseDto temp = postRepository.selectTemp(blogId, blogService.authMemberId());
         if (temp == null) {
             return null;
         }
