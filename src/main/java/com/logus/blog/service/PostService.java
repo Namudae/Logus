@@ -27,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,6 +35,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static com.logus.common.service.S3Service.CLOUD_FRONT_DOMAIN_NAME;
 
@@ -93,6 +95,8 @@ public class PostService {
         PostResponseDto dto = postRepository.selectPost(postId);
         post.addViews(post.getViews()+1);
         postRepository.save(post);
+
+        //좋아요 조회
 
         //댓글 조회
         List<CommentResponseDto> comments = commentService.getComments(postId);
@@ -300,6 +304,7 @@ public class PostService {
                 .toList();
     }
 
+    // ======== 이미지 처리 ========
     private List<Attachment> moveTemporaryImages(PostRequestDto postRequestDto) {
 
         //이스케이프 해제 > Jsoup 파싱 > 다시 이스케이프
@@ -369,7 +374,7 @@ public class PostService {
         return imageList;
     }
 
-    //=====인가
+    // ======== 인가 ========
     public boolean hasPermissionToPost(Long postId, Authentication authentication) {
         // 로그인이 안 되어 있거나, 익명 사용자인 경우 예외 발생
         if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
@@ -383,5 +388,37 @@ public class PostService {
             throw new CustomException(ErrorCode.UNAUTHORIZED_REQUEST);
         }
         return true;
+    }
+
+    public boolean createLike(Long postId) {
+        Member member = memberService.getById(blogService.authMemberId());
+
+        //좋아요한 게시물인지 체크
+        if(isNotAlreadyLike(member.getId(), postId).isEmpty()) {
+            Post post = postRepository.getReferenceById(postId);
+            likeyRepository.save(Likey.builder()
+                            .member(member)
+                            .post(post)
+                    .build());
+            return true;
+        }
+        return false;
+    }
+
+    public boolean deleteLike(Long postId) {
+        Member member = memberService.getById(blogService.authMemberId());
+        // 좋아요한 게시물인지 체크
+        Likey likey = likeyRepository.findByMemberIdAndPostId(member.getId(), postId).orElse(null);
+        if (likey != null) {
+            likeyRepository.delete(likey);
+            return true;
+        }
+
+        return false;
+    }
+
+    //사용자가 이미 좋아요 한 게시물인지 체크
+    private Optional<Likey> isNotAlreadyLike(Long memberId, Long postId) {
+        return likeyRepository.findByMemberIdAndPostId(memberId, postId);
     }
 }

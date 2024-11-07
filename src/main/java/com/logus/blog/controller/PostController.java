@@ -9,6 +9,7 @@ import com.logus.blog.service.BlogService;
 import com.logus.blog.service.PostService;
 import com.logus.common.controller.ApiResponse;
 import com.logus.common.security.JwtService;
+import com.logus.member.entity.Member;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
@@ -20,6 +21,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -132,6 +135,24 @@ public class PostController {
         Page<PostListResponseDto> pagePosts = postService.searchBlogPosts(blogId, keyword, pageable);
 
         return ApiResponse.ok(pagePosts);
+    }
+
+    /**
+     * 좋아요
+     */
+    @PostMapping("/like/{postId}")
+    public ApiResponse<Map<String, Boolean>> createLike(@PathVariable("postId") Long postId) {
+        boolean like = postService.createLike(postId);
+        return ApiResponse.ok(Map.of("like", like));
+    }
+
+    /**
+     * 좋아요 취소
+     */
+    @DeleteMapping("/like/{postId}")
+    public ApiResponse<Map<String, Boolean>> deleteLike(@PathVariable("postId") Long postId) {
+        boolean like = postService.deleteLike(postId);
+        return ApiResponse.ok(Map.of("like", like));
     }
 
 }
