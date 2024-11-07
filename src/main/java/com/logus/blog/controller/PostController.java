@@ -1,9 +1,6 @@
 package com.logus.blog.controller;
 
-import com.logus.blog.dto.PostListResponseDto;
-import com.logus.blog.dto.PostRequestDto;
-import com.logus.blog.dto.PostResponseDto;
-import com.logus.blog.dto.TempPostResponseDto;
+import com.logus.blog.dto.*;
 import com.logus.blog.entity.Post;
 import com.logus.blog.service.BlogService;
 import com.logus.blog.service.PostService;
@@ -152,6 +149,19 @@ public class PostController {
     public ApiResponse<Map<String, Boolean>> deleteLike(@PathVariable("postId") Long postId) {
         boolean like = postService.deleteLike(postId);
         return ApiResponse.ok(Map.of("like", like));
+    }
+
+    /**
+     * 메인 페이지 조회
+     * - 트렌드 구현중
+     * - (date= day, week, month, year)
+     */
+    @GetMapping("/grid")
+    public ApiResponse<Page<MainGridResponse>> mainPosts(MainGridCondition condition,
+                                                                Pageable pageable) {
+        Page<MainGridResponse> posts = postService.selectMainPosts(condition, pageable);
+
+        return ApiResponse.ok(posts);
     }
 
 }

@@ -428,4 +428,16 @@ public class PostService {
     private Optional<Likey> isNotAlreadyLike(Long memberId, Long postId) {
         return likeyRepository.findByMemberIdAndPostId(memberId, postId);
     }
+
+    public Page<MainGridResponse> selectMainPosts(MainGridCondition condition, Pageable pageable) {
+        Page<MainGridResponse> response = postRepository.selectMainPosts(condition, pageable);
+        //이미지 url 설정
+        response.getContent().forEach(mainGridResponse ->
+                mainGridResponse.getPostList().forEach(MainGridResponse.PostDto::processImgUrl)
+        );
+
+        //+ 내용 미리보기 글자수
+
+        return response;
+    }
 }

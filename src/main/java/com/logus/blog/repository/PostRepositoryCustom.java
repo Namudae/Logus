@@ -1,9 +1,6 @@
 package com.logus.blog.repository;
 
-import com.logus.blog.dto.PostListResponseDto;
-import com.logus.blog.dto.PostRequestDto;
-import com.logus.blog.dto.PostResponseDto;
-import com.logus.blog.dto.TempPostResponseDto;
+import com.logus.blog.dto.*;
 import com.logus.blog.entity.Post;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
@@ -25,4 +22,7 @@ public interface PostRepositoryCustom {
     PostResponseDto selectNextPost(Post post);
 
     TempPostResponseDto selectTemp(Long blogId, Long memberId);
+
+    Page<MainGridResponse> selectMainPosts(MainGridCondition condition, Pageable pageable);
+
 }
