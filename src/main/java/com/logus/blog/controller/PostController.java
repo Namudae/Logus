@@ -156,7 +156,7 @@ public class PostController {
      * - 트렌드 구현중
      * - (date= day, week, month, year)
      */
-    @GetMapping("/grid")
+    @GetMapping("/main")
     public ApiResponse<Page<MainGridResponse>> mainPosts(MainGridCondition condition,
                                                                 Pageable pageable) {
         Page<MainGridResponse> posts = postService.selectMainPosts(condition, pageable);

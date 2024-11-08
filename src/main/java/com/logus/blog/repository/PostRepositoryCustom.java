@@ -1,5 +1,6 @@
 package com.logus.blog.repository;
 
+import com.logus.admin.entity.Category;
 import com.logus.blog.dto.*;
 import com.logus.blog.entity.Post;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,4 +26,5 @@ public interface PostRepositoryCustom {
 
     Page<MainGridResponse> selectMainPosts(MainGridCondition condition, Pageable pageable);
 
+    Page<MainGridResponse> selectMainPostsCategory(MainGridCondition condition, Category category, Pageable pageable);
 }

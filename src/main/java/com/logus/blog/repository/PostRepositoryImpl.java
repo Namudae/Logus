@@ -7,6 +7,7 @@ import com.logus.blog.entity.Post;
 import com.logus.blog.entity.QPost;
 import com.logus.blog.entity.Status;
 import com.querydsl.core.types.ExpressionUtils;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.DateTimePath;
@@ -19,7 +20,9 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.logus.blog.entity.QBlog.blog;
@@ -349,7 +352,8 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         List<Category> categories = jpaQueryFactory
                 .select(category)
                 .from(category)
-                .where(category.parent.isNotNull())  // 부모 카테고리만 조회
+                .where(category.parent.isNotNull(),
+                        getCategory(condition.getCategoryId()))  // 자식 카테고리만 조회
                 .orderBy(category.parent.orderSeq.asc(), category.orderSeq.asc())
                 .offset(pageable.getOffset()) // 페이지네이션 offset
                 .limit(pageable.getPageSize()) // 페이지네이션 limit
@@ -389,8 +393,12 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                             .from(post)
                             .leftJoin(post.category, category)
                             .leftJoin(post.blog, blog)
-                            .where(post.category.id.eq(cat.getId()), getDateCondition(condition.getDate()))  // 카테고리 아이디로 필터링
-                            .orderBy(post.views.desc())  // 조회수 정렬
+                            .where(
+                                    post.category.id.eq(cat.getId())
+                                    , getDateCondition(condition.getDate()),
+                                    post.status.eq(Status.PUBLIC)
+                            )
+                            .orderBy(getOrderBy(condition.getGrid()))
                             .offset(0)
                             .limit(6) // 6개 고정
                             .fetch();
@@ -408,6 +416,62 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         return new PageImpl<>(results, pageable, total);
     }
 
+    @Override
+    public Page<MainGridResponse> selectMainPostsCategory(MainGridCondition condition, Category cat, Pageable pageable) {
+
+        List<MainGridResponse.PostDto> postDtos = jpaQueryFactory
+                .select(Projections.bean(MainGridResponse.PostDto.class,
+                        post.id.as("postId"),
+                        post.blog.id.as("blogId"),
+                        post.imgUrl,
+                        post.title,
+                        post.content,
+                        post.views,
+                        ExpressionUtils.as(
+                                JPAExpressions.select(comment.count())
+                                        .from(comment)
+                                        .where(comment.post.eq(post)),
+                                "commentCount"
+                        ),
+                        ExpressionUtils.as(
+                                JPAExpressions.select(likey.count())
+                                        .from(likey)
+                                        .where(likey.post.eq(post)),
+                                "likeCount"
+                        )
+                ))
+                .from(post)
+                .leftJoin(post.category, category)
+                .leftJoin(post.blog, blog)
+                .where(
+                        post.category.id.eq(condition.getCategoryId()),  // 특정 카테고리로 필터링
+                        getDateCondition(condition.getDate()),
+                        post.status.eq(Status.PUBLIC)  // 날짜 조건 추가
+                )
+                .orderBy(getOrderBy(condition.getGrid()))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize()) // pageable에서 가져온 size로 limit 적용
+                .fetch();
+
+        long total = Optional.ofNullable(
+                jpaQueryFactory
+                        .select(post.count())
+                        .from(post)
+                        .where(
+                                post.category.id.eq(condition.getCategoryId()),  // 특정 카테고리로 필터링
+                                getDateCondition(condition.getDate())  // 날짜 조건 추가
+                        )
+                        .fetchOne()).orElse(0L);
+
+        MainGridResponse response = MainGridResponse.builder()
+                .categoryId(cat.getId())
+                .categoryName(cat.getCategoryName())
+                .postList(postDtos)
+                .build();
+
+        return new PageImpl<>(Collections.singletonList(response), pageable, total);
+    }
+
     // 날짜 조건에 맞는 시작 날짜를 반환하는 메서드
     private BooleanExpression getDateCondition(String dateCondition) {
         LocalDateTime now = LocalDateTime.now();
@@ -423,6 +487,20 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
             case "year" -> post.createDate.goe(now.minusYears(1));  // 1년 이내
             default -> throw new IllegalArgumentException("Invalid date condition: " + dateCondition);
         };
+    }
+
+    private BooleanExpression getCategory(Long categoryId) {
+        return categoryId != null ? category.parent.id.eq(categoryId) : null;
+    }
+
+    private OrderSpecifier<?> getOrderBy(String grid) {
+        if ("trend".equals(grid)) {
+            return post.views.desc();  // 조회수 기준 내림차순
+        } else if ("new".equals(grid)) {
+            return post.createDate.desc();  // 생성일 기준 내림차순
+        } else {
+            return post.views.desc();  // 기본값으로 조회수 기준 내림차순
+        }
     }
 
 }

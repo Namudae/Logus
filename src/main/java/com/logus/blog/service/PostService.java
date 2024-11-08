@@ -430,7 +430,16 @@ public class PostService {
     }
 
     public Page<MainGridResponse> selectMainPosts(MainGridCondition condition, Pageable pageable) {
-        Page<MainGridResponse> response = postRepository.selectMainPosts(condition, pageable);
+        Category category = categoryService.getReferenceById(condition.getCategoryId());
+        Page<MainGridResponse> response = null;
+        if (category == null || category.getParent() == null) {
+        //categoryId가 부모 > 자식의 부모와 같은것 조회(limit 6)
+            response = postRepository.selectMainPosts(condition, pageable);
+        } else {
+        //categoryId가 자식 > 자식인것만 조회
+            response = postRepository.selectMainPostsCategory(condition, category, pageable);
+        }
+
         //이미지 url 설정
         response.getContent().forEach(mainGridResponse ->
                 mainGridResponse.getPostList().forEach(MainGridResponse.PostDto::processImgUrl)
