@@ -10,6 +10,8 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static com.logus.common.service.S3Service.CLOUD_FRONT_DOMAIN_NAME;
+
 @AllArgsConstructor
 @RequiredArgsConstructor
 @Getter
@@ -62,6 +64,13 @@ public class PostListResponseDto {
 
     public PostListResponseDto(Long postId) {
         this.postId = postId;
+    }
+
+    // imgUrl을 처리하는 메서드
+    public void processImgUrl() {
+        if (this.imgUrl != null) {
+            this.imgUrl = CLOUD_FRONT_DOMAIN_NAME + "/" + this.imgUrl;
+        }
     }
 
 }

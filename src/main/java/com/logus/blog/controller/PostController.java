@@ -52,6 +52,31 @@ public class PostController {
     }
 
     /**
+     * 블로그 내부 검색(제목+내용)
+     * http://localhost:8082/posts/blog-search?blogId=1&keyword=번째
+     */
+    @GetMapping("/posts/search")
+    public ApiResponse<Page<PostListResponseDto>> searchBlogPosts(@RequestParam("blogId") Long blogId,
+                                                                  @RequestParam(value="keyword", required = false) String keyword,
+                                                                  Pageable pageable) {
+        Page<PostListResponseDto> pagePosts = postService.searchBlogPosts(blogId, keyword, pageable);
+
+        return ApiResponse.ok(pagePosts);
+    }
+
+    /**
+     * 태그 검색(블로그 내부)
+     * http://localhost:8082/posts/tag-search?blogId=1&tag=JAVA&size=10&page=0
+     */
+    @GetMapping("/posts/tag-search")
+    public ApiResponse<Page<PostListResponseDto>> searchBlogPostsByTag(@RequestParam("blogId") Long blogId,
+                                                                       @RequestParam("tag") String tag,
+                                                                       Pageable pageable) {
+        Page<PostListResponseDto> pagePosts = postService.searchBlogPostsByTag(blogId, tag, pageable);
+        return ApiResponse.ok(pagePosts);
+    }
+
+    /**
      * 글 한개 조회
      */
     @GetMapping("/posts/{postId}")
@@ -105,34 +130,6 @@ public class PostController {
         return ApiResponse.ok(postService.selectTempPost(blogId));
     }
 
-
-    /**
-     * 태그 검색(블로그 내부)
-     * http://localhost:8082/posts/tag-search?blogId=1&tag=JAVA&size=10&page=0
-     */
-    @GetMapping("/posts/tag-search")
-    public ApiResponse<Page<PostListResponseDto>> searchBlogPostsByTag(@RequestParam("blogId") Long blogId,
-                                                                       @RequestParam("tag") String tag,
-                                                                       Pageable pageable) {
-        Page<PostListResponseDto> pagePosts = postService.searchBlogPostsByTag(blogId, tag, pageable);
-        return ApiResponse.ok(pagePosts);
-    }
-
-
-    /**
-     * 블로그 내부 검색(제목+내용)
-     * + Pageable
-     * http://localhost:8082/blog-search?blogId=1&size=10&page=0&keyword=번째
-     */
-    @GetMapping("/posts/blog-search")
-    public ApiResponse<Page<PostListResponseDto>> searchBlogPosts(@RequestParam("blogId") Long blogId,
-                                                                 @RequestParam(value="keyword", required = false) String keyword,
-                                                                 Pageable pageable) {
-        Page<PostListResponseDto> pagePosts = postService.searchBlogPosts(blogId, keyword, pageable);
-
-        return ApiResponse.ok(pagePosts);
-    }
-
     /**
      * 좋아요
      */
@@ -153,8 +150,7 @@ public class PostController {
 
     /**
      * 메인 페이지 조회
-     * - 트렌드 구현중
-     * - (date= day, week, month, year)
+     * - 트렌드, 최신
      */
     @GetMapping("/main")
     public ApiResponse<Page<MainGridResponse>> mainPosts(MainGridCondition condition,
@@ -163,5 +159,19 @@ public class PostController {
 
         return ApiResponse.ok(posts);
     }
+
+    /**
+     * 메인 페이지 검색
+     * - 반환타입 결정 (MainGridResponse or PostListResponseDto)
+     * /main/search?keyword=테스트
+     */
+    @GetMapping("/main/search")
+    public ApiResponse<Page<PostListResponseDto>> searchPostsMain(@RequestParam("keyword") String keyword,
+                                                         Pageable pageable) {
+        Page<PostListResponseDto> posts = postService.searchPostsMain(keyword, pageable);
+
+        return ApiResponse.ok(posts);
+    }
+
 
 }

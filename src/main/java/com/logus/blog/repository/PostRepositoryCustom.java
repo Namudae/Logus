@@ -13,11 +13,11 @@ import java.util.List;
 public interface PostRepositoryCustom {
     Page<PostListResponseDto> selectAllBlogPosts(Long blogId, Long seriesId, Pageable pageable, Long requestId);
 
-    Page<PostListResponseDto> searchBlogPosts(Long blogId, String keyword, Pageable pageable);
+    Page<PostListResponseDto> searchBlogPosts(Long blogId, String keyword, Long memberId, Pageable pageable);
 
     PostResponseDto selectPost(Long postId);
 
-    Page<PostListResponseDto> searchBlogPostsByTag(Long blogId, Long tagId, Pageable pageable, Long requestId);
+    Page<PostListResponseDto> searchBlogPostsByTag(Long blogId, Long tagId, Long memberId, Pageable pageable);
 
     PostResponseDto selectPrePost(Post post);
     PostResponseDto selectNextPost(Post post);
@@ -27,4 +27,6 @@ public interface PostRepositoryCustom {
     Page<MainGridResponse> selectMainPosts(MainGridCondition condition, Pageable pageable);
 
     Page<MainGridResponse> selectMainPostsCategory(MainGridCondition condition, Category category, Pageable pageable);
+
+    Page<PostListResponseDto> searchPostsMain(String keyword, Pageable pageable);
 }

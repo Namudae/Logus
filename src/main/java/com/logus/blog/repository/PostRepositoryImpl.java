@@ -192,17 +192,35 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     /**
      * 블로그 내 검색
      */
-    public Page<PostListResponseDto> searchBlogPosts(Long blogId, String keyword, Pageable pageable) {
+    public Page<PostListResponseDto> searchBlogPosts(Long blogId, String keyword, Long memberId, Pageable pageable) {
         JPAQuery<PostListResponseDto> query = jpaQueryFactory
                 .select(Projections.fields(PostListResponseDto.class,
                         member.id.as("memberId"),
                         member.nickname,
+                        category.id.as("categoryId"),
+                        category.categoryName,
+                        series.id.as("seriesId"),
+                        series.seriesName,
                         post.id.as("postId"),
                         post.title,
                         post.content,
                         post.imgUrl,
                         post.views,
-                        post.createDate))
+                        post.status,
+                        post.reportStatus,
+                        post.createDate,
+                        ExpressionUtils.as(
+                                JPAExpressions.select(comment.count())
+                                        .from(comment)
+                                        .where(comment.post.eq(post)),
+                                "commentCount"
+                        ),
+                        ExpressionUtils.as(
+                                JPAExpressions.select(likey.count())
+                                        .from(likey)
+                                        .where(likey.post.eq(post)),
+                                "likeCount"
+                        )))
                 .from(post)
                 .join(post.member, member)
                 .where(
@@ -210,6 +228,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                         .and(post.title.contains(keyword)
                             .or(post.content.contains(keyword))
                         )
+                        .and(memberId != null ? checkPublic(blogId, memberId, post) : post.status.eq(Status.PUBLIC))
                 );
 
         // 총 결과 수 조회
@@ -226,7 +245,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     }
 
     //tag검색
-    public Page<PostListResponseDto> searchBlogPostsByTag(Long blogId, Long tagId, Pageable pageable, Long requestId) {
+    public Page<PostListResponseDto> searchBlogPostsByTag(Long blogId, Long tagId, Long memberId, Pageable pageable) {
         JPAQuery<PostListResponseDto> query = jpaQueryFactory
                 .select(Projections.fields(PostListResponseDto.class,
                         member.id.as("memberId"),
@@ -263,7 +282,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .where(
                         post.blog.id.eq(blogId),
                         postTag.tag.id.eq(tagId),
-                        (requestId != null ? checkPublic(blogId, requestId, post) : post.status.eq(Status.PUBLIC))
+                        (memberId != null ? checkPublic(blogId, memberId, post) : post.status.eq(Status.PUBLIC))
                 );
 
         // 총 결과 수 조회
@@ -503,4 +522,54 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         }
     }
 
+    @Override
+    public Page<PostListResponseDto> searchPostsMain(String keyword, Pageable pageable) {
+        JPAQuery<PostListResponseDto> query = jpaQueryFactory
+                .select(Projections.fields(PostListResponseDto.class,
+                        member.id.as("memberId"),
+                        member.nickname,
+                        category.id.as("categoryId"),
+                        category.categoryName,
+                        series.id.as("seriesId"),
+                        series.seriesName,
+                        post.id.as("postId"),
+                        post.title,
+                        post.content,
+                        post.imgUrl,
+                        post.views,
+                        post.status,
+                        post.reportStatus,
+                        post.createDate,
+                        ExpressionUtils.as(
+                                JPAExpressions.select(comment.count())
+                                        .from(comment)
+                                        .where(comment.post.eq(post)),
+                                "commentCount"
+                        ),
+                        ExpressionUtils.as(
+                                JPAExpressions.select(likey.count())
+                                        .from(likey)
+                                        .where(likey.post.eq(post)),
+                                "likeCount"
+                        )))
+                .from(post)
+                .join(post.member, member)
+                .where(
+                        post.status.eq(Status.PUBLIC)
+                        .and(post.title.contains(keyword)
+                            .or(post.content.contains(keyword)))
+                );
+
+        // 총 결과 수 조회
+        long total = query.fetchCount();
+
+        // 페이지에 맞는 결과 조회
+        List<PostListResponseDto> results = query
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        // Page 객체 생성 및 반환
+        return new PageImpl<>(results, pageable, total);
+    }
 }

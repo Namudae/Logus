@@ -125,11 +125,6 @@ public class PostService {
         return dto;
     }
 
-    public Page<PostListResponseDto> searchBlogPosts(Long blogId, String keyword, Pageable pageable) {
-        if(keyword == null) keyword = "";
-        return postRepository.searchBlogPosts(blogId, keyword, pageable);
-    }
-
     @Transactional
     public Long createPost(PostRequestDto postRequestDto, MultipartFile thumbImage) throws IOException {
         // memberId
@@ -260,19 +255,25 @@ public class PostService {
         return temp;
     }
 
+    public Page<PostListResponseDto> searchBlogPosts(Long blogId, String keyword, Pageable pageable) {
+        // memberId
+        Long memberId = blogService.authMemberIdOrNull();
+
+        if(keyword == null) keyword = "";
+        Page<PostListResponseDto> posts =  postRepository.searchBlogPosts(blogId, keyword, memberId, pageable);
+        List<PostListResponseDto> newPosts = toPostList(posts);
+        return new PageImpl<>(newPosts, pageable, posts.getTotalElements());
+    }
+
     public Page<PostListResponseDto> searchBlogPostsByTag(Long blogId, String tag, Pageable pageable) {
         // memberId
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Long memberId = null;
-        if (authentication != null && authentication.isAuthenticated() && !authentication.getPrincipal().equals("anonymousUser")) {
-            memberId = ((UserPrincipal) authentication.getPrincipal()).getMemberId();
-        }
+        Long memberId = blogService.authMemberIdOrNull();
 
         //태그명으로 tagId > post_tag에서 검색 > 반환
         Long tagId = tagService.findByTagName(tag).getId();
 
         //blogId, tagId로 조건걸어서 반환
-        Page<PostListResponseDto> posts = postRepository.searchBlogPostsByTag(blogId, tagId, pageable, memberId);
+        Page<PostListResponseDto> posts = postRepository.searchBlogPostsByTag(blogId, tagId, memberId, pageable);
         List<PostListResponseDto> newPosts = toPostList(posts);
         return new PageImpl<>(newPosts, pageable, posts.getTotalElements());
     }
@@ -448,5 +449,13 @@ public class PostService {
         //+ 내용 미리보기 글자수
 
         return response;
+    }
+
+    public Page<PostListResponseDto> searchPostsMain(String keyword, Pageable pageable) {
+        if(keyword == null) keyword = "";
+        Page<PostListResponseDto> posts = postRepository.searchPostsMain(keyword, pageable);
+        List<PostListResponseDto> newPosts = toPostList(posts);
+
+        return new PageImpl<>(newPosts, pageable, posts.getTotalElements());
     }
 }
