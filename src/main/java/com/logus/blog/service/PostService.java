@@ -6,7 +6,6 @@ import com.logus.blog.dto.*;
 import com.logus.blog.entity.*;
 import com.logus.blog.repository.*;
 import com.logus.common.config.CustomHtmlEscapeUtil;
-import com.logus.common.entity.Attachment;
 import com.logus.common.entity.AttachmentType;
 import com.logus.common.exception.CustomException;
 import com.logus.common.exception.ErrorCode;
@@ -15,7 +14,6 @@ import com.logus.common.security.UserPrincipal;
 import com.logus.common.service.S3Service;
 import com.logus.member.entity.Member;
 import com.logus.member.service.MemberService;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -134,15 +132,12 @@ public class PostService {
         }
         Long memberId = ((UserPrincipal) authentication.getPrincipal()).getMemberId();
 
-        //1. findById > select 쿼리 나감
-        //2. getReferenceById > 데이터 검증x
-        Member member = memberService.getById(memberId);
+        Member member = memberService.getReferenceById(memberId);
         Blog blog = blogService.getReferenceById(postRequestDto.getBlogId());
         Category category = categoryService.getReferenceById(postRequestDto.getCategoryId());
         Series series = seriesService.getReferenceById(postRequestDto.getSeriesId());
 
-        //임시폴더 이미지 images 폴더로
-        List<Attachment> attachments = moveTemporaryImages(postRequestDto);
+        moveTemporaryImages(postRequestDto);
 
         //썸네일 업로드
         String thumbUrl = null;
@@ -151,7 +146,7 @@ public class PostService {
         }
 
         //이스케이프
-//        postRequestDto.setContent(CustomHtmlEscapeUtil.escapeCustom(postRequestDto.getContent()));
+        postRequestDto.setContent(CustomHtmlEscapeUtil.escapeCustom(postRequestDto.getContent()));
         postRequestDto.setTitle(CustomHtmlEscapeUtil.escapeCustom(postRequestDto.getTitle()));
 
         //임시저장글일 경우, 기존 임시저장글 삭제, 새로 insert
@@ -165,12 +160,6 @@ public class PostService {
         Post post = postRequestDto.toEntity(member, blog, category, series, thumbUrl);
         //Post insert
         Post savedPost = postRepository.save(post);
-
-        //Attachment insert(생략)
-//        for (Attachment attachment : attachments) {
-//            attachment.setPost(savedPost);
-//            attachmentRepository.save(attachment);
-//        }
 
         //Tag insert
         tagService.savePostTag(postRequestDto, savedPost);
@@ -198,7 +187,7 @@ public class PostService {
         }
 
         //삭제된 이미지 처리
-        deleteImages(post.getContent(), postRequestDto.getContent());
+        deleteOldImages(post.getContent(), postRequestDto.getContent());
 
         //임시폴더 이미지 images 폴더로
         moveTemporaryImages(postRequestDto);
@@ -209,10 +198,7 @@ public class PostService {
 
         post.updatePost(category, series, postRequestDto.getTitle(), postRequestDto.getContent(), postRequestDto.getStatus());
 
-        //Attachment 생략
-
-        //태그 처리 추가
-        // post_tag 삭제하고 새로 insert
+        //태그 처리 추가 (post_tag 삭제하고 새로 insert)
         tagService.deletePostTag(postId);
         postRepository.flush();
         tagService.savePostTag(postRequestDto, post);
@@ -294,15 +280,6 @@ public class PostService {
                         dto.setImgUrl(CLOUD_FRONT_DOMAIN_NAME + "/" + imgUrl);
                     }
 
-                    // content 앞 130자만 가져오기
-                    //html태그 포함인 경우...
-//                    String content = dto.getContent();
-//                    String textContent = Jsoup.parse(content).text();
-//
-//                    if (textContent != null && textContent.length() > 130) {
-//                        dto.setContent(textContent.substring(0, 130));
-//                    }
-
                     // tags 설정
                     List<String> tags = tagService.selectPostTags(dto.getPostId());
                     dto.setTags(tags);
@@ -313,14 +290,14 @@ public class PostService {
     }
 
     // ======== 이미지 처리 ========
-    private List<Attachment> moveTemporaryImages(PostRequestDto postRequestDto) {
+    private void moveTemporaryImages(PostRequestDto postRequestDto) {
 
-        //이스케이프 해제 > Jsoup 파싱 > 다시 이스케이프
-//        String unescapedContent = CustomHtmlEscapeUtil.unescapeCustom(postRequestDto.getContent());
+        //이스케이프 해제
+        String unescapedContent = CustomHtmlEscapeUtil.unescapeCustom(postRequestDto.getContent());
 
-        List<Attachment> attachments = new ArrayList<>();
-        Document document = Jsoup.parse(postRequestDto.getContent());
-        String content = postRequestDto.getContent();
+//        List<Attachment> attachments = new ArrayList<>();
+        Document document = Jsoup.parse(unescapedContent);
+        String content = unescapedContent;
         Elements imageElements = document.getElementsByTag("img");
 
         if (imageElements.size() > 0) {
@@ -336,21 +313,20 @@ public class PostService {
 
                 s3Service.update(oldSource, newSource);
 
-                Attachment attachment = Attachment.builder()
-                        .filepath(newSource)
-                        .attachmentType(AttachmentType.IMAGE)
-                        .filename(newSource.split("/")[1])
-                        .build();
-                attachments.add(attachment);
+//                Attachment attachment = Attachment.builder()
+//                        .filepath(newSource)
+//                        .attachmentType(AttachmentType.IMAGE)
+//                        .filename(newSource.split("/")[1])
+//                        .build();
+//                attachments.add(attachment);
             }
         }
         content = content.replace(CLOUD_FRONT_DOMAIN_NAME + "/" + AttachmentType.TEMP.getPath(), CLOUD_FRONT_DOMAIN_NAME + "/" + AttachmentType.IMAGE.getPath());
 
         postRequestDto.setContent(content);
-        return attachments;
     }
 
-    private void deleteImages(String oldContent, String newContent) {
+    private void deleteOldImages(String oldContent, String newContent) {
         //oldContent 사진 돌면서 newContent에 포함되는지 비교, 없으면 서버에서 삭제
         List<String> oldImageList = extractImageSrcList(oldContent);
         List<String> newImageList = extractImageSrcList(newContent);
@@ -364,8 +340,10 @@ public class PostService {
     }
 
     private List<String> extractImageSrcList(String content) {
+        //이스케이프 해제
+        String unescapedContent = CustomHtmlEscapeUtil.unescapeCustom(content);
         List<String> imageList = new ArrayList<>();
-        Document document = Jsoup.parse(content);
+        Document document = Jsoup.parse(unescapedContent);
         Elements imageElements = document.getElementsByTag("img");
 
         for (Element imageElement : imageElements) {
@@ -445,8 +423,6 @@ public class PostService {
         response.getContent().forEach(mainGridResponse ->
                 mainGridResponse.getPostList().forEach(MainGridResponse.PostDto::processImgUrl)
         );
-
-        //+ 내용 미리보기 글자수
 
         return response;
     }
