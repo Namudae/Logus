@@ -21,7 +21,7 @@ public class MainGridResponse {
     @Setter
     public static class PostDto {
         private Long postId;
-//        private Long blogId;
+        private Long blogId;
         private String imgUrl;
         private String title;
         private String content; //50자
