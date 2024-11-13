@@ -159,8 +159,7 @@ public class BlogRepositoryImpl implements BlogRepositoryCustom {
                     .select(Projections.fields(FollowerResponseDto.BlogDto.class,
                             blog.id.as("blogId"),
                             blog.blogName,
-                            blog.blogAddress,
-                            blog.shareYn))
+                            blog.blogAddress))
                     .from(blogMember)
                     .leftJoin(blogMember.blog, blog)
                     .leftJoin(blogMember.member, member)

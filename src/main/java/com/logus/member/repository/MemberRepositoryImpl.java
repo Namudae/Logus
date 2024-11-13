@@ -36,52 +36,66 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
      */
     @Override
     public Page<MemberListResponse> searchMembers(String loginId, String nickname, String blogName, String blogAddress, Pageable pageable) {
-//        JPAQuery<MemberListResponse> query = jpaQueryFactory
-//                .select(Projections.fields(MemberListResponse.class,
-//                        member.id.as("memberId"),
-//                        member.nickname,
-//                        blog.blogName,
-//                        blog.blogAddress
-//                ))
-//                .from(member)
-//                .leftJoin(blogMember)
-//                .on(blogMember.member.eq(member)
-//                        .and(blogMember.blogAuth.eq(BlogAuth.OWNER))
-////                        .and(blogMember.blog.shareYn.eq("N"))
-//                )
-//                .leftJoin(blogMember.blog, blog)
-//                .where(
-//                    member.role.eq("USER"),
-//                    containLoginId(loginId),
-//                    containNickname(nickname),
-//                    containBlogName(blogName),
-//                    containBlogAddress(blogAddress)
-//                )
-//                .orderBy(member.loginId.asc());
-//
-//        // 총 결과 수 조회
-//        long total = query.fetchCount();
-//
-//        // 페이지에 맞는 결과 조회
-//        List<MemberListResponse> results = query
-//                .offset(pageable.getOffset())
-//                .limit(pageable.getPageSize())
-//                .fetch();
-//
-//        // 결과 필터링 (예시: 조건에 맞는 9개로 필터링)
-//        List<MemberListResponse> filteredResults = results.stream()
-//                .filter(result -> )
-//                .collect(Collectors.toList());
-//
-//        // 필터링된 결과의 총 개수 (전체 데이터에서 필터링된 결과의 개수)
-//        long filteredTotal = filteredResults.size();
-//
-//        // 새로운 Page 객체 생성 및 반환 (필터링된 결과와 새로운 total을 사용)
-//        return new PageImpl<>(filteredResults, pageable, filteredTotal);
+        //멤버 조회
+        List<MemberListResponse> memberList = jpaQueryFactory
+                .select(Projections.fields(MemberListResponse.class,
+                        member.id.as("memberId"),
+                        member.nickname,
+                        member.loginId
+                ))
+                .from(member)
+                .where(
+                        member.role.eq("USER"),
+                        containLoginId(loginId),
+                        containNickname(nickname)
+//                        containBlogName(blogName),
+//                        containBlogAddress(blogAddress)
+                )
+                .orderBy(member.createDate.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
 
-//        // Page 객체 생성 및 반환
-//        return new PageImpl<>(results, pageable, total);
-        return null;
+        // 2. 각 멤버에 대해 블로그 정보 조회
+        for (MemberListResponse member : memberList) {
+            // 블로그 정보 조회 (멤버 ID를 기준으로)
+            MemberListResponse.BlogResponse blogDto = jpaQueryFactory
+                    .select(Projections.fields(MemberListResponse.BlogResponse.class, // BlogResponse를 사용하여 블로그 정보를 받음
+                            blog.id.as("blogId"),
+                            blog.blogName,
+                            blog.blogAddress
+                    ))
+                    .from(blogMember)
+                    .leftJoin(blogMember.blog, blog)
+                    .where(
+                            blogMember.member.id.eq(member.getMemberId())
+                                    .and(blogMember.blogAuth.eq(BlogAuth.OWNER))
+                                    .and(blog.shareYn.eq("N")),
+                        containBlogName(blogName),
+                        containBlogAddress(blogAddress)
+                    )
+                    .orderBy(blog.createDate.asc()) // 날짜가 빠른 블로그가 먼저 오도록 정렬
+                    .limit(1)
+                    .fetchFirst();
+
+            // 블로그 정보를 멤버에 추가
+            member.setBlogResponse(blogDto);  // 블로그 정보 리스트를 멤버 객체에 추가
+        }
+
+        // 3. 전체 멤버 수 계산
+        long total = jpaQueryFactory
+                .select(member.count())
+                .from(member)
+                .where(
+                        member.role.eq("USER"),
+                        containLoginId(loginId),
+                        containNickname(nickname)
+                )
+                .fetchOne(); // 전체 멤버 수를 계산
+
+        // 4. Page 객체 생성 및 반환
+        return new PageImpl<>(memberList, pageable, total);
+
     }
 
     private BooleanExpression containLoginId(String loginId) {

@@ -14,8 +14,19 @@ import java.util.List;
 public class MemberListResponse {
 
     private Long memberId;
+    private String loginId;
     private String nickname;
-    private String blogName;
-    private String blogAddress;
+    private BlogResponse blogResponse;
+//    private Long blogId;
+//    private String blogName;
+//    private String blogAddress;
+
+    @Getter
+    @Setter
+    public static class BlogResponse {
+        private Long blogId;
+        private String blogName;
+        private String blogAddress;
+    }
 
 }
