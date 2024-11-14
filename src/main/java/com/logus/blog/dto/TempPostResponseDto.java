@@ -20,7 +20,7 @@ public class TempPostResponseDto {
     private Long categoryId;
     private String categoryName;
     private Long seriesId;
-    private Long seriesName;
+    private String seriesName;
     private String title;
     private String content;
     private Status status;

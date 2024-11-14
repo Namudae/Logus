@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface PostRepositoryCustom {
     Page<PostListResponseDto> selectAllBlogPosts(Long blogId, Long seriesId, Pageable pageable, Long requestId);
@@ -22,7 +23,7 @@ public interface PostRepositoryCustom {
     PostResponseDto selectPrePost(Post post);
     PostResponseDto selectNextPost(Post post);
 
-    TempPostResponseDto selectTemp(Long blogId, Long memberId);
+    Optional<TempPostResponseDto> selectTemp(Long blogId, Long memberId);
 
     Page<MainGridResponse> selectMainPosts(MainGridCondition condition, Pageable pageable);
 

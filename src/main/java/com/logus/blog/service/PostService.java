@@ -147,11 +147,12 @@ public class PostService {
 
         //임시저장글일 경우, 기존 임시저장글 삭제, 새로 insert
         if (postRequestDto.getStatus() == Status.TEMPORARY) {
-            //temporary인 post 찾아서 update
-            Long tempPostId = postRepository.selectTemp(postRequestDto.getBlogId(), memberId).getPostId();
-            if (tempPostId != null) {
+            // temporary인 post 찾아서 update
+            Optional<TempPostResponseDto> tempPostOptional = postRepository.selectTemp(postRequestDto.getBlogId(), memberId);
+            tempPostOptional.ifPresent(tempPost -> {
+                Long tempPostId = tempPost.getPostId();
                 deletePost(tempPostId);
-            }
+            });
         }
         Post post = postRequestDto.toEntity(member, blog, category, series, thumbUrl);
         //Post insert
@@ -227,10 +228,17 @@ public class PostService {
     }
 
     public TempPostResponseDto selectTempPost(Long blogId) {
-        TempPostResponseDto temp = postRepository.selectTemp(blogId, blogService.authMemberId());
-        if (temp == null) {
+        // selectTemp()가 Optional을 반환하도록 수정
+        Optional<TempPostResponseDto> tempOptional = postRepository.selectTemp(blogId, blogService.authMemberId());
+
+        // Optional이 비어있다면 null 반환
+        if (tempOptional.isEmpty()) {
             return null;
         }
+
+        // Optional에서 값 추출
+        TempPostResponseDto temp = tempOptional.get();
+
         //태그 조회
         List<String> tags = tagService.selectPostTags(temp.getPostId());
         temp.setTags(tags);

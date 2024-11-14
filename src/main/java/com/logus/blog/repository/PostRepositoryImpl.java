@@ -302,8 +302,8 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
      * 임시저장글 조회
      */
     @Override
-    public TempPostResponseDto selectTemp(Long blogId, Long memberId) {
-        return jpaQueryFactory
+    public Optional<TempPostResponseDto> selectTemp(Long blogId, Long memberId) {
+        TempPostResponseDto result = jpaQueryFactory
                 .select(Projections.fields(TempPostResponseDto.class,
                         post.id.as("postId"),
                         post.member.id.as("memberId"),
@@ -328,6 +328,8 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .leftJoin(post.category, category)
                 .leftJoin(post.series, series)
                 .fetchOne();
+
+        return Optional.ofNullable(result);
     }
 
     private BooleanExpression blogAddressEq(String blogAddress) {
