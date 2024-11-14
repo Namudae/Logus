@@ -150,6 +150,17 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 
     @Override
     public PostResponseDto selectPrePost(Post p) {
+        BooleanExpression condition = post.blog.id.eq(p.getBlog().getId())
+                .and(dateLoe(p.getCreateDate()))  // 이전 게시글
+                .and(post.status.eq(Status.PUBLIC));
+
+        // series null 처리
+        if (p.getSeries() != null) {
+            condition = condition.and(post.series.id.eq(p.getSeries().getId()));
+        } else {
+            // series가 null이면, seriesId가 null인 경우를 포함
+            condition = condition.and(post.series.id.isNull());
+        }
 
         return jpaQueryFactory
                 .select(Projections.fields(PostResponseDto.class,
@@ -157,12 +168,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                         post.title.as("preTitle"))
                 )
                 .from(post)
-                .where(
-                        post.blog.id.eq(p.getBlog().getId()),
-                        dateLoe(p.getCreateDate()), //이전 게시글
-                        post.series.eq(p.getSeries()), //같은 시리즈
-                        post.status.eq(Status.PUBLIC)
-                )
+                .where(condition)
                 .orderBy(post.createDate.desc())
                 .limit(1)
                 .fetchOne();
@@ -171,6 +177,17 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 
     @Override
     public PostResponseDto selectNextPost(Post p) {
+        BooleanExpression condition = post.blog.id.eq(p.getBlog().getId())
+                .and(dateGoe(p.getCreateDate()))  // 이후 게시글
+                .and(post.status.eq(Status.PUBLIC));
+
+        // series null 처리
+        if (p.getSeries() != null) {
+            condition = condition.and(post.series.id.eq(p.getSeries().getId()));
+        } else {
+            // series가 null이면, seriesId가 null인 경우를 포함
+            condition = condition.and(post.series.id.isNull());
+        }
 
         return jpaQueryFactory
                 .select(Projections.fields(PostResponseDto.class,
@@ -178,12 +195,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                         post.title.as("nextTitle"))
                 )
                 .from(post)
-                .where(
-                        post.blog.id.eq(p.getBlog().getId()),
-                        dateGoe(p.getCreateDate()), //이후 게시글
-                        post.series.eq(p.getSeries()), //같은 시리즈
-                        post.status.eq(Status.PUBLIC)
-                )
+                .where(condition)
                 .orderBy(post.createDate.asc())
                 .limit(1)
                 .fetchOne();
@@ -311,6 +323,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                         post.category.id.as("categoryId"),
                         post.category.categoryName,
                         post.series.id.as("seriesId"),
+                        post.series.seriesName,
                         post.title,
                         post.content,
                         post.imgUrl,
