@@ -94,7 +94,7 @@ public class PostService {
         postRepository.save(post);
 
         //이스케이프
-        dto.setContent(CustomHtmlEscapeUtil.escapeCustom(dto.getContent()));
+//        dto.setContent(CustomHtmlEscapeUtil.escapeCustom(dto.getContent()));
 
         //좋아요 조회
         if (likeyRepository.findByMemberIdAndPostId(memberId, postId).isPresent()) {
@@ -126,11 +126,7 @@ public class PostService {
     @Transactional
     public Long createPost(PostRequestDto postRequestDto, MultipartFile thumbImage) throws IOException {
         // memberId
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
-            throw new CustomException(ErrorCode.NEED_LOGIN);
-        }
-        Long memberId = ((UserPrincipal) authentication.getPrincipal()).getMemberId();
+        Long memberId = blogService.authMemberId();
 
         Member member = memberService.getReferenceById(memberId);
         Blog blog = blogService.getReferenceById(postRequestDto.getBlogId());
@@ -146,8 +142,8 @@ public class PostService {
         }
 
         //이스케이프
-        postRequestDto.setContent(CustomHtmlEscapeUtil.escapeCustom(postRequestDto.getContent()));
-        postRequestDto.setTitle(CustomHtmlEscapeUtil.escapeCustom(postRequestDto.getTitle()));
+//        postRequestDto.setContent(CustomHtmlEscapeUtil.escapeCustom(postRequestDto.getContent()));
+//        postRequestDto.setTitle(CustomHtmlEscapeUtil.escapeCustom(postRequestDto.getTitle()));
 
         //임시저장글일 경우, 기존 임시저장글 삭제, 새로 insert
         if (postRequestDto.getStatus() == Status.TEMPORARY) {
@@ -193,8 +189,8 @@ public class PostService {
         moveTemporaryImages(postRequestDto);
 
         //이스케이프
-        postRequestDto.setContent(CustomHtmlEscapeUtil.escapeCustom(postRequestDto.getContent()));
-        postRequestDto.setTitle(CustomHtmlEscapeUtil.escapeCustom(postRequestDto.getTitle()));
+//        postRequestDto.setContent(CustomHtmlEscapeUtil.escapeCustom(postRequestDto.getContent()));
+//        postRequestDto.setTitle(CustomHtmlEscapeUtil.escapeCustom(postRequestDto.getTitle()));
 
         post.updatePost(category, series, postRequestDto.getTitle(), postRequestDto.getContent(), postRequestDto.getStatus());
 
@@ -293,11 +289,12 @@ public class PostService {
     private void moveTemporaryImages(PostRequestDto postRequestDto) {
 
         //이스케이프 해제
-        String unescapedContent = CustomHtmlEscapeUtil.unescapeCustom(postRequestDto.getContent());
+//        String unescapedContent = CustomHtmlEscapeUtil.unescapeCustom(postRequestDto.getContent());
+        String content = postRequestDto.getContent();
 
 //        List<Attachment> attachments = new ArrayList<>();
-        Document document = Jsoup.parse(unescapedContent);
-        String content = unescapedContent;
+        Document document = Jsoup.parse(content);
+//        String content = content;
         Elements imageElements = document.getElementsByTag("img");
 
         if (imageElements.size() > 0) {
