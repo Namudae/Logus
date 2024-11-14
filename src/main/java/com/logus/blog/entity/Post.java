@@ -40,10 +40,10 @@ public class Post extends BaseTime {
     @JoinColumn(name = "series_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Series series;
 
-    @Column(length = 100)
+    @Column(length = 600)
     private String title;
 
-    @Column(length = 10000)
+    @Column(columnDefinition = "TEXT")
     private String content;
 
     private Long views;
