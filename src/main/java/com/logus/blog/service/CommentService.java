@@ -60,7 +60,7 @@ public class CommentService {
         Member member = memberService.getReferenceById(memberId);
         Post post = postRepository.getReferenceById(commentRequestDto.getPostId());
         Comment parent = commentRepository.getReferenceById(commentRequestDto.getParentId());
-        commentRequestDto.setContent(CustomHtmlEscapeUtil.escapeCustom(commentRequestDto.getContent()));
+//        commentRequestDto.setContent(CustomHtmlEscapeUtil.escapeCustom(commentRequestDto.getContent()));
 
         Comment comment = commentRequestDto.toEntity(member, post, parent);
         commentRepository.save(comment);
@@ -72,7 +72,7 @@ public class CommentService {
     @Transactional
     public Long updateComment(Long commentId, CommentRequestDto commentRequestDto) {
         Comment comment = getById(commentId);
-        commentRequestDto.setContent(CustomHtmlEscapeUtil.escapeCustom(commentRequestDto.getContent()));
+//        commentRequestDto.setContent(CustomHtmlEscapeUtil.escapeCustom(commentRequestDto.getContent()));
         comment.updateComment(commentRequestDto);
         return commentId;
     }

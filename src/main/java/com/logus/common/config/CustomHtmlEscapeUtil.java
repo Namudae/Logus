@@ -14,6 +14,7 @@ public class CustomHtmlEscapeUtil {
 
         // 추가로 이스케이프할 문자를 처리
         escaped = escaped.replace("/", "&#47;"); // '/' 이스케이프 추가
+        escaped = escaped.replace("'", "&#39;"); // 작은 따옴표 이스케이프 추가
 
         return escaped;
     }
@@ -28,6 +29,7 @@ public class CustomHtmlEscapeUtil {
 
         // 추가로 언이스케이프할 문자를 처리
         unescaped = unescaped.replace("&#47;", "/"); // '/' 언이스케이프 추가
+        unescaped = unescaped.replace("&#39;", "'"); // 작은 따옴표 언이스케이프 추가
 
         return unescaped;
     }
