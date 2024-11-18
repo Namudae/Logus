@@ -1,22 +1,10 @@
 package com.logus.blog.service;
 
-import com.logus.blog.dto.CommentResponseDto;
-import com.logus.blog.dto.PostRequestDto;
-import com.logus.blog.dto.PostResponseDto;
-import com.logus.blog.entity.Post;
 import com.logus.blog.repository.PostRepository;
-import com.logus.member.entity.Member;
 import com.logus.member.repository.MemberRepository;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Transactional

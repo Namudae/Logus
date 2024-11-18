@@ -1,6 +1,8 @@
 package com.logus.blog.repository;
 
+import com.logus.admin.dto.BlogListResponseDto;
 import com.logus.blog.dto.*;
+import com.logus.member.dto.MemberListResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -16,4 +18,6 @@ public interface BlogRepositoryCustom {
     Page<FollowerResponseDto> selectFollowers(Long blogId, Pageable pageable);
 
     List<OurLogResponseDto> findByMemberId(Long memberId);
+
+    Page<BlogListResponseDto> searchBlogs(String loginId, String nickname, String blogName, String blogAddress, Pageable pageable);
 }

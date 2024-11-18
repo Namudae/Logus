@@ -3,11 +3,12 @@ package com.logus.blog.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.logus.admin.entity.ReportStatus;
 import com.logus.blog.entity.Comment;
-import com.logus.blog.entity.Post;
 import com.logus.blog.entity.Status;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.logus.common.service.S3Service.CLOUD_FRONT_DOMAIN_NAME;
 

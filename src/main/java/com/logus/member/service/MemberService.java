@@ -91,11 +91,6 @@ public class MemberService {
         }
     }
 
-    public Page<MemberListResponse> searchMembers(String loginId, String nickname, String blogName, String blogAddress, Pageable pageable) {
-        //keyword: 아이디, 닉네임, 블로그명, 블로그 주소
-        return memberRepository.searchMembers(loginId, nickname, blogName, blogAddress, pageable);
-    }
-
     public MemberResponse login(LoginForm loginForm) {
         Member member = memberRepository.findByLoginId(loginForm.loginId())
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -118,5 +113,9 @@ public class MemberService {
         } else {
             throw new CustomException(ErrorCode.LOGIN_FAIL);
         }
+    }
+
+    public Page<MemberListResponse> searchMembers(String loginId, String nickname, String blogName, String blogAddress, Pageable pageable) {
+        return memberRepository.searchMembers(loginId, nickname, blogName, blogAddress, pageable);
     }
 }

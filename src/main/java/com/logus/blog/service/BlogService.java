@@ -1,5 +1,6 @@
 package com.logus.blog.service;
 
+import com.logus.admin.dto.BlogListResponseDto;
 import com.logus.blog.dto.*;
 import com.logus.blog.entity.Blog;
 import com.logus.blog.entity.BlogAuth;
@@ -9,8 +10,11 @@ import com.logus.blog.repository.*;
 import com.logus.common.exception.CustomException;
 import com.logus.common.exception.ErrorCode;
 import com.logus.common.security.UserPrincipal;
+import com.logus.member.dto.MemberListResponse;
 import com.logus.member.entity.Member;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -236,4 +240,7 @@ public class BlogService {
         return ((UserPrincipal) authentication.getPrincipal()).getMemberId();
     }
 
+    public Page<BlogListResponseDto> searchBlogs(String loginId, String nickname, String blogName, String blogAddress, Pageable pageable) {
+        return blogRepository.searchBlogs(loginId, nickname, blogName, blogAddress, pageable);
+    }
 }

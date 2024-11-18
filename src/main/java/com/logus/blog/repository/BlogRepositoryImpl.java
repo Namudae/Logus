@@ -1,12 +1,18 @@
 package com.logus.blog.repository;
 
+import com.logus.admin.dto.BlogListResponseDto;
 import com.logus.blog.dto.*;
 import com.logus.blog.entity.BlogAuth;
+import com.logus.blog.entity.QBlog;
 import com.logus.blog.entity.QBlogMember;
 import com.logus.blog.entity.Status;
+import com.logus.member.dto.MemberListResponse;
+import com.logus.member.entity.QMember;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
@@ -25,6 +31,7 @@ import static com.logus.blog.entity.QLikey.likey;
 import static com.logus.blog.entity.QPost.post;
 import static com.logus.blog.entity.QSeries.series;
 import static com.logus.member.entity.QMember.member;
+import static org.springframework.util.StringUtils.hasText;
 
 public class BlogRepositoryImpl implements BlogRepositoryCustom {
 
@@ -173,4 +180,69 @@ public class BlogRepositoryImpl implements BlogRepositoryCustom {
         // Page 객체 생성 및 반환
         return new PageImpl<>(followerList, pageable, total);
     }
+
+    @Override
+    public Page<BlogListResponseDto> searchBlogs(String loginId, String nickname, String blogName, String blogAddress, Pageable pageable) {
+        QMember ownerMember = new QMember("ownerMember"); // OWNER를 별도로 매핑
+
+        // Content 쿼리
+        List<BlogListResponseDto> content = jpaQueryFactory
+                .select(Projections.fields(BlogListResponseDto.class,
+                        blog.id.as("blogId"),
+                        blog.blogName,
+                        blog.blogAddress,
+                        ownerMember.loginId.as("loginId") // OWNER의 loginId 매핑)
+                ))
+                .from(blog)
+                .leftJoin(blog.blogMembers, blogMember)
+                .leftJoin(blogMember.member, member)
+                .leftJoin(blogMember.member, ownerMember) // OWNER의 Member와 조인
+                .where(
+                        blogMember.blogAuth.eq(BlogAuth.OWNER),
+                        containLoginId(loginId),
+                        containNickname(nickname),
+                        containBlogName(blogName),
+                        containBlogAddress(blogAddress)
+                )
+                .orderBy(blog.createDate.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        // Total count 쿼리
+        long total = jpaQueryFactory
+                .select(blog.count())
+                .from(blog)
+                .leftJoin(blog.blogMembers, blogMember)
+                .leftJoin(blogMember.member, member)
+                .leftJoin(blogMember.member, ownerMember) // OWNER의 Member와 조인
+                .where(
+                        blogMember.blogAuth.eq(BlogAuth.OWNER),
+                        containLoginId(loginId),
+                        containNickname(nickname),
+                        containBlogName(blogName),
+                        containBlogAddress(blogAddress)
+                )
+                .fetchOne();
+
+        // Page 반환
+        return new PageImpl<>(content, pageable, total);
+    }
+
+    private BooleanExpression containLoginId(String loginId) {
+        return hasText(loginId) ? member.loginId.contains(loginId) : null;
+    }
+
+    private BooleanExpression containNickname(String nickname) {
+        return hasText(nickname) ? member.nickname.contains(nickname) : null;
+    }
+
+    private BooleanExpression containBlogName(String blogName) {
+        return hasText(blogName) ? blogMember.blog.blogName.contains(blogName) : null;
+    }
+
+    private BooleanExpression containBlogAddress(String blogAddress) {
+        return hasText(blogAddress) ? blogMember.blog.blogAddress.contains(blogAddress) : null;
+    }
+
 }

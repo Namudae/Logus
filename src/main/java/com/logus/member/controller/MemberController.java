@@ -56,22 +56,4 @@ public class MemberController {
         memberService.duplicateLoginId(loginId);
         return ApiResponse.ok();
     }
-
-    /**
-     * *수정 필요
-     * 회원 정보 검색
-     * - 아이디, 닉네임, 블로그명, 블로그 주소
-     * - 회원관련 키워드, 블로그관련 키워드 따로 관리?
-     */
-    @GetMapping("/user")
-    public ApiResponse<Page<MemberListResponse>> searchMembers(@RequestParam(value = "loginId", required = false) String loginId,
-                                                               @RequestParam(value = "nickname", required = false) String nickname,
-                                                               @RequestParam(value = "blogName", required = false) String blogName,
-                                                               @RequestParam(value = "blogAddress", required = false) String blogAddress,
-                                                               Pageable pageable) {
-        Page<MemberListResponse> memberLists = memberService.searchMembers(loginId, nickname, blogName, blogAddress, pageable);
-
-        return ApiResponse.ok(memberLists);
-    }
-
 }
