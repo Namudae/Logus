@@ -1,17 +1,7 @@
 package com.logus.blog.repository;
 
-import com.logus.blog.dto.CommentResponseDto;
-import com.logus.blog.dto.PostResponseDto;
-import com.logus.blog.entity.Comment;
-import com.logus.blog.entity.Status;
-import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
-
-import java.util.List;
-
-import static com.logus.blog.entity.QComment.comment;
-import static com.logus.member.entity.QMember.member;
 
 public class CommentRepositoryImpl implements CommentRepositoryCustom {
 

@@ -5,12 +5,10 @@ import com.logus.admin.entity.Category;
 import com.logus.admin.entity.ReportStatus;
 import com.logus.blog.entity.Post;
 import com.logus.blog.entity.Status;
-import com.logus.blog.entity.Tag;
 import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 게시글 정보를 리턴할 응답(Response) 클래스
@@ -49,7 +47,7 @@ public class PostResponseDto {
     private String preTitle;
     private Long nextId;
     private String nextTitle;
-    private List<CommentResponseDto> comments;
+    private CommentResponseDto comments;
 
     /* Entity -> Dto */
     public PostResponseDto(Post post) {
@@ -63,7 +61,7 @@ public class PostResponseDto {
         this.createDate = post.getCreateDate();
     }
 
-    public PostResponseDto(Post post, List<CommentResponseDto> comments, List<String> tags) {
+    public PostResponseDto(Post post, CommentResponseDto comments, List<String> tags) {
         this.postId = post.getId();
         this.memberId = post.getMember().getId();
         this.nickname = post.getMember().getNickname();
@@ -76,7 +74,7 @@ public class PostResponseDto {
         this.tags = tags;
     }
 
-    public PostResponseDto(List<CommentResponseDto> comments, List<String> tags) {
+    public PostResponseDto(CommentResponseDto comments, List<String> tags) {
         this.comments = comments;
         this.tags = tags;
     }

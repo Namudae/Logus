@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.logus.admin.entity.ReportStatus;
 import com.logus.blog.entity.Post;
 import com.logus.blog.entity.Status;
-import com.logus.common.service.S3Service;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -50,7 +49,7 @@ public class PostListResponseDto {
         this.createDate = post.getCreateDate();
     }
 
-    public PostListResponseDto(Post post, List<CommentResponseDto> comments, List<String> tags) {
+    public PostListResponseDto(Post post, List<ParentCommentDto> comments, List<String> tags) {
         this.postId = post.getId();
         this.memberId = post.getMember().getId();
         this.nickname = post.getMember().getNickname();

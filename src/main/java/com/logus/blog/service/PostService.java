@@ -24,12 +24,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -104,13 +104,16 @@ public class PostService {
         }
 
         //댓글 조회
-        List<CommentResponseDto> comments = commentService.getComments(postId);
-        // + 전체 조회후 비밀댓글 여기서 처리
-        if (!isMember) {
-            comments.stream()
-                    .filter(comment -> comment.getStatus() == Status.SECRET)
-                    .forEach(CommentResponseDto::secretComment);
-        }
+//        List<ParentCommentDto> comments = commentService.getComments(postId);
+//        // + 전체 조회후 비밀댓글 처리
+//        if (!isMember) {
+//            comments.stream()
+//                    .filter(comment -> comment.getStatus() == Status.SECRET)
+//                    .forEach(ParentCommentDto::secretComment);
+//        }
+        CommentResponseDto comments = commentService.getParentChildComments(postId, isMember);
+        dto.setComments(comments);
+
         //태그 조회
         List<String> tags = tagService.selectPostTags(postId);
         //이전게시글, 다음게시글(전체조회 기준, PUBLIC)
@@ -193,6 +196,10 @@ public class PostService {
 //        postRequestDto.setContent(CustomHtmlEscapeUtil.escapeCustom(postRequestDto.getContent()));
 //        postRequestDto.setTitle(CustomHtmlEscapeUtil.escapeCustom(postRequestDto.getTitle()));
 
+        // 기존 임시저장 & 새글 발행 > 생성날짜 update
+        if (post.getStatus() == Status.TEMPORARY && postRequestDto.getStatus() == Status.PUBLIC) {
+            post.changeTempDate(LocalDateTime.now());
+        }
         post.updatePost(category, series, postRequestDto.getTitle(), postRequestDto.getContent(), postRequestDto.getStatus());
 
         //태그 처리 추가 (post_tag 삭제하고 새로 insert)

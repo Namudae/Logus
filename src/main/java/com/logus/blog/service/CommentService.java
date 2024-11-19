@@ -1,12 +1,14 @@
 package com.logus.blog.service;
 
+import com.logus.blog.dto.ChildCommentDto;
 import com.logus.blog.dto.CommentRequestDto;
 import com.logus.blog.dto.CommentResponseDto;
+import com.logus.blog.dto.ParentCommentDto;
 import com.logus.blog.entity.Comment;
 import com.logus.blog.entity.Post;
+import com.logus.blog.entity.Status;
 import com.logus.blog.repository.CommentRepository;
 import com.logus.blog.repository.PostRepository;
-import com.logus.common.config.CustomHtmlEscapeUtil;
 import com.logus.common.exception.CustomException;
 import com.logus.common.exception.ErrorCode;
 import com.logus.common.security.UserPrincipal;
@@ -18,7 +20,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -41,11 +45,53 @@ public class CommentService {
         commentRepository.save(comment);
     }
 
-    public List<CommentResponseDto> getComments(Long postId) {
+    public List<ParentCommentDto> getComments(Long postId) {
         return commentRepository.findByPostId(postId)
                 .stream()
-                .map(CommentResponseDto::new)
+                .map(ParentCommentDto::new)
                 .toList();
+    }
+
+    public CommentResponseDto getParentChildComments(Long postId, boolean isMember) {
+        // 모든 댓글 가져오기
+        List<Comment> comments = commentRepository.findByPostId(postId);
+
+        // 부모 댓글 생성
+        List<ParentCommentDto> parents = comments.stream()
+                .filter(comment -> comment.getParent() == null)
+                .sorted(Comparator.comparing(Comment::getCreateDate))  // createDate 기준 내림차순 정렬
+                .map(ParentCommentDto::new)
+                .toList();
+
+        // 자식 댓글 생성
+        // 부모댓글이 notNull인 댓글을, parentId가 같은 것끼리 묶어서 반환
+        List<ChildCommentDto> childComments = parents.stream()
+                .map(parent -> {
+                    List<ChildCommentDto.ChildDetailDto> childDetails = comments.stream()
+                            .filter(comment -> comment.getParent() != null && comment.getParent().getId().equals(parent.getCommentId()))
+                            .sorted(Comparator.comparing(Comment::getCreateDate))  // createDate 기준 내림차순 정렬
+                            .map(childComment -> {
+                                // 자식 댓글 DTO 생성
+                                ChildCommentDto.ChildDetailDto dto = new ChildCommentDto.ChildDetailDto(childComment);
+
+                                // 비밀 댓글 처리
+                                if (!isMember && childComment.getStatus() == Status.SECRET) {
+                                    dto.secretComment();
+                                }
+
+                                return dto;
+                            })
+                            .toList();
+                    return new ChildCommentDto(parent.getCommentId(), childDetails);
+                })
+                .toList();
+
+
+        // 댓글 데이터를 CommentResponseDto에 설정
+        return CommentResponseDto.builder()
+                .parents(parents)
+                .childComments(childComments)
+                .build();
     }
 
     @Transactional

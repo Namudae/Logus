@@ -154,13 +154,13 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .and(dateLoe(p.getCreateDate()))  // 이전 게시글
                 .and(post.status.eq(Status.PUBLIC));
 
-        // series null 처리
-        if (p.getSeries() != null) {
-            condition = condition.and(post.series.id.eq(p.getSeries().getId()));
-        } else {
-            // series가 null이면, seriesId가 null인 경우를 포함
-            condition = condition.and(post.series.id.isNull());
-        }
+        // 같은 시리즈
+//        if (p.getSeries() != null) {
+//            condition = condition.and(post.series.id.eq(p.getSeries().getId()));
+//        } else {
+//            // series가 null이면, seriesId가 null인 경우를 포함
+//            condition = condition.and(post.series.id.isNull());
+//        }
 
         return jpaQueryFactory
                 .select(Projections.fields(PostResponseDto.class,
@@ -181,13 +181,13 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .and(dateGoe(p.getCreateDate()))  // 이후 게시글
                 .and(post.status.eq(Status.PUBLIC));
 
-        // series null 처리
-        if (p.getSeries() != null) {
-            condition = condition.and(post.series.id.eq(p.getSeries().getId()));
-        } else {
-            // series가 null이면, seriesId가 null인 경우를 포함
-            condition = condition.and(post.series.id.isNull());
-        }
+        // 같은 시리즈
+//        if (p.getSeries() != null) {
+//            condition = condition.and(post.series.id.eq(p.getSeries().getId()));
+//        } else {
+//            // series가 null이면, seriesId가 null인 경우를 포함
+//            condition = condition.and(post.series.id.isNull());
+//        }
 
         return jpaQueryFactory
                 .select(Projections.fields(PostResponseDto.class,

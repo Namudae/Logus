@@ -7,8 +7,6 @@ import com.logus.blog.entity.Status;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 import static com.logus.common.service.S3Service.CLOUD_FRONT_DOMAIN_NAME;
 
@@ -17,7 +15,7 @@ import static com.logus.common.service.S3Service.CLOUD_FRONT_DOMAIN_NAME;
 @Getter
 @Data
 @Builder
-public class CommentResponseDto {
+public class ParentCommentDto {
 
     private Long commentId;
     private Long memberId;
@@ -32,7 +30,7 @@ public class CommentResponseDto {
     private LocalDateTime createDate;
 
     /* Entity -> Dto */
-    public CommentResponseDto(Comment comment) {
+    public ParentCommentDto(Comment comment) {
         this.commentId = comment.getId();
         this.memberId = comment.getMember().getId();
         this.imgUrl = comment.getMember().getImgUrl();
