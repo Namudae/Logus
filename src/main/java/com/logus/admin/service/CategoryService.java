@@ -1,12 +1,18 @@
 package com.logus.admin.service;
 
+import com.logus.admin.dto.CategoryOrderRequestDto;
 import com.logus.admin.dto.CategoryRequestDto;
 import com.logus.admin.dto.CategoryResponseDto;
 import com.logus.admin.entity.Category;
 import com.logus.admin.repository.CategoryRepository;
+import com.logus.blog.dto.SeriesOrderRequestDto;
+import com.logus.blog.entity.Series;
 import com.logus.common.exception.CustomException;
 import com.logus.common.exception.ErrorCode;
+import com.logus.common.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,8 +64,17 @@ public class CategoryService {
         category.updateCategory(categoryRequestDto);
     }
 
+    @Transactional
     public void deleteCategory(Long categoryId) {
         Category category = getById(categoryId);
         categoryRepository.delete(category);
+    }
+
+    @Transactional
+    public void updateCategoryOrder(List<CategoryOrderRequestDto> categoryOrderRequestDto) {
+        for (CategoryOrderRequestDto categoryDto : categoryOrderRequestDto) {
+            Category category = getById(categoryDto.getCategoryId());
+            category.updateCategory(categoryDto.getOrderSeq());
+        }
     }
 }

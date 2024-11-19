@@ -1,15 +1,18 @@
 package com.logus.admin.controller;
 
+import com.logus.admin.dto.CategoryOrderRequestDto;
 import com.logus.admin.dto.CategoryRequestDto;
 import com.logus.admin.dto.CategoryResponseDto;
 import com.logus.blog.dto.BlogRequestDto;
 import com.logus.blog.dto.BlogResponseDto;
 import com.logus.admin.service.CategoryService;
+import com.logus.blog.dto.SeriesOrderRequestDto;
 import com.logus.common.controller.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -66,6 +69,12 @@ public class CategoryController {
 
 
     /**
-     * 카테고리 순서(
+     * 카테고리 순서(일괄 수정)
      */
+    @PutMapping("/category/order")
+    public ApiResponse<String> updateCategoryOrder(@RequestBody @Valid List<CategoryOrderRequestDto> categoryOrderRequestDto) throws IOException {
+        categoryService.updateCategoryOrder(categoryOrderRequestDto);
+        return ApiResponse.ok();
+    }
+
 }

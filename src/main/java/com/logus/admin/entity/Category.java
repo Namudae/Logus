@@ -1,7 +1,9 @@
 package com.logus.admin.entity;
 
+import com.logus.admin.dto.CategoryOrderRequestDto;
 import com.logus.admin.dto.CategoryRequestDto;
 import com.logus.blog.dto.BlogRequestDto;
+import com.logus.blog.dto.SeriesOrderRequestDto;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -48,6 +50,11 @@ public class Category {
     public void updateCategory(CategoryRequestDto categoryRequestDto) {
         this.categoryName = categoryRequestDto.getCategoryName();
         this.orderSeq = categoryRequestDto.getOrderSeq();
+    }
+
+    //순서 일괄 수정
+    public void updateCategory(Integer orderSeq) {
+        this.orderSeq = orderSeq;
     }
 
 }

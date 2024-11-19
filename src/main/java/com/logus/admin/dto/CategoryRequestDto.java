@@ -16,8 +16,8 @@ public class CategoryRequestDto {
 
     private Long parentId;
     private Integer orderSeq;
-    @NotBlank(message = "카테고리명을 입력하세요.")
-    @Size(max=30, message = "카테고리명을 30자 이내로 작성해 주세요.")
+//    @NotBlank(message = "카테고리명을 입력하세요.")
+    @Size(min =1, max=30, message = "카테고리명을 30자 이내로 작성해 주세요.")
     private String categoryName;
 
 
