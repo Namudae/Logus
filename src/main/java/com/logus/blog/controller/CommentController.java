@@ -21,7 +21,7 @@ public class CommentController {
      * 댓글 등록
      */
     @PostMapping("/comments")
-    public ApiResponse<Map<String, Long>> createPost(@RequestPart("requestDto") @Valid CommentRequestDto commentRequestDto) {
+    public ApiResponse<Map<String, Long>> createPost(@RequestBody @Valid CommentRequestDto commentRequestDto) {
         Long commentId = commentService.createComment(commentRequestDto);
         return ApiResponse.ok(Map.of("commentId", commentId));
     }
@@ -32,7 +32,7 @@ public class CommentController {
     @PreAuthorize("@commentService.hasPermissionToComment(#commentId, authentication)")
     @PutMapping("/comments/{commentId}")
     public ApiResponse<Map<String, Long>> updateComment(@PathVariable("commentId") Long commentId,
-                                                     @RequestPart("requestDto") @Valid CommentRequestDto commentRequestDto) {
+                                                     @RequestBody @Valid CommentRequestDto commentRequestDto) {
         commentService.updateComment(commentId, commentRequestDto);
         return ApiResponse.ok(Map.of("commentId", commentId));
     }

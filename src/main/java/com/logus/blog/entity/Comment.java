@@ -44,7 +44,7 @@ public class Comment extends BaseTime {
 
     private Byte depth;
 
-    @Column(length = 500)
+    @Column(length = 1800)
     private String content;
 
     @Enumerated(EnumType.STRING)

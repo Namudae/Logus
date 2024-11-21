@@ -105,8 +105,9 @@ public class CommentService {
 
         Member member = memberService.getReferenceById(memberId);
         Post post = postRepository.getReferenceById(commentRequestDto.getPostId());
-        Comment parent = commentRepository.getReferenceById(commentRequestDto.getParentId());
-//        commentRequestDto.setContent(CustomHtmlEscapeUtil.escapeCustom(commentRequestDto.getContent()));
+        Comment parent = commentRequestDto.getParentId() == null
+                ? null
+                : commentRepository.findById(commentRequestDto.getParentId()).orElse(null);;
 
         Comment comment = commentRequestDto.toEntity(member, post, parent);
         commentRepository.save(comment);
