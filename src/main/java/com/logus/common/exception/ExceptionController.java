@@ -3,10 +3,12 @@ package com.logus.common.exception;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.SdkClientException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
@@ -42,6 +44,13 @@ public class ExceptionController {
         log.error("[ExceptionHandler] Exception: ", e);
         return ResponseEntity.status(INTERNAL_SERVER_ERROR)
                 .body(ErrorResponse.createError(ErrorCode.INTERNAL_SERVER_ERROR));
+    }
+
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ErrorResponse> handleMaxSizeException(MaxUploadSizeExceededException exc) {
+        return ResponseEntity.status(ErrorCode.MAX_UPLOAD_SIZE.getStatus())
+                .body(ErrorResponse.createError(ErrorCode.MAX_UPLOAD_SIZE));
     }
 
 

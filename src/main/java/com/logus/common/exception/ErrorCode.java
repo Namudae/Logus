@@ -15,6 +15,7 @@ public enum ErrorCode {
     AMAZON_SERVICE_ERROR(1004, HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다."),
     MALFORMED_HEADER(1005, HttpStatus.BAD_REQUEST, "잘못된 헤더 형식입니다."),
     UNAUTHORIZED_REQUEST(1006, HttpStatus.BAD_REQUEST, "권한이 없는 요청입니다."),
+    MAX_UPLOAD_SIZE(1007, HttpStatus.EXPECTATION_FAILED, "10MB 이하의 파일만 업로드 가능합니다."),
 
     /* 2001~: 회원 */
     MEMBER_NOT_FOUND(2001, HttpStatus.NOT_FOUND, "존재하지 않는 회원입니다."),
