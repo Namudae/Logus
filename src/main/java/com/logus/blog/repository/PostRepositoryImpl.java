@@ -569,6 +569,8 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                         )))
                 .from(post)
                 .join(post.member, member)
+                .leftJoin(post.category, category)
+                .leftJoin(post.series, series)
                 .where(
                         post.status.eq(Status.PUBLIC)
                         .and(post.title.contains(keyword)
