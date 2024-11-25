@@ -7,6 +7,7 @@ import com.logus.common.security.MemberDetailService;
 import com.logus.member.dto.MemberListResponse;
 import com.logus.member.dto.MemberResponse;
 import com.logus.member.dto.RegisterRequest;
+import com.logus.member.dto.UserInfoRequest;
 import com.logus.member.service.MemberService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -56,4 +57,14 @@ public class MemberController {
         memberService.duplicateLoginId(loginId);
         return ApiResponse.ok();
     }
+
+    /**
+     * 회원정보 변경
+     */
+    @PutMapping("/user")
+    public ApiResponse<Map<String, Long>> updateUser(@RequestBody @Valid UserInfoRequest userInfo) throws IOException {
+        Long memberId = memberService.updateMember(userInfo);
+        return ApiResponse.ok(Map.of("memberId", memberId));
+    }
+
 }

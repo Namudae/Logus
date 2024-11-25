@@ -23,6 +23,7 @@ public enum ErrorCode {
     INVALID_TOKEN(2003, HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
     DUPLICATE_LOGIN_ID(2004, HttpStatus.CONFLICT, "중복된 아이디가 존재합니다."),
     LOGIN_FAIL(2005, HttpStatus.UNAUTHORIZED, "아이디 또는 비밀번호가 잘못되었습니다."),
+    PASSWORD_FAIL(2006, HttpStatus.UNAUTHORIZED, "비밀번호가 잘못되었습니다."),
 
     /* 3001~: 블로그 */
     BLOG_NOT_FOUND(3001, HttpStatus.NOT_FOUND, "존재하지 않는 블로그입니다."),

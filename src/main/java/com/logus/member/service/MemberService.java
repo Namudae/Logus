@@ -1,6 +1,8 @@
 package com.logus.member.service;
 
 import com.logus.blog.entity.Blog;
+import com.logus.blog.entity.BlogAuth;
+import com.logus.blog.entity.Series;
 import com.logus.blog.service.BlogService;
 import com.logus.common.entity.AttachmentType;
 import com.logus.common.exception.CustomException;
@@ -8,10 +10,12 @@ import com.logus.common.exception.ErrorCode;
 import com.logus.common.security.JwtService;
 import com.logus.common.security.LoginForm;
 import com.logus.common.security.MemberDetailService;
+import com.logus.common.security.UserPrincipal;
 import com.logus.common.service.S3Service;
 import com.logus.member.dto.MemberListResponse;
 import com.logus.member.dto.MemberResponse;
 import com.logus.member.dto.RegisterRequest;
+import com.logus.member.dto.UserInfoRequest;
 import com.logus.member.entity.Member;
 import com.logus.member.repository.MemberRepository;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,14 +23,20 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 import static com.logus.common.service.S3Service.CLOUD_FRONT_DOMAIN_NAME;
 
@@ -63,6 +73,7 @@ public class MemberService {
         return member.getId();
     }
 
+    @Transactional
     public Long createMember(RegisterRequest registerRequest, MultipartFile memberImg) throws IOException {
 
         //멤버 중복체크
@@ -91,31 +102,66 @@ public class MemberService {
         }
     }
 
+    @Transactional
     public MemberResponse login(LoginForm loginForm) {
         Member member = memberRepository.findByLoginId(loginForm.loginId())
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                loginForm.loginId(), loginForm.password()
-        ));
-        if (authentication.isAuthenticated()) {
-            return MemberResponse.builder()
-                    .memberId(member.getId())
-                    .loginId(member.getLoginId())
-                    .nickname(member.getNickname())
-                    .imgUrl(
-                            (member.getImgUrl()!=null ? CLOUD_FRONT_DOMAIN_NAME + "/" + member.getImgUrl() : null)
-                    )
-                    .email(member.getEmail())
-                    .jwtToken(jwtService.generateToken(memberDetailService.loadUserByUsername(loginForm.loginId())))
-                    .build();
+        try {
+            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                    loginForm.loginId(), loginForm.password()
+            ));
+            if (authentication.isAuthenticated()) {
+                return MemberResponse.builder()
+                        .memberId(member.getId())
+                        .loginId(member.getLoginId())
+                        .nickname(member.getNickname())
+                        .imgUrl(
+                                (member.getImgUrl() != null ? CLOUD_FRONT_DOMAIN_NAME + "/" + member.getImgUrl() : null)
+                        )
+                        .email(member.getEmail())
+                        .jwtToken(jwtService.generateToken(memberDetailService.loadUserByUsername(loginForm.loginId())))
+                        .build();
 //            response.setJwtToken(jwtService.generateToken(memberDetailService.loadUserByUsername(loginForm.loginId())));
-        } else {
+            } else {
+                throw new CustomException(ErrorCode.LOGIN_FAIL);
+            }
+        } catch (BadCredentialsException e) {
+            // 비밀번호 틀린 경우
             throw new CustomException(ErrorCode.LOGIN_FAIL);
         }
     }
 
+    @Transactional
     public Page<MemberListResponse> searchMembers(String loginId, String nickname, String blogName, String blogAddress, Pageable pageable) {
         return memberRepository.searchMembers(loginId, nickname, blogName, blogAddress, pageable);
+    }
+
+    @Transactional
+    public Long updateMember(UserInfoRequest userInfo) {
+        Long memberId = authMemberId();
+        Member member = getById(memberId);
+
+        // 현재 비밀번호 검증
+        if (!passwordEncoder.matches(userInfo.getPassword(), member.getPassword())) {
+            throw new CustomException(ErrorCode.PASSWORD_FAIL);
+        }
+
+        member.updateMemberInfo(userInfo.getNickname(), passwordEncoder.encode(userInfo.getNewPassword()));
+
+        return memberId;
+    }
+
+
+    //==========인가==========
+    public void validateAuthentication(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
+            throw new CustomException(ErrorCode.NEED_LOGIN);
+        }
+    }
+    public Long authMemberId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        validateAuthentication(authentication);
+        return ((UserPrincipal) authentication.getPrincipal()).getMemberId();
     }
 }
