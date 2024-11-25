@@ -143,11 +143,17 @@ public class MemberService {
         Member member = getById(memberId);
 
         // 현재 비밀번호 검증
-        if (!passwordEncoder.matches(userInfo.getPassword(), member.getPassword())) {
-            throw new CustomException(ErrorCode.PASSWORD_FAIL);
+        if (userInfo.getNewPassword() != null) {
+            if (userInfo.getPassword()==null) {
+                throw new CustomException(ErrorCode.PASSWORD_FAIL);
+            }
+            if (!passwordEncoder.matches(userInfo.getPassword(), member.getPassword())) {
+                throw new CustomException(ErrorCode.PASSWORD_FAIL);
+            }
+            userInfo.setNewPassword(passwordEncoder.encode(userInfo.getNewPassword()));
         }
 
-        member.updateMemberInfo(userInfo.getNickname(), passwordEncoder.encode(userInfo.getNewPassword()));
+        member.updateMemberInfo(userInfo);
 
         return memberId;
     }

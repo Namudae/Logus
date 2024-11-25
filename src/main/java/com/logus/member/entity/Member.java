@@ -2,6 +2,7 @@ package com.logus.member.entity;
 
 import com.logus.common.entity.Attachment;
 import com.logus.common.entity.BaseTime;
+import com.logus.member.dto.UserInfoRequest;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -37,9 +38,6 @@ public class Member extends BaseTime {
 
     private String role; //ADMIN, USER
 
-//    @Column(length = 1)
-//    private String delYn;
-
     public Member(String loginId) {
         this.loginId = loginId;
     }
@@ -49,9 +47,10 @@ public class Member extends BaseTime {
         this.password = password;
     }
 
-    public void updateMemberInfo(String nickname, String password) {
-        this.nickname = nickname;
-        this.password = password;
+    public void updateMemberInfo(UserInfoRequest userInfo) {
+        this.nickname = userInfo.getNickname() != null ? userInfo.getNickname() : this.nickname;
+        this.email = userInfo.getEmail() != null ? userInfo.getEmail() : this.email;
+        this.password = userInfo.getNewPassword() != null ? userInfo.getNewPassword() : this.password;
     }
 
     public void encodePassword(String password) {

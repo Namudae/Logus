@@ -13,6 +13,8 @@ public class UserInfoRequest {
 
     private String password;
 
+    private String email;
+
     @Pattern(regexp = "^[가-힣a-zA-Z0-9\\s-_]{1,20}$", message = "한글, 영문, 숫자, 특수기호(-),(_)를 사용하여 1~20자로 입력해 주세요.")
     private String nickname;
 
