@@ -26,7 +26,7 @@ public class BlogRequestDto {
     @Pattern(regexp = "^[a-z0-9-]{4,32}$", message = "영문 소문자, 숫자, 특수문자(-)를 사용하여 4~32자로 입력해 주세요.")
     private String blogAddress;
 
-    @Size(max=100, message = "블로그 소개를 100자 이내로 작성해 주세요.")
+    @Size(max=600, message = "블로그 소개를 100자 이내로 작성해 주세요.")
     private String introduce;
     private String shareYn;
     private List<BlogMemberRequestDto> blogMembers;

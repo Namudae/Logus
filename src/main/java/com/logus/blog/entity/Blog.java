@@ -25,7 +25,7 @@ public class Blog extends BaseCreateTime {
 
     private String blogAddress;
 
-    @Column(length = 100)
+    @Column(length = 600)
     private String introduce;
 
     @Column(length = 1)

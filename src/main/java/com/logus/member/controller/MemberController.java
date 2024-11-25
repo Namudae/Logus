@@ -67,4 +67,13 @@ public class MemberController {
         return ApiResponse.ok(Map.of("memberId", memberId));
     }
 
+    /**
+     * 탈퇴
+     * - 내가 OWNER인 블로그 삭제(+ 팔로우)
+     * - 내가 포함된 blogMember 삭제
+     * - 내가 작성자인 글 삭제
+     * - 내가 작성자인 댓글 삭제
+     * - 좋아요 삭제
+     */
+
 }
