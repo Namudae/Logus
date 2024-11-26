@@ -39,12 +39,12 @@ public class ExceptionController {
                 .body(ErrorResponse.createError(ErrorCode.AMAZON_SERVICE_ERROR));
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleException(Exception e) {
-        log.error("[ExceptionHandler] Exception: ", e);
-        return ResponseEntity.status(INTERNAL_SERVER_ERROR)
-                .body(ErrorResponse.createError(ErrorCode.INTERNAL_SERVER_ERROR));
-    }
+//    @ExceptionHandler(Exception.class)
+//    public ResponseEntity<ErrorResponse> handleException(Exception e) {
+//        log.error("[ExceptionHandler] Exception: ", e);
+//        return ResponseEntity.status(INTERNAL_SERVER_ERROR)
+//                .body(ErrorResponse.createError(ErrorCode.INTERNAL_SERVER_ERROR));
+//    }
 
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
