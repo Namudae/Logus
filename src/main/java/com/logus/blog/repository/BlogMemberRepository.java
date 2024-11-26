@@ -18,4 +18,5 @@ public interface BlogMemberRepository extends JpaRepository<BlogMember, Long> {
     void bulkDeleteByBlogId(Long blogId);
 
     BlogMember findByBlogAndMember(Blog blog, Member member);
+
 }

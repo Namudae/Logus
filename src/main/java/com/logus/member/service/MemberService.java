@@ -132,6 +132,7 @@ public class MemberService {
         }
     }
 
+
     @Transactional
     public MemberResponse selectUserInfo() {
         Long memberId = authMemberId();

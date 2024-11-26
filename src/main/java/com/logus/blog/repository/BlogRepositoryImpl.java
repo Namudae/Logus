@@ -2,11 +2,9 @@ package com.logus.blog.repository;
 
 import com.logus.admin.dto.BlogListResponseDto;
 import com.logus.blog.dto.*;
-import com.logus.blog.entity.BlogAuth;
-import com.logus.blog.entity.QBlog;
-import com.logus.blog.entity.QBlogMember;
-import com.logus.blog.entity.Status;
+import com.logus.blog.entity.*;
 import com.logus.member.dto.MemberListResponse;
+import com.logus.member.entity.Member;
 import com.logus.member.entity.QMember;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
@@ -21,6 +19,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.logus.blog.entity.QBlog.blog;
 import static com.logus.blog.entity.QBlogMember.blogMember;
@@ -227,6 +226,19 @@ public class BlogRepositoryImpl implements BlogRepositoryCustom {
 
         // Page 반환
         return new PageImpl<>(content, pageable, total);
+    }
+
+    @Override
+    public List<Blog> ownedBlogs(Member member) {
+        return jpaQueryFactory
+                .select(blog)
+                .from(blog)
+                .leftJoin(blog.blogMembers, blogMember)
+                .where(
+                        blogMember.member.eq(member),
+                        blogMember.blogAuth.eq(BlogAuth.OWNER)
+                )
+                .fetch();
     }
 
     private BooleanExpression containLoginId(String loginId) {

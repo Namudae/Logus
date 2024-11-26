@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -295,6 +296,65 @@ public class BlogFacadeService {
                 }
                 BlogMember blogMember = blogMemberRequestDto.toEntity(member, savedBlog, blogAuth);
                 blogMemberRepository.save(blogMember);
+            }
+        }
+    }
+
+    /**
+     * - 내가 OWNER인 블로그 삭제(다른 멤버가 있는 경우 OWNER 양도)
+     * - 내가 포함된 blogMember 모두 삭제
+     * - 내가 쓴 글 삭제
+     * - 내가 쓴 댓글 삭제
+     * - 좋아요 삭제
+     * - 신고 삭제
+     * - 방문 memberId를 null로?
+     */
+    @Transactional
+    public Long deleteMember() {
+        Member member = memberService.getById(memberService.authMemberId());
+        //내가 OWNER인 블로그 처리
+        processOwnBlog(member);
+
+        return member.getId();
+    }
+
+    private void processOwnBlog(Member member) {
+        List<Blog> ownblogs = blogRepository.ownedBlogs(member);
+        for (Blog ownblog : ownblogs) {
+            if ("N".equals(ownblog.getShareYn())) {
+                deleteBlog(ownblog.getId());
+                continue;
+            }
+
+            //shareYn=Y인 경우, 다른 멤버가 있다면 Admin, createDate 순으로 정렬하여 blogMember Owner로 변경
+            List<BlogMember> blogMembers = blogMemberRepository.findByBlogId(ownblog.getId());
+            if (blogMembers.size()==1) {
+                deleteBlog(ownblog.getId());
+                continue;
+            }
+
+            // BlogMember 삭제
+            for (BlogMember bm : blogMembers) {
+                if (bm.getMember().equals(member)) {
+                    blogMemberRepository.delete(bm);
+                }
+            }
+
+            // blogAuth와 createDate를 기준으로 정렬
+            List<BlogMember> sortedBlogMembers = blogMembers.stream()
+                    .sorted(Comparator.comparing((BlogMember bm) -> {
+                                if (BlogAuth.ADMIN.equals(bm.getBlogAuth())) return 1;
+                                if (BlogAuth.EDITOR.equals(bm.getBlogAuth())) return 2;
+                                return 3; // 기타 권한
+                            })
+                            .thenComparing(BlogMember::getCreateDate))
+                    .toList();
+
+            // 정렬된 리스트에서 첫 번째 사용자를 Owner로 설정
+            if (!sortedBlogMembers.isEmpty()) {
+                BlogMember newOwner = sortedBlogMembers.get(0);
+                newOwner.updateBlogAuth(BlogAuth.OWNER);
+                blogMemberRepository.save(newOwner);
             }
         }
     }

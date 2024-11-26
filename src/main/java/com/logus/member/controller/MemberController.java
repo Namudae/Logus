@@ -1,5 +1,6 @@
 package com.logus.member.controller;
 
+import com.logus.blog.service.BlogFacadeService;
 import com.logus.common.controller.ApiResponse;
 import com.logus.common.security.JwtService;
 import com.logus.common.security.LoginForm;
@@ -28,6 +29,7 @@ import java.util.Map;
 public class MemberController {
 
     private final MemberService memberService;
+    private final BlogFacadeService blogFacadeService;
 
     /**
      * 로그인
@@ -77,11 +79,11 @@ public class MemberController {
 
     /**
      * 탈퇴
-     * - 내가 OWNER인 블로그 삭제(+ 팔로우)
-     * - 내가 포함된 blogMember 삭제
-     * - 내가 작성자인 글 삭제
-     * - 내가 작성자인 댓글 삭제
-     * - 좋아요 삭제
      */
+    @DeleteMapping("/user")
+    public ApiResponse<String> deleteUser() throws IOException {
+        Long memberId = blogFacadeService.deleteMember();
+        return ApiResponse.ok();
+    }
 
 }
