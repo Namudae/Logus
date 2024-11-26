@@ -41,13 +41,13 @@ public class BlogFacadeService {
     private final BlogMemberRepository blogMemberRepository;
     private final BlogRepository blogRepository;
 
-    //블로그 삭제
-    // - 게시글
-    // - 시리즈
-    // - 팔로우
-    // - 방문
-    // - 블로그멤버
-    // - 블로그
+    //블로그 탈퇴시 사용
+    // - 게시글O
+    // - 시리즈O
+    // - 팔로우O
+    // - 블로그멤버O
+    // - 블로그O
+    // - 방문?
     @Transactional
     public void deleteBlog(Long blogId) {
         Blog blog = blogService.getById(blogId);
@@ -73,6 +73,36 @@ public class BlogFacadeService {
         blogRepository.delete(blog);
         //블로그멤버
         blogMemberRepository.bulkDeleteByBlogId(blogId);
+    }
+
+    //블로그 삭제시 사용
+    @Transactional
+    public void resetBlog(Long blogId) {
+        Blog blog = blogService.getById(blogId);
+
+        //게시글
+        List<Post> posts = postRepository.findByBlogId(blogId);
+        for (Post post : posts) {
+            postService.deletePost(post.getId());
+        }
+        //시리즈
+        List<Series> series = seriesRepository.findByBlogIdOrderBySeriesOrder(blogId);
+        for (Series s : series) {
+            if (s.getImgUrl() != null || !s.getImgUrl().equals("")) {
+                s3Service.deleteS3(s.getImgUrl());
+            }
+        }
+        seriesRepository.bulkDeleteByBlogId(blogId);
+        //팔로우
+        followRepository.bulkDeleteByBlogId(blogId);
+        //방문
+        visitRepository.bulkDeleteByBlogId(blogId);
+        if (blog.getShareYn()=="Y") {
+            //블로그
+            blogRepository.delete(blog);
+            //블로그멤버
+            blogMemberRepository.bulkDeleteByBlogId(blogId);
+        }
     }
 
     @Transactional

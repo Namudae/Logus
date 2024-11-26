@@ -55,12 +55,13 @@ public class BlogController {
 
     /**
      * 블로그 삭제
+     * - 기본 블로그는 초기화
      */
 //    @PreAuthorize("hasRole('ROLE_ADMIN') || @blogService.hasPermissionToBlogOwner(#blogId, authentication)")
     @PreAuthorize("hasRole('ROLE_ADMIN') || @blogService.hasPermissionToBlog(#blogId, 'BLOG', 'OWNER', authentication)")
     @DeleteMapping("/blog/setting")
     public ApiResponse<Map<String, Long>> deleteBlog(@RequestParam("blogId") Long blogId) {
-        blogFacadeService.deleteBlog(blogId);
+        blogFacadeService.resetBlog(blogId);
         return ApiResponse.ok(Map.of("blogId", blogId));
     }
 
