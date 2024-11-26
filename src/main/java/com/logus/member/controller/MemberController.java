@@ -38,6 +38,14 @@ public class MemberController {
         MemberResponse response = memberService.login(loginForm);
         return ApiResponse.ok(response);
     }
+    /**
+     * 나의 회원정보 조회
+     */
+    @GetMapping("/user")
+    public ApiResponse<MemberResponse> selectUserInfo() throws IOException {
+        MemberResponse response = memberService.selectUserInfo();
+        return ApiResponse.ok(response);
+    }
 
     /**
      * 회원가입

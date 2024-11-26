@@ -133,6 +133,21 @@ public class MemberService {
     }
 
     @Transactional
+    public MemberResponse selectUserInfo() {
+        Long memberId = authMemberId();
+        Member member = getById(memberId);
+
+        return MemberResponse.builder()
+                .loginId(member.getLoginId())
+                .nickname(member.getNickname())
+//                .imgUrl(
+//                        (member.getImgUrl() != null ? CLOUD_FRONT_DOMAIN_NAME + "/" + member.getImgUrl() : null)
+//                )
+                .email(member.getEmail())
+                .build();
+    }
+
+    @Transactional
     public Page<MemberListResponse> searchMembers(String loginId, String nickname, String blogName, String blogAddress, Pageable pageable) {
         return memberRepository.searchMembers(loginId, nickname, blogName, blogAddress, pageable);
     }
