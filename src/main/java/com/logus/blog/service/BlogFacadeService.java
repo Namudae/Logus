@@ -98,7 +98,7 @@ public class BlogFacadeService {
         followRepository.bulkDeleteByBlogId(blogId);
         //방문
         visitRepository.bulkDeleteByBlogId(blogId);
-        if (blog.getShareYn()=="Y") {
+        if ("Y".equals(blog.getShareYn())) {
             //블로그
             blogRepository.delete(blog);
             //블로그멤버
