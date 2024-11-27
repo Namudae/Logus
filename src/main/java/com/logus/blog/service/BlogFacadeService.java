@@ -223,31 +223,44 @@ public class BlogFacadeService {
     @Transactional
     public Long updateBlog(Long blogId, BlogRequestDto blogRequestDto) {
         Blog blog = blogService.getById(blogId);
-        //블로그 멤버
-        //oldMember 중 new에 없는 멤버 delete
-        List<BlogMember> oldBlogMembers = blogMemberRepository.findByBlogId(blogId);
-        List<BlogMemberRequestDto> newBlogMembers = blogRequestDto.getBlogMembers();
 
-        // 기존 블로그 멤버 ID
-        Set<Long> newMemberIds = newBlogMembers.stream()
-                .map(BlogMemberRequestDto::getMemberId)
-                .collect(Collectors.toSet());
+        //blogAddress 중복체크
+        if (!blog.getBlogAddress().equals(blogRequestDto.getBlogAddress())) {
+            blogService.duplicateBlogAddress(blogRequestDto.getBlogAddress());
+        }
 
-        // 1. 기존 멤버 삭제: newBlogMembers에 없는 oldBlogMembers 삭제
-        oldBlogMembers.stream()
-                .filter(oldMember -> !newMemberIds.contains(oldMember.getMember().getId())
-                        && !oldMember.getBlogAuth().equals(BlogAuth.OWNER)) //소유자 삭제X
-                .forEach(blogMemberRepository::delete);
+        //OWNER 체크
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (blogRequestDto.getBlogMembers() != null) {
+            if (blogService.hasPermissionToBlog(blogId, "BLOG", "OWNER", authentication)) {
+                //블로그 멤버
+                //oldMember 중 new에 없는 멤버 delete
+                List<BlogMember> oldBlogMembers = blogMemberRepository.findByBlogId(blogId);
+                List<BlogMemberRequestDto> newBlogMembers = blogRequestDto.getBlogMembers();
 
-        // 2. 새로운 멤버 추가: 기존에 없는 멤버는 새로 추가
-        newBlogMembers.stream()
-                .filter(newMember -> oldBlogMembers.stream()
-                        .noneMatch(oldMember -> oldMember.getMember().getId().equals(newMember.getMemberId())))
-                .forEach(newMember -> {
-                    Member member = memberService.getById(newMember.getMemberId());
-                    BlogMember blogMember = newMember.toEntity(member, blog, BlogAuth.EDITOR);
-                    blogMemberRepository.save(blogMember);
-                });
+                // 기존 블로그 멤버 ID
+                Set<Long> newMemberIds = newBlogMembers.stream()
+                        .map(BlogMemberRequestDto::getMemberId)
+                        .collect(Collectors.toSet());
+
+                // 1. 기존 멤버 삭제: newBlogMembers에 없는 oldBlogMembers 삭제
+                oldBlogMembers.stream()
+                        .filter(oldMember -> !newMemberIds.contains(oldMember.getMember().getId())
+                                && !oldMember.getBlogAuth().equals(BlogAuth.OWNER)) //소유자 삭제X
+                        .forEach(blogMemberRepository::delete);
+
+                // 2. 새로운 멤버 추가: 기존에 없는 멤버는 새로 추가
+                newBlogMembers.stream()
+                        .filter(newMember -> oldBlogMembers.stream()
+                                .noneMatch(oldMember -> oldMember.getMember().getId().equals(newMember.getMemberId())))
+                        .forEach(newMember -> {
+                            Member member = memberService.getById(newMember.getMemberId());
+                            BlogMember blogMember = newMember.toEntity(member, blog, BlogAuth.EDITOR);
+                            blogMemberRepository.save(blogMember);
+                        });
+            }
+        }
+
         blog.updateBlogInfo(blogRequestDto);
         return blogId;
     }
@@ -275,6 +288,9 @@ public class BlogFacadeService {
     public Long createBlog(BlogRequestDto blogRequestDto) {
         Long memberId = blogService.authMemberId();
 
+        //blogAddress 중복체크
+        blogService.duplicateBlogAddress(blogRequestDto.getBlogAddress());
+
         Blog blog = blogRequestDto.toEntity();
         Blog savedBlog = blogRepository.save(blog);
 
@@ -282,6 +298,7 @@ public class BlogFacadeService {
 
         return savedBlog.getId();
     }
+
 
     @Transactional
     private void saveBlogMembers(List<BlogMemberRequestDto> blogMembers, Blog savedBlog, Long ownerId) {
