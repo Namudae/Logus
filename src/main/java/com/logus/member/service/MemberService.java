@@ -12,10 +12,7 @@ import com.logus.common.security.LoginForm;
 import com.logus.common.security.MemberDetailService;
 import com.logus.common.security.UserPrincipal;
 import com.logus.common.service.S3Service;
-import com.logus.member.dto.MemberListResponse;
-import com.logus.member.dto.MemberResponse;
-import com.logus.member.dto.RegisterRequest;
-import com.logus.member.dto.UserInfoRequest;
+import com.logus.member.dto.*;
 import com.logus.member.entity.Member;
 import com.logus.member.repository.MemberRepository;
 import jakarta.servlet.http.HttpServletRequest;
@@ -172,6 +169,19 @@ public class MemberService {
         member.updateMemberInfo(userInfo);
 
         return memberId;
+    }
+
+    public boolean checkPassword(PasswordDto passwordDto) {
+        Long memberId = authMemberId();
+        Member member = getById(memberId);
+        String password = passwordDto.getPassword();
+
+        if (password==null || !passwordEncoder.matches(password, member.getPassword())) {
+            return false;
+        } else {
+            return true;
+        }
+
     }
 
 

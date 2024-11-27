@@ -5,11 +5,9 @@ import com.logus.common.controller.ApiResponse;
 import com.logus.common.security.JwtService;
 import com.logus.common.security.LoginForm;
 import com.logus.common.security.MemberDetailService;
-import com.logus.member.dto.MemberListResponse;
-import com.logus.member.dto.MemberResponse;
-import com.logus.member.dto.RegisterRequest;
-import com.logus.member.dto.UserInfoRequest;
+import com.logus.member.dto.*;
 import com.logus.member.service.MemberService;
+import io.jsonwebtoken.security.Password;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -75,6 +73,15 @@ public class MemberController {
     public ApiResponse<Map<String, Long>> updateUser(@RequestBody @Valid UserInfoRequest userInfo) throws IOException {
         Long memberId = memberService.updateMember(userInfo);
         return ApiResponse.ok(Map.of("memberId", memberId));
+    }
+
+    /**
+     * 현재 비밀번호 확인
+     */
+    @GetMapping("/user/pwd")
+    public ApiResponse<Map<String, Boolean>> checkPassword(@RequestBody PasswordDto passwordDto) throws IOException {
+        boolean isValid = memberService.checkPassword(passwordDto);
+        return ApiResponse.ok(Map.of("isValid", isValid));
     }
 
     /**
