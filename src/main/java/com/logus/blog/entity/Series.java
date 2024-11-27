@@ -38,9 +38,9 @@ public class Series {
     }
 
     public void updateSeries(SeriesRequestDto seriesRequestDto, String imgUrl) {
-        this.seriesName = seriesRequestDto.getSeriesName();
-        this.seriesOrder = seriesRequestDto.getSeriesOrder();
-        this.imgUrl = imgUrl;
+        this.seriesName = seriesRequestDto.getSeriesName() != null ? seriesRequestDto.getSeriesName() : this.getSeriesName();
+        this.seriesOrder = seriesRequestDto.getSeriesOrder() != null ? seriesRequestDto.getSeriesOrder() : this.seriesOrder;
+        this.imgUrl = imgUrl != null ? imgUrl : this.imgUrl;
     }
 
     public void updateSeries(SeriesOrderRequestDto.SeriesDto seriesRequestDto) {
