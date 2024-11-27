@@ -8,6 +8,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,4 +17,8 @@ import java.util.Optional;
 public interface PostRepository extends JpaRepository<Post, Long>, PostRepositoryCustom {
     //메서드 자동생성
     List<Post> findByBlogId(Long blogId);
+
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query("DELETE FROM Post p WHERE p.member.id = :memberId")
+    void bulkDeleteByMemberId(Long memberId);
 }

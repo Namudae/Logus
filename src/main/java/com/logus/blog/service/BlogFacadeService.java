@@ -36,11 +36,13 @@ public class BlogFacadeService {
     private final S3Service s3Service;
 
     private final PostRepository postRepository;
+    private final CommentRepository commentRepository;
     private final SeriesRepository seriesRepository;
     private final FollowRepository followRepository;
     private final VisitRepository visitRepository;
     private final BlogMemberRepository blogMemberRepository;
     private final BlogRepository blogRepository;
+    private final LikeyRepository likeyRepository;
 
     //블로그 탈퇴시 사용
     // - 게시글O
@@ -318,8 +320,8 @@ public class BlogFacadeService {
     }
 
     /**
-     * - 내가 OWNER인 블로그 삭제(다른 멤버가 있는 경우 OWNER 양도)
-     * - 내가 포함된 blogMember 모두 삭제
+     * - 내가 OWNER인 블로그 삭제(다른 멤버가 있는 경우 OWNER 양도)O
+     * - 내가 포함된 blogMember 모두 삭제O
      * - 내가 쓴 글 삭제
      * - 내가 쓴 댓글 삭제
      * - 좋아요 삭제
@@ -330,7 +332,19 @@ public class BlogFacadeService {
     public Long deleteMember() {
         Member member = memberService.getById(memberService.authMemberId());
         //내가 OWNER인 블로그 처리
-        processOwnBlog(member);
+        //processOwnBlog(member);
+
+        //내가 포함된 blogMember 삭제
+        blogMemberRepository.bulkDeleteByMemberId(member.getId());
+        //내가 쓴 글 삭제
+        postRepository.bulkDeleteByMemberId(member.getId());
+        //내가 쓴 댓글 삭제
+        commentRepository.bulkDeleteByMemberId(member.getId());
+        //내가 누른 좋아요 삭제
+        likeyRepository.bulkDeleteByMemberId(member.getId());
+        //내가 작성한 신고&내가 당한 신고 삭제
+
+
 
         return member.getId();
     }
@@ -348,13 +362,6 @@ public class BlogFacadeService {
             if (blogMembers.size()==1) {
                 deleteBlog(ownblog.getId());
                 continue;
-            }
-
-            // BlogMember 삭제
-            for (BlogMember bm : blogMembers) {
-                if (bm.getMember().equals(member)) {
-                    blogMemberRepository.delete(bm);
-                }
             }
 
             // blogAuth와 createDate를 기준으로 정렬

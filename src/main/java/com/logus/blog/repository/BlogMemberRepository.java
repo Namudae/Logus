@@ -17,6 +17,11 @@ public interface BlogMemberRepository extends JpaRepository<BlogMember, Long> {
     @Query("DELETE FROM BlogMember bm WHERE bm.blog.id = :blogId")
     void bulkDeleteByBlogId(Long blogId);
 
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query("DELETE FROM BlogMember bm WHERE bm.member.id = :memberId")
+    void bulkDeleteByMemberId(Long memberId);
+
     BlogMember findByBlogAndMember(Blog blog, Member member);
+
 
 }

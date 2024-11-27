@@ -14,4 +14,8 @@ public interface CommentRepository extends JpaRepository<Comment, Long>, Comment
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("DELETE FROM Comment c WHERE c.post.id = :postId")
     void bulkDeleteByPostId(Long postId);
+
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query("DELETE FROM Comment c WHERE c.member.id = :memberId")
+    void bulkDeleteByMemberId(Long memberId);
 }
