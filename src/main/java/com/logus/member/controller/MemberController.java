@@ -78,7 +78,7 @@ public class MemberController {
     /**
      * 현재 비밀번호 확인
      */
-    @GetMapping("/user/pwd")
+    @PostMapping("/user/pwd")
     public ApiResponse<Map<String, Boolean>> checkPassword(@RequestBody PasswordDto passwordDto) throws IOException {
         boolean isValid = memberService.checkPassword(passwordDto);
         return ApiResponse.ok(Map.of("isValid", isValid));
