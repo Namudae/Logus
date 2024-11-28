@@ -81,7 +81,15 @@ public class BlogService {
     public List<SeriesResponseDto> selectSeries(Long blogId) {
         Blog blog = getById(blogId);
         return seriesRepository.findByBlogIdOrderBySeriesOrder(blog.getId()).stream()
-                .map(SeriesResponseDto::new)
+                .map(series -> {
+                    String imgUrl = series.getImgUrl();
+                    if (imgUrl == null || imgUrl.isEmpty()) {
+                        imgUrl = null;
+                    } else {
+                        imgUrl = CLOUD_FRONT_DOMAIN_NAME + "/" + imgUrl;
+                    }
+                    return new SeriesResponseDto(series, imgUrl);
+                        })
                 .toList();
     }
 
