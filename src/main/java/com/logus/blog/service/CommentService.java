@@ -1,9 +1,6 @@
 package com.logus.blog.service;
 
-import com.logus.blog.dto.ChildCommentDto;
-import com.logus.blog.dto.CommentRequestDto;
-import com.logus.blog.dto.CommentResponseDto;
-import com.logus.blog.dto.ParentCommentDto;
+import com.logus.blog.dto.*;
 import com.logus.blog.entity.Comment;
 import com.logus.blog.entity.Post;
 import com.logus.blog.entity.Status;
@@ -15,6 +12,8 @@ import com.logus.common.security.UserPrincipal;
 import com.logus.member.entity.Member;
 import com.logus.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -23,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -131,10 +131,34 @@ public class CommentService {
     }
 
     @Transactional
+    public void deleteComments(List<Long> commentIds, Long blogId) {
+        //댓글이 블로그의 댓글이 맞는지 여기서 확인해야됨...
+        List<Comment> comments = commentRepository.findAllById(commentIds);
+
+        // 내가 관리하는 블로그에 속하는 댓글만 필터링
+        List<Comment> authorizedComments = comments.stream()
+                .filter(comment -> comment.getPost().getBlog().getId().equals(blogId))
+                .collect(Collectors.toList());
+
+        commentRepository.deleteAll(authorizedComments);
+    }
+
+    @Transactional
+    public void deleteCommentsForAdmin(List<Long> commentIds) {
+        if (commentIds != null || !commentIds.isEmpty()) {
+            commentRepository.deleteAllByIdInBatch(commentIds);
+        }
+    }
+
+    @Transactional
     public void bulkDeleteComment(Long postId) {
         commentRepository.bulkDeleteByPostId(postId);
     }
 
+    public Page<CommentListDto> selectBlogComments(Long blogId, String keyword, String condition, Pageable pageable) {
+        Long memberId = memberService.authMemberId();
+        return commentRepository.selectBlogComments(blogId, memberId, keyword, condition, pageable);
+    }
 
     //=====인가
     public boolean hasPermissionToComment(Long commentId, Authentication authentication) {
@@ -151,5 +175,4 @@ public class CommentService {
         }
         return true;
     }
-
 }
