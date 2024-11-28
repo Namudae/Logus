@@ -7,8 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
-public interface SeriesRepository extends JpaRepository<Series, Long> {
-    List<Series> findByBlogIdOrderBySeriesOrder(Long blogId);
+public interface SeriesRepository extends JpaRepository<Series, Long>, SeriesRepositoryCustom {
 
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("DELETE FROM Series s WHERE s.blog.id = :blogId")
