@@ -10,7 +10,6 @@ import com.logus.blog.repository.*;
 import com.logus.common.exception.CustomException;
 import com.logus.common.exception.ErrorCode;
 import com.logus.common.security.UserPrincipal;
-import com.logus.member.dto.MemberListResponse;
 import com.logus.member.entity.Member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,7 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.logus.common.service.S3Service.CLOUD_FRONT_DOMAIN_NAME;
 import static java.util.stream.Collectors.toList;
@@ -78,7 +76,7 @@ public class BlogService {
 
     }
 
-    public List<SeriesResponseDto> selectSeries(Long blogId) {
+    public List<SeriesListResponseDto> selectSeries(Long blogId) {
         Blog blog = getById(blogId);
         return seriesRepository.findByBlogIdOrderBySeriesOrder(blog.getId()).stream()
                 .map(series -> {
@@ -88,7 +86,7 @@ public class BlogService {
                     } else {
                         imgUrl = CLOUD_FRONT_DOMAIN_NAME + "/" + imgUrl;
                     }
-                    return new SeriesResponseDto(series, imgUrl);
+                    return new SeriesListResponseDto(series, imgUrl);
                         })
                 .toList();
     }

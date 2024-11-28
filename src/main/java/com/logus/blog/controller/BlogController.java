@@ -4,7 +4,6 @@ import com.logus.blog.dto.*;
 import com.logus.blog.service.BlogFacadeService;
 import com.logus.blog.service.BlogService;
 import com.logus.common.controller.ApiResponse;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -119,8 +118,8 @@ public class BlogController {
      * 시리즈 조회
      */
     @GetMapping("/series")
-    public ApiResponse<List<SeriesResponseDto>> selectSeries(@RequestParam("blogId") Long blogId) {
-        List<SeriesResponseDto> series = blogService.selectSeries(blogId);
+    public ApiResponse<List<SeriesListResponseDto>> selectSeries(@RequestParam("blogId") Long blogId) {
+        List<SeriesListResponseDto> series = blogService.selectSeries(blogId);
 
         return ApiResponse.ok(series);
     }
@@ -130,10 +129,10 @@ public class BlogController {
      */
     @PreAuthorize("hasRole('ROLE_ADMIN') || @blogService.hasPermissionToBlog(#seriesRequestDto.blogId, 'BLOG', 'ADMIN', authentication)")
     @PostMapping("/series")
-    public ApiResponse<Map<String, Long>> createSeries(@RequestPart("requestDto") @Valid SeriesRequestDto seriesRequestDto,
-                                                       @RequestPart(value = "img", required = false) MultipartFile img) throws IOException {
-        Long seriesId = blogFacadeService.createSeries(seriesRequestDto, img);
-        return ApiResponse.ok(Map.of("seriesId", seriesId));
+    public ApiResponse<SeriesResponseDto> createSeries(@RequestPart("requestDto") @Valid SeriesRequestDto seriesRequestDto,
+                                                           @RequestPart(value = "img", required = false) MultipartFile img) throws IOException {
+        SeriesResponseDto series = blogFacadeService.createSeries(seriesRequestDto, img);
+        return ApiResponse.ok(series);
     }
 
     /**
@@ -141,12 +140,12 @@ public class BlogController {
      */
     @PreAuthorize("hasRole('ROLE_ADMIN') || @blogService.hasPermissionToBlog(#seriesId, 'SERIES', 'ADMIN', authentication)")
     @PutMapping("/series/{seriesId}")
-    public ApiResponse<Map<String, Long>> updateSeries(@PathVariable("seriesId") Long seriesId,
-                                                       @RequestPart("requestDto") @Valid SeriesRequestDto seriesRequestDto,
-                                                       @RequestPart(value = "img", required = false) MultipartFile img,
-                                                       @RequestParam(value = "deleteImg", required = false, defaultValue = "false") Boolean deleteImg) throws IOException {
-        blogFacadeService.updateSeries(seriesId, seriesRequestDto, img, deleteImg);
-        return ApiResponse.ok(Map.of("seriesId", seriesId));
+    public ApiResponse<SeriesResponseDto> updateSeries(@PathVariable("seriesId") Long seriesId,
+                                                           @RequestPart("requestDto") @Valid SeriesRequestDto seriesRequestDto,
+                                                           @RequestPart(value = "img", required = false) MultipartFile img,
+                                                           @RequestParam(value = "deleteImg", required = false, defaultValue = "false") Boolean deleteImg) throws IOException {
+        SeriesResponseDto series = blogFacadeService.updateSeries(seriesId, seriesRequestDto, img, deleteImg);
+        return ApiResponse.ok(series);
     }
 
     /**

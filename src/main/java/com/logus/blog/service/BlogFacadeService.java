@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.logus.common.service.S3Service.CLOUD_FRONT_DOMAIN_NAME;
+
 @Service
 @RequiredArgsConstructor
 public class BlogFacadeService {
@@ -109,7 +111,7 @@ public class BlogFacadeService {
     }
 
     @Transactional
-    public Long createSeries(SeriesRequestDto seriesRequestDto, MultipartFile img) throws IOException {
+    public SeriesResponseDto createSeries(SeriesRequestDto seriesRequestDto, MultipartFile img) throws IOException {
         Blog blog = blogService.getReferenceById(seriesRequestDto.getBlogId());
 
         //이미지 업로드
@@ -120,11 +122,17 @@ public class BlogFacadeService {
 
         Series series = seriesRequestDto.toEntity(blog, imgUrl);
         seriesRepository.save(series);
-        return series.getId();
+
+        if (imgUrl == null || imgUrl.isEmpty()) {
+            imgUrl = null;
+        } else {
+            imgUrl = CLOUD_FRONT_DOMAIN_NAME + "/" + imgUrl;
+        }
+        return new SeriesResponseDto(series.getId(), imgUrl);
     }
 
     @Transactional
-    public Long updateSeries(Long seriesId, SeriesRequestDto seriesRequestDto, MultipartFile img, boolean deleteImg) throws IOException {
+    public SeriesResponseDto updateSeries(Long seriesId, SeriesRequestDto seriesRequestDto, MultipartFile img, boolean deleteImg) throws IOException {
         Series series = seriesService.getById(seriesId);
 
         //이미지 처리
@@ -138,9 +146,14 @@ public class BlogFacadeService {
         if (img != null && !img.isEmpty()) {
             imgUrl = s3Service.imgUpload(img, AttachmentType.SERIES);
         }
-
         series.updateSeries(seriesRequestDto, imgUrl);
-        return seriesId;
+
+        if (imgUrl == null || imgUrl.isEmpty()) {
+            imgUrl = null;
+        } else {
+            imgUrl = CLOUD_FRONT_DOMAIN_NAME + "/" + imgUrl;
+        }
+        return new SeriesResponseDto(series.getId(), imgUrl);
     }
 
     public void deleteSeries(Long seriesId) {
