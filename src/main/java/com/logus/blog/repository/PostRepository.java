@@ -2,6 +2,7 @@ package com.logus.blog.repository;
 
 import com.logus.blog.dto.PostResponseDto;
 import com.logus.blog.entity.Post;
+import com.logus.blog.entity.Series;
 import com.logus.blog.entity.Status;
 import com.logus.blog.service.PostService;
 import org.springframework.data.domain.Page;
@@ -18,4 +19,8 @@ public interface PostRepository extends JpaRepository<Post, Long>, PostRepositor
     //메서드 자동생성
     List<Post> findByBlogId(Long blogId);
     List<Post> findByMemberId(Long memberId);
+
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query("UPDATE Post p SET p.series = NULL WHERE p.series.id = :seriesId")
+    void bulkUpdatePostBySeriesId(Long seriesId);
 }

@@ -164,12 +164,16 @@ public class BlogFacadeService {
         return new SeriesResponseDto(series.getId(), imgUrl);
     }
 
+    @Transactional
     public void deleteSeries(Long seriesId) {
         Series series = seriesService.getById(seriesId);
         //이미지 삭제
         if (series.getImgUrl() != null) {
             s3Service.deleteS3(series.getImgUrl());
         }
+        //seriesId 포함된 post 수정
+        postRepository.bulkUpdatePostBySeriesId(seriesId);
+
         seriesRepository.delete(series);
     }
 
