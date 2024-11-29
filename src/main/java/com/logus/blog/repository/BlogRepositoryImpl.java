@@ -154,7 +154,7 @@ public class BlogRepositoryImpl implements BlogRepositoryCustom {
                 .where(
                         follow.blog.id.eq(blogId)
                 )
-                .orderBy(follow.createDate.desc())
+                .orderBy(follow.createDate.asc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch(); //최근 팔로우부터
