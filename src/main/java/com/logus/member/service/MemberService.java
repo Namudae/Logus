@@ -141,9 +141,9 @@ public class MemberService {
         return MemberResponse.builder()
                 .loginId(member.getLoginId())
                 .nickname(member.getNickname())
-//                .imgUrl(
-//                        (member.getImgUrl() != null ? CLOUD_FRONT_DOMAIN_NAME + "/" + member.getImgUrl() : null)
-//                )
+                .imgUrl(
+                        (member.getImgUrl() != null ? CLOUD_FRONT_DOMAIN_NAME + "/" + member.getImgUrl() : null)
+                )
                 .email(member.getEmail())
                 .build();
     }
