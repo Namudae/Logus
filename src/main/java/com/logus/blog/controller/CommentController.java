@@ -45,7 +45,7 @@ public class CommentController {
      * 댓글 삭제
      * - 블로그 관리자도 삭제 가능하도록
      */
-    @PreAuthorize("hasRole('ROLE_ADMIN') || @commentService.hasPermissionToComment(#commentId, authentication)")
+//    @PreAuthorize("hasRole('ROLE_ADMIN') || @commentService.hasPermissionToComment(#commentId, authentication)")
     @DeleteMapping("/comments/{commentId}")
     public ApiResponse<String> deleteComment(@PathVariable("commentId") Long commentId) {
         commentService.deleteComment(commentId);

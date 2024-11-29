@@ -31,6 +31,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
     private final MemberService memberService;
+    private final BlogService blogService;
 
     public Comment getById(Long commentId) {
         return commentRepository.findById(commentId)
@@ -126,7 +127,15 @@ public class CommentService {
 
     @Transactional
     public void deleteComment(Long commentId) {
+        Long memberId = memberService.authMemberId();
         Comment comment = getById(commentId);
+        //본인 또는 블로그 관리자만 삭제 가능
+        if (comment.getMember().getId()!=memberId) {
+            if (!blogService.isBlogMember(comment.getPost().getBlog(), memberId)) {
+                throw new CustomException(ErrorCode.UNAUTHORIZED_REQUEST);
+            }
+        }
+
         commentRepository.delete(comment);
     }
 
