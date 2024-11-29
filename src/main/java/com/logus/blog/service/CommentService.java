@@ -163,6 +163,22 @@ public class CommentService {
     }
 
     //=====인가
+    public boolean hasPermissionToComment(Long commentId) {
+        // 로그인이 안 되어 있거나, 익명 사용자인 경우 예외 발생
+        Long memberId = memberService.authMemberId();
+
+        var comment = commentRepository.findById((Long) commentId)
+                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+
+        // 본인,블로그관리자,관리자만 삭제 가능
+        if (comment.getMember().getId()!=memberId && comment.getPost().getMember().getId()!=memberId) {
+            if (!blogService.isBlogMember(comment.getPost().getBlog(), memberId)) {
+                throw new CustomException(ErrorCode.UNAUTHORIZED_REQUEST);
+            }
+        }
+        return true;
+    }
+
     public boolean hasPermissionToCommentOld(Long commentId, Authentication authentication) {
         // 로그인이 안 되어 있거나, 익명 사용자인 경우 예외 발생
         if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
@@ -178,19 +194,4 @@ public class CommentService {
         return true;
     }
 
-    public boolean hasPermissionToComment(Long commentId) {
-        // 로그인이 안 되어 있거나, 익명 사용자인 경우 예외 발생
-        Long memberId = memberService.authMemberId();
-
-        var comment = commentRepository.findById((Long) commentId)
-                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
-
-        // 본인,블로그관리자,관리자만 삭제 가능
-        if (comment.getMember().getId()!=memberId) {
-            if (!blogService.isBlogMember(comment.getPost().getBlog(), memberId)) {
-                throw new CustomException(ErrorCode.UNAUTHORIZED_REQUEST);
-            }
-        }
-        return true;
-    }
 }

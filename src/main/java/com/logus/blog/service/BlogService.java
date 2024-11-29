@@ -218,6 +218,7 @@ public class BlogService {
 
     public Boolean isBlogMember(Blog blog, Long memberId) {
         return blog.getBlogMembers().stream()
+                .filter(blogMember -> blogMember.getBlogAuth() == BlogAuth.OWNER || blogMember.getBlogAuth() == BlogAuth.ADMIN) // OWNER 또는 ADMIN 필터링
                 .map(blogMember -> blogMember.getMember().getId()) // 멤버 ID 추출
                 .anyMatch(ownerId -> ownerId.equals(memberId)); // 현재 사용자 ID와 일치 여부 확인
     }

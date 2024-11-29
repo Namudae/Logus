@@ -413,6 +413,21 @@ public class PostService {
         return true;
     }
 
+    public boolean hasPermissionToPostMember(Long postId, Authentication authentication) {
+        // 로그인이 안 되어 있거나, 익명 사용자인 경우 예외 발생
+        Long memberId = memberService.authMemberId();
+        var post = postRepository.findById((Long) postId)
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+
+        if (post.getMember().getId()!=memberId) {
+            if (!blogService.isBlogMember(post.getBlog(), memberId)) {
+                throw new CustomException(ErrorCode.UNAUTHORIZED_REQUEST);
+            }
+        }
+
+        return true;
+    }
+
     public boolean createLike(Long postId) {
         Member member = memberService.getById(blogService.authMemberId());
 
