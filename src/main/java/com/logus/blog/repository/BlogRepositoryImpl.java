@@ -75,7 +75,8 @@ public class BlogRepositoryImpl implements BlogRepositoryCustom {
                         blogMember.member.id.eq(memberId),
                         blog.shareYn.eq("N")
                 )
-                .fetchOne();
+                .orderBy(blog.createDate.asc())
+                .fetchFirst();
     }
 
     /**
