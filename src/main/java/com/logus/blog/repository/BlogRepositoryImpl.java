@@ -174,7 +174,13 @@ public class BlogRepositoryImpl implements BlogRepositoryCustom {
             follower.setBlogList(blogDtos); // 블로그 목록 추가
         }
 
-        long total = followerList.size(); // 총 수 계산
+        long total = Optional.ofNullable(
+                jpaQueryFactory
+                        .select(follow.count())
+                        .from(follow)
+                        .where(follow.blog.id.eq(blogId))
+                        .fetchOne()
+        ).orElse(0L);
 
         // Page 객체 생성 및 반환
         return new PageImpl<>(followerList, pageable, total);
