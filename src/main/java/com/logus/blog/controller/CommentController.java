@@ -43,8 +43,9 @@ public class CommentController {
 
     /**
      * 댓글 삭제
+     * - 블로그 관리자도 삭제 가능하도록
      */
-    @PreAuthorize("hasRole('ROLE_ADMIN') || @blogService.hasPermissionToBlog(#seriesId, 'BLOG', 'ADMIN', authentication) || @commentService.hasPermissionToComment(#commentId, authentication)")
+    @PreAuthorize("hasRole('ROLE_ADMIN') || @commentService.hasPermissionToComment(#commentId, authentication)")
     @DeleteMapping("/comments/{commentId}")
     public ApiResponse<String> deleteComment(@PathVariable("commentId") Long commentId) {
         commentService.deleteComment(commentId);
@@ -64,15 +65,15 @@ public class CommentController {
     }
 
     /**
-     * 댓글 다중 삭제(관리자)
+     * 댓글 다중 삭제(관리자) > 폐기
      * - blogId로 권한 체크, 댓글이 blogId와 일치하는 건만 삭제
      */
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @DeleteMapping("/admin/comments")
-    public ApiResponse<String> deleteCommentsForAdmin(@RequestBody List<Long> commentIds) {
-        commentService.deleteCommentsForAdmin(commentIds);
-        return ApiResponse.ok();
-    }
+//    @PreAuthorize("hasRole('ROLE_ADMIN')")
+//    @DeleteMapping("/admin/comments")
+//    public ApiResponse<String> deleteCommentsForAdmin(@RequestBody List<Long> commentIds) {
+//        commentService.deleteCommentsForAdmin(commentIds);
+//        return ApiResponse.ok();
+//    }
 
     /**
      * 내 블로그 댓글 전체조회

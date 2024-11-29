@@ -143,12 +143,12 @@ public class CommentService {
         commentRepository.deleteAll(authorizedComments);
     }
 
-    @Transactional
-    public void deleteCommentsForAdmin(List<Long> commentIds) {
-        if (commentIds != null || !commentIds.isEmpty()) {
-            commentRepository.deleteAllByIdInBatch(commentIds);
-        }
-    }
+//    @Transactional
+//    public void deleteCommentsForAdmin(List<Long> commentIds) {
+//        if (commentIds != null || !commentIds.isEmpty()) {
+//            commentRepository.deleteAllByIdInBatch(commentIds);
+//        }
+//    }
 
     @Transactional
     public void bulkDeleteComment(Long postId) {

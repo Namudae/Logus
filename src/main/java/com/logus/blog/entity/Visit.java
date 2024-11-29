@@ -3,13 +3,18 @@ package com.logus.blog.entity;
 import com.logus.common.entity.BaseCreateTime;
 import com.logus.member.entity.Member;
 import jakarta.persistence.*;
-import lombok.Getter;
+import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
-public class Visit extends BaseCreateTime {
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Visit {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,4 +28,12 @@ public class Visit extends BaseCreateTime {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "blog_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Blog blog;
+
+//    @Column(nullable = false, unique = true)
+    @Column
+    private String sessionId; // 쿠키로 전달받을 고유한 sessionId
+
+    @CreatedDate
+    private LocalDate createDate;
+
 }

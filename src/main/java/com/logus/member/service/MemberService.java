@@ -103,7 +103,7 @@ public class MemberService {
     }
 
     @Transactional
-    public MemberResponse login(LoginForm loginForm) {
+    public MemberResponse login(LoginForm loginForm, HttpServletResponse response) {
         Member member = memberRepository.findByLoginId(loginForm.loginId())
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
@@ -112,6 +112,16 @@ public class MemberService {
                     loginForm.loginId(), loginForm.password()
             ));
             if (authentication.isAuthenticated()) {
+                String jwtToken = jwtService.generateToken(memberDetailService.loadUserByUsername(loginForm.loginId()));
+
+                // JWT 토큰을 쿠키에 저장
+                Cookie cookie = new Cookie("jwt", jwtToken);
+                cookie.setMaxAge(60 * 60 * 24 * 90);  // 7일 동안 유효
+                cookie.setPath("/");  // 모든 경로에서 유효
+                cookie.setHttpOnly(true);  // JavaScript에서 접근 불가
+//                cookie.setSecure(true);  // HTTPS에서만 전송
+                response.addCookie(cookie);  // 쿠키를 응답에 추가
+
                 return MemberResponse.builder()
                         .memberId(member.getId())
                         .loginId(member.getLoginId())
@@ -120,9 +130,8 @@ public class MemberService {
                                 (member.getImgUrl() != null ? CLOUD_FRONT_DOMAIN_NAME + "/" + member.getImgUrl() : null)
                         )
                         .email(member.getEmail())
-                        .jwtToken(jwtService.generateToken(memberDetailService.loadUserByUsername(loginForm.loginId())))
+                        .jwtToken(jwtToken)
                         .build();
-//            response.setJwtToken(jwtService.generateToken(memberDetailService.loadUserByUsername(loginForm.loginId())));
             } else {
                 throw new CustomException(ErrorCode.LOGIN_FAIL);
             }
@@ -132,6 +141,25 @@ public class MemberService {
         }
     }
 
+    @Transactional
+    public void logout(HttpServletRequest request, HttpServletResponse response) {
+        // 1. JWT 토큰을 삭제하기 위해 쿠키를 찾아서 만료시킴
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("jwt".equals(cookie.getName())) {
+                    // JWT 쿠키 삭제
+                    cookie.setValue(null);
+                    cookie.setMaxAge(0);  // 쿠키를 즉시 만료시키기
+                    cookie.setPath("/");  // 모든 경로에서 유효
+                    cookie.setHttpOnly(true);  // JavaScript에서 접근 불가
+//                    cookie.setSecure(true);  // HTTPS에서만 전송
+//                    cookie.setSameSite("Strict");  // CSRF 방지
+                    response.addCookie(cookie);  // 쿠키를 응답에 추가하여 삭제 처리
+                }
+            }
+        }
+    }
 
     @Transactional
     public MemberResponse selectUserInfo() {
