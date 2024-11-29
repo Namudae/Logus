@@ -8,13 +8,17 @@ import com.logus.common.security.MemberDetailService;
 import com.logus.member.dto.*;
 import com.logus.member.service.MemberService;
 import io.jsonwebtoken.security.Password;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -33,11 +37,21 @@ public class MemberController {
      * 로그인
      */
     @PostMapping("/login")
-//    @RequestMapping(value = {"/login"}, method = {RequestMethod.POST, RequestMethod.GET})
-    public ApiResponse<MemberResponse> authenticateAndGetToken(@RequestBody LoginForm loginForm) {
-        MemberResponse response = memberService.login(loginForm);
-        return ApiResponse.ok(response);
+    public ApiResponse<MemberResponse> login(@RequestBody LoginForm loginForm, HttpServletResponse response) {
+        MemberResponse memberResponse = memberService.login(loginForm, response);
+        return ApiResponse.ok(memberResponse);
     }
+
+    /**
+     * 로그아웃
+     */
+    @PostMapping("/logout")
+    public ApiResponse<String> logout(HttpServletRequest request, HttpServletResponse response) {
+        memberService.logout(request, response);
+        return ApiResponse.ok();
+    }
+
+
     /**
      * 나의 회원정보 조회
      */
@@ -87,9 +101,10 @@ public class MemberController {
     /**
      * 탈퇴
      */
-    @DeleteMapping("/user")
-    public ApiResponse<String> deleteUser() throws IOException {
-        Long memberId = blogFacadeService.deleteMember();
+    @PreAuthorize("hasRole('ROLE_ADMIN') || @memberService.hasPermissionToMember(#memberId, 'MEMBER')")
+    @DeleteMapping("/user/{memberId}")
+    public ApiResponse<String> deleteUser(@PathVariable("memberId") Long memberId) throws IOException {
+        blogFacadeService.deleteMember(memberId);
         return ApiResponse.ok();
     }
 

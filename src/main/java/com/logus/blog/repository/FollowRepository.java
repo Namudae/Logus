@@ -11,4 +11,8 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("DELETE FROM Follow f WHERE f.blog.id = :blogId")
     void bulkDeleteByBlogId(Long blogId);
+
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query("DELETE FROM Follow f WHERE f.member.id = :memberId")
+    void bulkDeleteByMemberId(Long memberId);
 }

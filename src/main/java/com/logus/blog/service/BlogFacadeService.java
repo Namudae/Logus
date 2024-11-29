@@ -1,5 +1,6 @@
 package com.logus.blog.service;
 
+import com.logus.admin.repository.ReportRepository;
 import com.logus.blog.dto.*;
 import com.logus.blog.entity.*;
 import com.logus.blog.repository.*;
@@ -9,6 +10,7 @@ import com.logus.common.exception.ErrorCode;
 import com.logus.common.security.UserPrincipal;
 import com.logus.common.service.S3Service;
 import com.logus.member.entity.Member;
+import com.logus.member.repository.MemberRepository;
 import com.logus.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -45,6 +47,8 @@ public class BlogFacadeService {
     private final BlogMemberRepository blogMemberRepository;
     private final BlogRepository blogRepository;
     private final LikeyRepository likeyRepository;
+    private final ReportRepository reportRepository;
+    private final MemberRepository memberRepository;
 
     //블로그 탈퇴시 사용
     // - 게시글O
@@ -52,7 +56,7 @@ public class BlogFacadeService {
     // - 팔로우O
     // - 블로그멤버O
     // - 블로그O
-    // - 방문?
+    // - 방문
     @Transactional
     public void deleteBlog(Long blogId) {
         Blog blog = blogService.getById(blogId);
@@ -338,26 +342,38 @@ public class BlogFacadeService {
      * - 내가 쓴 글 삭제
      * - 내가 쓴 댓글 삭제
      * - 좋아요 삭제
-     * - 신고 삭제
-     * - 방문 memberId를 null로?
+     * - 신고 삭제X
+     * - 팔로우 삭제
+     * - 방문 삭제 > 블로그 방문만
      */
     @Transactional
-    public Long deleteMember() {
-        Member member = memberService.getById(memberService.authMemberId());
+    public Long deleteMember(Long memberId) {
+//        Member member = memberService.getById(memberService.authMemberId());
+        Member member = memberService.getById(memberId);
         //내가 OWNER인 블로그 처리
-        //processOwnBlog(member);
-
+        processOwnBlog(member);
         //내가 포함된 blogMember 삭제
         blogMemberRepository.bulkDeleteByMemberId(member.getId());
         //내가 쓴 글 삭제
-        postRepository.bulkDeleteByMemberId(member.getId());
+        List<Post> posts = postRepository.findByMemberId(member.getId());
+        for (Post post : posts) {
+            postService.deletePost(post.getId());
+        }
         //내가 쓴 댓글 삭제
         commentRepository.bulkDeleteByMemberId(member.getId());
         //내가 누른 좋아요 삭제
         likeyRepository.bulkDeleteByMemberId(member.getId());
-        //내가 작성한 신고&내가 당한 신고 삭제
-
-
+        //내가 작성한 신고&내가 당한 신고
+//        reportRepository.bulkDeleteReporterByMemberId(member.getId());
+//        reportRepository.bulkDeleteReportedByMemberId(member.getId());
+        //팔로우 삭제
+        followRepository.bulkDeleteByMemberId(member.getId());
+        //프사 삭제
+        if (member.getImgUrl() != null && !member.getImgUrl().equals("")) {
+            s3Service.deleteS3(member.getImgUrl());
+        }
+        //멤버 삭제
+        memberRepository.delete(member);
 
         return member.getId();
     }

@@ -17,8 +17,5 @@ import java.util.Optional;
 public interface PostRepository extends JpaRepository<Post, Long>, PostRepositoryCustom {
     //메서드 자동생성
     List<Post> findByBlogId(Long blogId);
-
-    @Modifying(flushAutomatically = true, clearAutomatically = true)
-    @Query("DELETE FROM Post p WHERE p.member.id = :memberId")
-    void bulkDeleteByMemberId(Long memberId);
+    List<Post> findByMemberId(Long memberId);
 }
