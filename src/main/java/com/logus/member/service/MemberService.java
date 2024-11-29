@@ -182,7 +182,7 @@ public class MemberService {
     }
 
     @Transactional
-    public Long updateMember(UserInfoRequest userInfo) {
+    public Long updateMember(UserInfoRequest userInfo, MultipartFile img, boolean deleteImg) throws IOException {
         Long memberId = authMemberId();
         Member member = getById(memberId);
 
@@ -197,7 +197,18 @@ public class MemberService {
             userInfo.setNewPassword(passwordEncoder.encode(userInfo.getNewPassword()));
         }
 
-        member.updateMemberInfo(userInfo);
+        //이미지 처리
+        if (deleteImg) {
+            //기존 썸네일 처리(s3 삭제, ImgUrl 지우기)
+            s3Service.deleteS3(member.getImgUrl());
+            member.deleteImgUrl();
+        }
+        //이미지 업로드
+        String imgUrl = null;
+        if (img != null && !img.isEmpty()) {
+            imgUrl = s3Service.imgUpload(img, AttachmentType.PROFILE);
+        }
+        member.updateMemberInfo(userInfo, imgUrl);
 
         return memberId;
     }

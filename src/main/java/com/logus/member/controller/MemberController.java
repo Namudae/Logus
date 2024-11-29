@@ -84,8 +84,10 @@ public class MemberController {
      * 회원정보 변경
      */
     @PutMapping("/user")
-    public ApiResponse<Map<String, Long>> updateUser(@RequestBody @Valid UserInfoRequest userInfo) throws IOException {
-        Long memberId = memberService.updateMember(userInfo);
+    public ApiResponse<Map<String, Long>> updateUser(@RequestPart("requestDto") @Valid UserInfoRequest userInfo,
+                                                     @RequestPart(value = "memberImg", required = false) MultipartFile img,
+                                                     @RequestParam(value = "deleteImg", required = false, defaultValue = "false") Boolean deleteImg) throws IOException {
+        Long memberId = memberService.updateMember(userInfo, img, deleteImg);
         return ApiResponse.ok(Map.of("memberId", memberId));
     }
 

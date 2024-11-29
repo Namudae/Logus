@@ -47,14 +47,20 @@ public class Member extends BaseTime {
         this.password = password;
     }
 
-    public void updateMemberInfo(UserInfoRequest userInfo) {
+    //=====비즈니스 로직
+    public void updateMemberInfo(UserInfoRequest userInfo, String imgUrl) {
         this.nickname = userInfo.getNickname() != null ? userInfo.getNickname() : this.nickname;
         this.email = userInfo.getEmail() != null ? userInfo.getEmail() : this.email;
         this.password = userInfo.getNewPassword() != null ? userInfo.getNewPassword() : this.password;
+        this.imgUrl = imgUrl != null ? imgUrl : this.imgUrl;
     }
 
     public void encodePassword(String password) {
         this.password = password;
+    }
+
+    public void deleteImgUrl() {
+        this.imgUrl = null;
     }
 
 }
