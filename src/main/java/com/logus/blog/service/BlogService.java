@@ -216,6 +216,12 @@ public class BlogService {
         return true;
     }
 
+    public Boolean isBlogMember(Blog blog, Long memberId) {
+        return blog.getBlogMembers().stream()
+                .map(blogMember -> blogMember.getMember().getId()) // 멤버 ID 추출
+                .anyMatch(ownerId -> ownerId.equals(memberId)); // 현재 사용자 ID와 일치 여부 확인
+    }
+
     private void validateBlogAuth(Blog blog, UserPrincipal userPrincipal, List<BlogAuth> allowAuths) {
         if (blog.getBlogMembers().stream()
                 .filter(blogMember -> allowAuths.contains(blogMember.getBlogAuth())) // 허용된 권한에 해당하는 멤버 필터링

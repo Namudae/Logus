@@ -204,7 +204,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     /**
      * 블로그 내 검색
      */
-    public Page<PostListResponseDto> searchBlogPosts(Long blogId, String keyword, Long memberId, Pageable pageable) {
+    public Page<PostListResponseDto> searchBlogPosts(Long blogId, String keyword, String condition, Long memberId, Pageable pageable) {
         JPAQuery<PostListResponseDto> query = jpaQueryFactory
                 .select(Projections.fields(PostListResponseDto.class,
                         member.id.as("memberId"),
@@ -234,14 +234,15 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                                 "likeCount"
                         )))
                 .from(post)
-                .join(post.member, member)
+                .leftJoin(post.member, member)
+                .leftJoin(post.series, series)
+                .leftJoin(post.category, category)
                 .where(
-                        post.blog.id.eq(blogId)
-                        .and(post.title.contains(keyword)
-                            .or(post.content.contains(keyword))
-                        )
-                        .and(memberId != null ? checkPublic(blogId, memberId, post) : post.status.eq(Status.PUBLIC))
-                );
+                        post.blog.id.eq(blogId),
+                        buildPostCondition(condition, keyword),
+                        memberId != null ? checkPublic(blogId, memberId, post) : post.status.eq(Status.PUBLIC)
+                )
+                .orderBy(post.createDate.desc());
 
         // 총 결과 수 조회
         long total = query.fetchCount();
@@ -254,6 +255,71 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 
         // Page 객체 생성 및 반환
         return new PageImpl<>(results, pageable, total);
+    }
+
+    /**
+     * 블로그 내 검색(멤버용)
+     */
+    public Page<PostListResponseDto> searchBlogPostsByMember(Long blogId, String keyword, String condition, Long memberId, Pageable pageable) {
+        JPAQuery<PostListResponseDto> query = jpaQueryFactory
+                .select(Projections.fields(PostListResponseDto.class,
+                        member.id.as("memberId"),
+                        member.nickname,
+                        category.id.as("categoryId"),
+                        category.categoryName,
+                        series.id.as("seriesId"),
+                        series.seriesName,
+                        post.id.as("postId"),
+                        post.title,
+                        post.imgUrl,
+                        post.views,
+                        post.status,
+                        post.reportStatus,
+                        post.createDate,
+                        ExpressionUtils.as(
+                                JPAExpressions.select(comment.count())
+                                        .from(comment)
+                                        .where(comment.post.eq(post)),
+                                "commentCount"
+                        ),
+                        ExpressionUtils.as(
+                                JPAExpressions.select(likey.count())
+                                        .from(likey)
+                                        .where(likey.post.eq(post)),
+                                "likeCount"
+                        )))
+                .from(post)
+                .leftJoin(post.member, member)
+                .leftJoin(post.series, series)
+                .leftJoin(post.category, category)
+                .where(
+                        post.blog.id.eq(blogId),
+                        buildPostCondition(condition, keyword),
+                        memberId != null ? checkPublic(blogId, memberId, post) : post.status.eq(Status.PUBLIC)
+                )
+                .orderBy(post.createDate.desc());
+
+        // 총 결과 수 조회
+        long total = query.fetchCount();
+
+        // 페이지에 맞는 결과 조회
+        List<PostListResponseDto> results = query
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        // Page 객체 생성 및 반환
+        return new PageImpl<>(results, pageable, total);
+    }
+
+    private BooleanExpression buildPostCondition(String condition, String keyword) {
+        if ("TITLE".equalsIgnoreCase(condition)) {
+            return post.title.contains(keyword);
+        } else if ("CONTENT".equalsIgnoreCase(condition)) {
+            return post.content.contains(keyword);
+        }
+        // "ALL"인 경우 또는 null/다른 값인 경우 모든 데이터 조회
+        return post.title.contains(keyword).or(post.content.contains(keyword));
     }
 
     //tag검색

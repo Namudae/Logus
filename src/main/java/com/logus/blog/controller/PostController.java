@@ -52,14 +52,28 @@ public class PostController {
     }
 
     /**
-     * 블로그 내부 검색(제목+내용)
+     * 블로그 내부 검색
      * http://localhost:8082/posts/blog-search?blogId=1&keyword=번째
      */
     @GetMapping("/posts/search")
     public ApiResponse<Page<PostListResponseDto>> searchBlogPosts(@RequestParam("blogId") Long blogId,
                                                                   @RequestParam(value="keyword", required = false) String keyword,
+                                                                  @RequestParam(defaultValue = "ALL") String condition,
                                                                   Pageable pageable) {
-        Page<PostListResponseDto> pagePosts = postService.searchBlogPosts(blogId, keyword, pageable);
+        Page<PostListResponseDto> pagePosts = postService.searchBlogPosts(blogId, keyword, condition, pageable);
+
+        return ApiResponse.ok(pagePosts);
+    }
+
+    /**
+     * 블로그 내부 검색(블로그멤버용)
+     */
+    @GetMapping("/blog/posts")
+    public ApiResponse<Page<PostListResponseDto>> searchBlogPostsByMember(@RequestParam("blogId") Long blogId,
+                                                                  @RequestParam(value="keyword", required = false) String keyword,
+                                                                  @RequestParam(defaultValue = "ALL") String condition,
+                                                                  Pageable pageable) {
+        Page<PostListResponseDto> pagePosts = postService.searchBlogPostsByMember(blogId, keyword, condition, pageable);
 
         return ApiResponse.ok(pagePosts);
     }

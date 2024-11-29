@@ -252,13 +252,26 @@ public class PostService {
         return temp;
     }
 
-    public Page<PostListResponseDto> searchBlogPosts(Long blogId, String keyword, Pageable pageable) {
+    public Page<PostListResponseDto> searchBlogPosts(Long blogId, String keyword, String condition, Pageable pageable) {
+        // memberId
+        Long memberId = blogService.authMemberIdOrNull();
+        //Auth 추출
+//        Blog blog = blogService.getById(blogId);
+//        boolean isMember = blogService.isBlogMember(blog, memberId);
+
+        if(keyword == null) keyword = "";
+        Page<PostListResponseDto> posts =  postRepository.searchBlogPosts(blogId, keyword, condition, memberId, pageable);
+        List<PostListResponseDto> newPosts = toPostList(posts);
+        return new PageImpl<>(newPosts, pageable, posts.getTotalElements());
+    }
+
+    public Page<PostListResponseDto> searchBlogPostsByMember(Long blogId, String keyword, String condition, Pageable pageable) {
         // memberId
         Long memberId = blogService.authMemberIdOrNull();
 
         if(keyword == null) keyword = "";
-        Page<PostListResponseDto> posts =  postRepository.searchBlogPosts(blogId, keyword, memberId, pageable);
-        List<PostListResponseDto> newPosts = toPostList(posts);
+        Page<PostListResponseDto> posts =  postRepository.searchBlogPostsByMember(blogId, keyword, condition, memberId, pageable);
+        List<PostListResponseDto> newPosts = toPostListNotTag(posts);
         return new PageImpl<>(newPosts, pageable, posts.getTotalElements());
     }
 
@@ -280,14 +293,13 @@ public class PostService {
      * 게시글 목록 조회 공통처리
      * - 썸네일
      * - 태그
-     * 추가할것: 본문 n자까지만 조회
      */
     private List<PostListResponseDto> toPostList(Page<PostListResponseDto> posts) {
         return posts.stream()
                 .map(dto -> {
                     //imgUrl 처리
                     String imgUrl = dto.getImgUrl();
-                    if (imgUrl != null) {
+                    if (imgUrl != null && !imgUrl.equals("")) {
                         dto.setImgUrl(CLOUD_FRONT_DOMAIN_NAME + "/" + imgUrl);
                     }
 
@@ -295,6 +307,19 @@ public class PostService {
                     List<String> tags = tagService.selectPostTags(dto.getPostId());
                     dto.setTags(tags);
 
+                    return dto;
+                })
+                .toList();
+    }
+
+    private List<PostListResponseDto> toPostListNotTag(Page<PostListResponseDto> posts) {
+        return posts.stream()
+                .map(dto -> {
+                    //imgUrl 처리
+                    String imgUrl = dto.getImgUrl();
+                    if (imgUrl != null && !imgUrl.equals("")) {
+                        dto.setImgUrl(CLOUD_FRONT_DOMAIN_NAME + "/" + imgUrl);
+                    }
                     return dto;
                 })
                 .toList();

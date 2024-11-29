@@ -50,13 +50,15 @@ public class BlogFacadeService {
     private final ReportRepository reportRepository;
     private final MemberRepository memberRepository;
 
-    //블로그 탈퇴시 사용
-    // - 게시글O
-    // - 시리즈O
-    // - 팔로우O
-    // - 블로그멤버O
-    // - 블로그O
-    // - 방문
+    /**
+     * 블로그 삭제(회원 탈퇴시 사용)
+     * - 게시글O
+     * - 시리즈O
+     * - 팔로우O
+     * - 방문O
+     * - 블로그멤버O
+     * - 블로그O
+     */
     @Transactional
     public void deleteBlog(Long blogId) {
         Blog blog = blogService.getById(blogId);
@@ -78,13 +80,15 @@ public class BlogFacadeService {
         followRepository.bulkDeleteByBlogId(blogId);
         //방문
         visitRepository.bulkDeleteByBlogId(blogId);
-        //블로그
-        blogRepository.delete(blog);
         //블로그멤버
         blogMemberRepository.bulkDeleteByBlogId(blogId);
+        //블로그
+        blogRepository.delete(blog);
     }
 
-    //블로그 삭제시 사용
+    /**
+     * 블로그 초기화(블로그 삭제시 사용)
+     */
     @Transactional
     public void resetBlog(Long blogId) {
         Blog blog = blogService.getById(blogId);
@@ -107,10 +111,10 @@ public class BlogFacadeService {
         //방문
         visitRepository.bulkDeleteByBlogId(blogId);
         if ("Y".equals(blog.getShareYn())) {
-            //블로그
-            blogRepository.delete(blog);
             //블로그멤버
             blogMemberRepository.bulkDeleteByBlogId(blogId);
+            //블로그
+            blogRepository.delete(blog);
         }
     }
 
