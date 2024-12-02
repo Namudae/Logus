@@ -10,6 +10,7 @@ import com.logus.blog.dto.SeriesOrderRequestDto;
 import com.logus.common.controller.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -36,6 +37,7 @@ public class CategoryController {
      * 카테고리 등록
      * + 카테고리명 중복 체크
      */
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/category")
     public ApiResponse<Map<String, Long>> createCategory(@RequestBody @Valid CategoryRequestDto categoryRequestDto) {
         Long categoryId = categoryService.createCategory(categoryRequestDto);
@@ -48,6 +50,7 @@ public class CategoryController {
      * 카테고리 수정
      * + 카테고리명 중복 체크
      */
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/category")
     public ApiResponse<Map<String, Long>> updateCategory(@RequestParam("categoryId") Long categoryId,
                                                          @RequestBody @Valid CategoryRequestDto categoryRequestDto) {
@@ -60,6 +63,7 @@ public class CategoryController {
     /**
      * 카테고리 삭제
      */
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/category")
     public ApiResponse<String> deleteCategory(@RequestParam("categoryId") Long categoryId) {
         categoryService.deleteCategory(categoryId);
@@ -71,6 +75,7 @@ public class CategoryController {
     /**
      * 카테고리 순서(일괄 수정)
      */
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/category/order")
     public ApiResponse<String> updateCategoryOrder(@RequestBody @Valid List<CategoryOrderRequestDto> categoryOrderRequestDto) throws IOException {
         categoryService.updateCategoryOrder(categoryOrderRequestDto);

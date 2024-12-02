@@ -23,4 +23,8 @@ public interface PostRepository extends JpaRepository<Post, Long>, PostRepositor
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("UPDATE Post p SET p.series = NULL WHERE p.series.id = :seriesId")
     void bulkUpdatePostBySeriesId(Long seriesId);
+
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query("UPDATE Post p SET p.category = NULL WHERE p.category.id = :categoryId")
+    void bulkUpdatePostByCategoryId(Long categoryId);
 }
