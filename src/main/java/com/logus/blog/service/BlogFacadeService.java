@@ -386,6 +386,13 @@ public class BlogFacadeService {
         return member.getId();
     }
 
+    @Transactional
+    public void deleteMembersForAdmin(List<Long> memberIds) {
+        for (Long memberId : memberIds) {
+            deleteMember(memberId);
+        }
+    }
+
     private void processOwnBlog(Member member) {
         List<Blog> ownblogs = blogRepository.ownedBlogs(member);
         for (Blog ownblog : ownblogs) {
@@ -419,5 +426,6 @@ public class BlogFacadeService {
             }
         }
     }
+
 }
 
