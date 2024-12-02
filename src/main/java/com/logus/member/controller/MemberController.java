@@ -62,6 +62,15 @@ public class MemberController {
     }
 
     /**
+     * 이메일로 회원 조회
+     */
+    @GetMapping("/user/email")
+    public ApiResponse<MemberSearchResponse> searchMemberByEmail(@RequestParam String email) throws IOException {
+        MemberSearchResponse response = memberService.searchMemberByEmail(email);
+        return ApiResponse.ok(response);
+    }
+
+    /**
      * 회원가입
      */
     @PostMapping("/register")
