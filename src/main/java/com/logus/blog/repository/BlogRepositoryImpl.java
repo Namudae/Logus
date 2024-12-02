@@ -79,6 +79,24 @@ public class BlogRepositoryImpl implements BlogRepositoryCustom {
                 .fetchFirst();
     }
 
+
+    /**
+     * My-Log 검색
+     */
+    @Override
+    public Long findMyLogId(Long memberId) {
+        return jpaQueryFactory
+                .select(blog.id)
+                .from(blog)
+                .leftJoin(blog.blogMembers, blogMember)
+                .where(
+                        blogMember.member.id.eq(memberId),
+                        blog.shareYn.eq("N")
+                )
+                .orderBy(blog.createDate.asc())
+                .fetchFirst();
+    }
+
     /**
      * Our-Log 조회
      */

@@ -256,4 +256,10 @@ public class BlogService {
     public Page<BlogListResponseDto> searchBlogs(String loginId, String nickname, String blogName, String blogAddress, Pageable pageable) {
         return blogRepository.searchBlogs(loginId, nickname, blogName, blogAddress, pageable);
     }
+
+    public Long getMyLogId() {
+        Long memberId = authMemberId();
+        Long blogId = blogRepository.findMyLogId(memberId);
+        return blogId;
+    }
 }

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -81,6 +82,17 @@ public class BlogController {
         Long blogId = blogService.getBlogIdByAddress(blogAddress);
 
         return ApiResponse.ok(Map.of("blogId", blogId));
+    }
+
+    /**
+     * My-log id 조회
+     */
+    @GetMapping("/blog/my-log")
+    public ApiResponse<Map<String, Object>> getMyLogId() {
+        Long blogId = blogService.getMyLogId();
+        Map<String, Object> response = new HashMap<>();
+        response.put("blogId", blogId);
+        return ApiResponse.ok(response);
     }
 
     /**

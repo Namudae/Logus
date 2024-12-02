@@ -25,4 +25,6 @@ public interface BlogRepositoryCustom {
     List<OurLogResponseDto> findByMemberId(Long memberId);
 
     Page<BlogListResponseDto> searchBlogs(String loginId, String nickname, String blogName, String blogAddress, Pageable pageable);
+
+    Long findMyLogId(Long memberId);
 }
