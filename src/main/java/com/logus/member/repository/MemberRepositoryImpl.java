@@ -1,8 +1,10 @@
 package com.logus.member.repository;
 
+import com.logus.admin.dto.BlogListResponseDto;
 import com.logus.blog.dto.FollowerResponseDto;
 import com.logus.blog.dto.PostListResponseDto;
 import com.logus.blog.entity.BlogAuth;
+import com.logus.blog.entity.QBlogMember;
 import com.logus.member.dto.MemberListResponse;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
@@ -145,6 +147,55 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
         return new PageImpl<>(memberList, pageable, total);
 
     }
+
+    /**
+     * 멤버 검색2 (블로그 없으면 조회x)
+     */
+//    @Override
+//    public Page<MemberListResponse> searchMembers(String loginId, String nickname, String blogName, String blogAddress, Pageable pageable) {
+//        List<MemberListResponse> content = jpaQueryFactory
+//                .select(Projections.fields(MemberListResponse.class,
+//                        member.id.as("memberId"),
+//                        member.nickname,
+//                        member.loginId,
+//                        Projections.fields(MemberListResponse.BlogResponse.class, // BlogResponse 부분 매핑
+//                                blog.id.as("blogId"),
+//                                blog.blogName.as("blogName"),
+//                                blog.blogAddress.as("blogAddress")
+//                        ).as("blogResponse")
+//                ))
+//                .from(blog)
+//                .leftJoin(blog.blogMembers, blogMember)
+//                .leftJoin(blogMember.member, member)
+//                .where(
+//                        blogMember.member.id.eq(member.id),
+//                        blog.shareYn.eq("N"),
+//                        member.role.eq("USER"),
+//                        containLoginId(loginId),
+//                        containNickname(nickname),
+//                        containBlogName(blogName),
+//                        containBlogAddress(blogAddress)
+//                )
+//                .orderBy(member.createDate.desc())
+//                .offset(pageable.getOffset())
+//                .limit(pageable.getPageSize())
+//                .fetch();
+//
+//        // Total count 쿼리
+//        long total = jpaQueryFactory
+//                .select(member.count())
+//                .from(blog)
+//                .leftJoin(blog.blogMembers, blogMember)
+//                .leftJoin(blogMember.member, member)
+//                .where(
+//                        blogMember.member.id.eq(member.id),
+//                        blog.shareYn.eq("N")
+//                )
+//                .fetchOne();
+//
+//        // Page 반환
+//        return new PageImpl<>(content, pageable, total);
+//    }
 
     private BooleanExpression containLoginId(String loginId) {
         return hasText(loginId) ? member.loginId.contains(loginId) : null;
