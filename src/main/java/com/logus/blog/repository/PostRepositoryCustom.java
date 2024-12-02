@@ -1,5 +1,7 @@
 package com.logus.blog.repository;
 
+import com.logus.admin.dto.AdminCommentListResponse;
+import com.logus.admin.dto.AdminPostListResponse;
 import com.logus.admin.entity.Category;
 import com.logus.blog.dto.*;
 import com.logus.blog.entity.Post;
@@ -32,4 +34,8 @@ public interface PostRepositoryCustom {
     Page<PostListResponseDto> searchPostsMain(String keyword, Pageable pageable);
 
     Page<PostListResponseDto> searchBlogPostsByMember(Long blogId, String keyword, String condition, Long memberId, Pageable pageable);
+
+    Page<AdminPostListResponse> searchPostsByAdmin(String keyword, String condition, Pageable pageable);
+
+    Page<AdminCommentListResponse> searchCommentsByAdmin(String keyword, String condition, Pageable pageable);
 }

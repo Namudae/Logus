@@ -65,16 +65,6 @@ public class CommentController {
 //    }
 
     /**
-     * 댓글 다중 삭제(관리자)
-     */
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @DeleteMapping("/admin/comments")
-    public ApiResponse<String> deleteCommentsForAdmin(@RequestBody List<Long> commentIds) {
-        commentService.deleteCommentsForAdmin(commentIds);
-        return ApiResponse.ok();
-    }
-
-    /**
      * 내 블로그 댓글 전체조회
      * - 내용 검색
      * - 내 댓글만 / 내 댓글 제외
