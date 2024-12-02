@@ -80,10 +80,10 @@ public class BlogFacadeService {
         followRepository.bulkDeleteByBlogId(blogId);
         //방문
         visitRepository.bulkDeleteByBlogId(blogId);
-        //블로그멤버
-        blogMemberRepository.bulkDeleteByBlogId(blogId);
         //블로그
         blogRepository.delete(blog);
+        //블로그멤버
+        blogMemberRepository.bulkDeleteByBlogId(blogId);
     }
 
     /**
@@ -111,10 +111,10 @@ public class BlogFacadeService {
         //방문
         visitRepository.bulkDeleteByBlogId(blogId);
         if ("Y".equals(blog.getShareYn())) {
-            //블로그멤버
-            blogMemberRepository.bulkDeleteByBlogId(blogId);
             //블로그
             blogRepository.delete(blog);
+            //블로그멤버
+            blogMemberRepository.bulkDeleteByBlogId(blogId);
         }
     }
 
