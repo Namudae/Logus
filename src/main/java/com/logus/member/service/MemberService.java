@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import static com.logus.common.service.S3Service.CLOUD_FRONT_DOMAIN_NAME;
 
@@ -246,5 +247,24 @@ public class MemberService {
             throw new CustomException(ErrorCode.UNAUTHORIZED_REQUEST);
         }
         return true;
+    }
+
+    public MemberSearchResponse searchMemberByEmail(String email) {
+        // Optional을 사용하여 Member 조회
+        Optional<Member> memberOptional = memberRepository.findByEmail(email);
+        // 검색 결과가 없으면 null 반환
+        if (memberOptional.isEmpty()) {
+            return null;
+        }
+        Member member = memberOptional.get();
+
+        String imgUrl = (member.getImgUrl() != null && !member.getImgUrl().isEmpty())
+                ? CLOUD_FRONT_DOMAIN_NAME + "/" + member.getImgUrl()
+                : null;
+        return MemberSearchResponse.builder()
+                .memberId(member.getId())
+                .nickname(member.getNickname())
+                .imgUrl(imgUrl)
+                .build();
     }
 }

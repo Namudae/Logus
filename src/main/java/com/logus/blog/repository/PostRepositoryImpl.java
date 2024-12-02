@@ -1,5 +1,7 @@
 package com.logus.blog.repository;
 
+import com.logus.admin.dto.AdminCommentListResponse;
+import com.logus.admin.dto.AdminPostListResponse;
 import com.logus.admin.entity.Category;
 import com.logus.admin.entity.QCategory;
 import com.logus.blog.dto.*;
@@ -312,11 +314,102 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         return new PageImpl<>(results, pageable, total);
     }
 
+    /**
+     * 포스트 검색(관리자용)
+     */
+    public Page<AdminPostListResponse> searchPostsByAdmin(String keyword, String condition, Pageable pageable) {
+        JPAQuery<AdminPostListResponse> query = jpaQueryFactory
+                .select(Projections.fields(AdminPostListResponse.class,
+                        member.id.as("memberId"),
+                        member.nickname,
+                        member.loginId,
+                        post.id.as("postId"),
+                        post.title,
+                        post.content,
+                        post.createDate,
+                        blog.id.as("blogId"),
+                        blog.blogName,
+                        blog.blogAddress
+                ))
+                .from(post)
+                .leftJoin(post.member, member)
+                .leftJoin(post.blog, blog)
+                .where(
+                        buildPostCondition(condition, keyword),
+                        post.status.ne(Status.TEMPORARY)
+                )
+                .orderBy(post.createDate.desc());
+
+        // 총 결과 수 조회
+        long total = query.fetchCount();
+
+        // 페이지에 맞는 결과 조회
+        List<AdminPostListResponse> results = query
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        // Page 객체 생성 및 반환
+        return new PageImpl<>(results, pageable, total);
+    }
+
+    /**
+     * 댓글 검색(관리자용)
+     */
+    @Override
+    public Page<AdminCommentListResponse> searchCommentsByAdmin(String keyword, String condition, Pageable pageable) {
+        JPAQuery<AdminCommentListResponse> query = jpaQueryFactory
+                .select(Projections.fields(AdminCommentListResponse.class,
+                        member.id.as("memberId"),
+                        member.nickname,
+                        member.loginId,
+                        post.id.as("postId"),
+                        post.title,
+                        comment.id.as("commentId"),
+                        comment.content,
+                        comment.createDate,
+                        blog.id.as("blogId"),
+                        blog.blogName,
+                        blog.blogAddress
+                ))
+                .from(comment)
+                .leftJoin(comment.post, post)
+                .leftJoin(comment.member, member)
+                .leftJoin(post.blog, blog)
+                .where(
+                        buildPostCondition(condition, keyword)
+                )
+                .orderBy(comment.createDate.desc());
+
+        // 총 결과 수 조회
+        long total = query.fetchCount();
+
+        // 페이지에 맞는 결과 조회
+        List<AdminCommentListResponse> results = query
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        // Page 객체 생성 및 반환
+        return new PageImpl<>(results, pageable, total);
+    }
+
+    //제목, 내용, 아이디, 닉네임, 블로그명, 블로그 주소
     private BooleanExpression buildPostCondition(String condition, String keyword) {
         if ("TITLE".equalsIgnoreCase(condition)) {
             return post.title.contains(keyword);
         } else if ("CONTENT".equalsIgnoreCase(condition)) {
             return post.content.contains(keyword);
+        } else if ("COMMENT".equalsIgnoreCase(condition)) {
+            return comment.content.contains(keyword);
+        } else if ("LOGINID".equalsIgnoreCase(condition)) {
+            return member.loginId.contains(keyword);
+        } else if ("NICKNAME".equalsIgnoreCase(condition)) {
+            return member.nickname.contains(keyword);
+        } else if ("BLOGNAME".equalsIgnoreCase(condition)) {
+            return blog.blogName.contains(keyword);
+        } else if ("BLOGADDRESS".equalsIgnoreCase(condition)) {
+            return blog.blogAddress.contains(keyword);
         }
         // "ALL"인 경우 또는 null/다른 값인 경우 모든 데이터 조회
         return post.title.contains(keyword).or(post.content.contains(keyword));

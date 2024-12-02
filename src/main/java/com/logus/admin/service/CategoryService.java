@@ -7,6 +7,7 @@ import com.logus.admin.entity.Category;
 import com.logus.admin.repository.CategoryRepository;
 import com.logus.blog.dto.SeriesOrderRequestDto;
 import com.logus.blog.entity.Series;
+import com.logus.blog.repository.PostRepository;
 import com.logus.common.exception.CustomException;
 import com.logus.common.exception.ErrorCode;
 import com.logus.common.security.UserPrincipal;
@@ -23,6 +24,7 @@ import java.util.List;
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final PostRepository postRepository;
 
     public Category getById(Long categoryId) {
         return categoryRepository.findById(categoryId)
@@ -67,6 +69,8 @@ public class CategoryService {
     @Transactional
     public void deleteCategory(Long categoryId) {
         Category category = getById(categoryId);
+        //카테고리 지정한 글 수정
+        postRepository.bulkUpdatePostByCategoryId(categoryId);
         categoryRepository.delete(category);
     }
 

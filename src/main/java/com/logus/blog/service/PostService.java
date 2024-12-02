@@ -1,5 +1,7 @@
 package com.logus.blog.service;
 
+import com.logus.admin.dto.AdminCommentListResponse;
+import com.logus.admin.dto.AdminPostListResponse;
 import com.logus.admin.entity.Category;
 import com.logus.admin.service.CategoryService;
 import com.logus.blog.dto.*;
@@ -275,6 +277,17 @@ public class PostService {
         return new PageImpl<>(newPosts, pageable, posts.getTotalElements());
     }
 
+    public Page<AdminPostListResponse> searchPostsByAdmin(String keyword, String condition, Pageable pageable) {
+        if(keyword == null) keyword = "";
+        return postRepository.searchPostsByAdmin(keyword, condition, pageable);
+
+    }
+
+    public Page<AdminCommentListResponse> searchCommentsByAdmin(String keyword, String condition, Pageable pageable) {
+        if(keyword == null) keyword = "";
+        return postRepository.searchCommentsByAdmin(keyword, condition, pageable);
+    }
+
     public Page<PostListResponseDto> searchBlogPostsByTag(Long blogId, String tag, Pageable pageable) {
         // memberId
         Long memberId = blogService.authMemberIdOrNull();
@@ -485,5 +498,12 @@ public class PostService {
         List<PostListResponseDto> newPosts = toPostList(posts);
 
         return new PageImpl<>(newPosts, pageable, posts.getTotalElements());
+    }
+
+    @Transactional
+    public void deletePostsForAdmin(List<Long> postIds) {
+        for (Long postId : postIds) {
+            deletePost(postId);
+        }
     }
 }

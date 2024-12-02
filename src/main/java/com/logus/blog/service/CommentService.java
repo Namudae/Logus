@@ -132,25 +132,25 @@ public class CommentService {
         commentRepository.delete(comment);
     }
 
-    @Transactional
-    public void deleteComments(List<Long> commentIds, Long blogId) {
-        //댓글이 블로그의 댓글이 맞는지 여기서 확인해야됨...
-        List<Comment> comments = commentRepository.findAllById(commentIds);
-
-        // 내가 관리하는 블로그에 속하는 댓글만 필터링
-        List<Comment> authorizedComments = comments.stream()
-                .filter(comment -> comment.getPost().getBlog().getId().equals(blogId))
-                .collect(Collectors.toList());
-
-        commentRepository.deleteAll(authorizedComments);
-    }
-
 //    @Transactional
-//    public void deleteCommentsForAdmin(List<Long> commentIds) {
-//        if (commentIds != null || !commentIds.isEmpty()) {
-//            commentRepository.deleteAllByIdInBatch(commentIds);
-//        }
+//    public void deleteComments(List<Long> commentIds, Long blogId) {
+//        //댓글이 블로그의 댓글이 맞는지 여기서 확인해야됨...
+//        List<Comment> comments = commentRepository.findAllById(commentIds);
+//
+//        // 내가 관리하는 블로그에 속하는 댓글만 필터링
+//        List<Comment> authorizedComments = comments.stream()
+//                .filter(comment -> comment.getPost().getBlog().getId().equals(blogId))
+//                .collect(Collectors.toList());
+//
+//        commentRepository.deleteAll(authorizedComments);
 //    }
+
+    @Transactional
+    public void deleteCommentsForAdmin(List<Long> commentIds) {
+        if (commentIds != null || !commentIds.isEmpty()) {
+            commentRepository.deleteAllByIdInBatch(commentIds);
+        }
+    }
 
     @Transactional
     public void bulkDeleteComment(Long postId) {

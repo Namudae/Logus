@@ -1,19 +1,23 @@
 package com.logus.admin.controller;
 
+import com.logus.admin.dto.AdminCommentListResponse;
 import com.logus.admin.dto.BlogListResponseDto;
+import com.logus.admin.dto.AdminPostListResponse;
 import com.logus.blog.dto.BlogMemberResponseDto;
-import com.logus.blog.dto.BlogResponseDto;
+import com.logus.blog.service.BlogFacadeService;
 import com.logus.blog.service.BlogService;
+import com.logus.blog.service.CommentService;
+import com.logus.blog.service.PostService;
 import com.logus.common.controller.ApiResponse;
 import com.logus.member.dto.MemberListResponse;
 import com.logus.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -22,6 +26,9 @@ public class SystemController {
 
     private final MemberService memberService;
     private final BlogService blogService;
+    private final PostService postService;
+    private final CommentService commentService;
+    private final BlogFacadeService blogFacadeService;
 
     /**
      * 회원 정보 검색
@@ -60,5 +67,64 @@ public class SystemController {
 
         return ApiResponse.ok(blogLists);
     }
+
+    /**
+     * 게시글 관리 - 조회
+     * 검색: 제목, 내용, 아이디, 닉네임, 블로그명, 블로그 주소
+     */
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping("/admin/posts")
+    public ApiResponse<Page<AdminPostListResponse>> searchPostsByAdmin(@RequestParam(value="keyword", required = false) String keyword,
+                                                                       @RequestParam(defaultValue = "ALL") String condition,
+                                                                       Pageable pageable) {
+        Page<AdminPostListResponse> pagePosts = postService.searchPostsByAdmin(keyword, condition, pageable);
+
+        return ApiResponse.ok(pagePosts);
+    }
+
+    /**
+     * 댓글 관리 - 조회
+     * 검색: 게시글 제목, 댓글 내용, 아이디, 닉네임, 블로그명, 블로그 주소
+     */
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping("/admin/comments")
+    public ApiResponse<Page<AdminCommentListResponse>> searchCommentsByAdmin(@RequestParam(value="keyword", required = false) String keyword,
+                                                                             @RequestParam(defaultValue = "ALL") String condition,
+                                                                             Pageable pageable) {
+        Page<AdminCommentListResponse> pagePosts = postService.searchCommentsByAdmin(keyword, condition, pageable);
+
+        return ApiResponse.ok(pagePosts);
+    }
+
+    /**
+     * 댓글 다중 삭제(관리자)
+     */
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @DeleteMapping("/admin/comments")
+    public ApiResponse<String> deleteCommentsForAdmin(@RequestBody List<Long> commentIds) {
+        commentService.deleteCommentsForAdmin(commentIds);
+        return ApiResponse.ok();
+    }
+
+    /**
+     * 글 다중 삭제(관리자)
+     */
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @DeleteMapping("/admin/posts")
+    public ApiResponse<String> deletePostsForAdmin(@RequestBody List<Long> postIds) {
+        postService.deletePostsForAdmin(postIds);
+        return ApiResponse.ok();
+    }
+
+    /**
+     * 회원 다중 탈퇴
+     */
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @DeleteMapping("/admin/users")
+    public ApiResponse<String> deleteMembersForAdmin(@RequestBody List<Long> memberIds) throws IOException {
+        blogFacadeService.deleteMembersForAdmin(memberIds);
+        return ApiResponse.ok();
+    }
+
 
 }

@@ -17,4 +17,9 @@ public interface ReportRepository extends JpaRepository<Report, Long>, ReportRep
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("DELETE FROM Report r WHERE r.reported.id = :memberId")
     void bulkDeleteReportedByMemberId(Long memberId);
+
+    Long countByReporterIdAndCommentId(Long reporterMemberId, Long commentId);
+
+    @Query("SELECT COUNT(r) FROM Report r WHERE r.reporter.id = :reporterId AND r.post.id = :postId AND r.comment IS NULL")
+    Long countByReporterIdAndPostId(Long reporterId, Long postId);
 }
