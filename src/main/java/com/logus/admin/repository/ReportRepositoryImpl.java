@@ -48,7 +48,6 @@ public class ReportRepositoryImpl implements ReportRepositoryCustom {
                 .leftJoin(report.comment)
                 .where(getReportCondition(reportKind))
                 //순서 > 1.미처리, 2.번호순, 날짜순, 신고수(정렬기준 물어봐야됨)
-                //미처리는 service에서 정렬?
                 .orderBy(
                         report.createDate.desc()
                 )
