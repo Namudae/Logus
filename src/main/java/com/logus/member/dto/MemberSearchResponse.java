@@ -13,5 +13,6 @@ public class MemberSearchResponse {
     private Long memberId;
     private String nickname;
     private String imgUrl;
+    private String email;
 
 }

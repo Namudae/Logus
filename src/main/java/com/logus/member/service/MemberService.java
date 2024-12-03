@@ -269,6 +269,7 @@ public class MemberService {
                 .memberId(member.getId())
                 .nickname(member.getNickname())
                 .imgUrl(imgUrl)
+                .email(member.getEmail())
                 .build();
     }
 }
