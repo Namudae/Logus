@@ -21,6 +21,14 @@ public class CommentListDto {
     private String content;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createDate;
+    private ReportStatus reportStatus;
     private String title;
 
+    public void blindComment() {
+        this.content = "임시 숨김 처리된 댓글입니다.";
+    }
+
+    public void blockComment() {
+        this.content = "차단된 댓글입니다.";
+    }
 }

@@ -114,6 +114,11 @@ public class Post extends BaseTime {
         this.changeCreateDate(changeDate);
     }
 
+    //블라인드
+    public void blindPost() {
+        this.reportStatus = ReportStatus.BLIND;
+    }
+
     @OneToMany(mappedBy = "post")
     private List<Likey> likeys = new ArrayList<>();
 

@@ -68,6 +68,7 @@ public class PostController {
     /**
      * 블로그 내부 검색(블로그멤버용)
      */
+    @PreAuthorize("hasRole('ROLE_ADMIN') || @blogService.hasPermissionToBlog(#blogId, 'BLOG', 'EDITOR', authentication)")
     @GetMapping("/blog/posts")
     public ApiResponse<Page<PostListResponseDto>> searchBlogPostsByMember(@RequestParam("blogId") Long blogId,
                                                                   @RequestParam(value="keyword", required = false) String keyword,

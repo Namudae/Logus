@@ -61,4 +61,9 @@ public class Comment extends BaseTime {
         this.content = commentRequestDto.getContent();
         this.status = commentRequestDto.getStatus();
     }
+
+    //블라인드 처리
+    public void blindComment() {
+        this.reportStatus = ReportStatus.BLIND;
+    }
 }

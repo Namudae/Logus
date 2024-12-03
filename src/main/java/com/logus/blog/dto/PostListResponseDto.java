@@ -72,4 +72,14 @@ public class PostListResponseDto {
         }
     }
 
+    public void blindPost() {
+        this.title = "임시 숨김 처리된 게시글입니다.";
+        this.content = "게시글이 5회 이상 신고 누적으로 임시 숨김 처리되었습니다.";
+    }
+
+    public void blockPost() {
+        this.title = "차단된 게시글입니다.";
+        this.content = "게시글이 차단되었습니다.";
+    }
+
 }

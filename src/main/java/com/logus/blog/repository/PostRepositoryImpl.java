@@ -4,6 +4,7 @@ import com.logus.admin.dto.AdminCommentListResponse;
 import com.logus.admin.dto.AdminPostListResponse;
 import com.logus.admin.entity.Category;
 import com.logus.admin.entity.QCategory;
+import com.logus.admin.entity.ReportStatus;
 import com.logus.blog.dto.*;
 import com.logus.blog.entity.Post;
 import com.logus.blog.entity.QPost;
@@ -296,8 +297,8 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .leftJoin(post.category, category)
                 .where(
                         post.blog.id.eq(blogId),
-                        buildPostCondition(condition, keyword),
-                        memberId != null ? checkPublic(blogId, memberId, post) : post.status.eq(Status.PUBLIC)
+                        buildPostCondition(condition, keyword)
+//                        memberId != null ? checkPublic(blogId, memberId, post) : post.status.eq(Status.PUBLIC)
                 )
                 .orderBy(post.createDate.desc());
 
@@ -589,7 +590,8 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                             .where(
                                     post.category.id.eq(cat.getId())
                                     , getDateCondition(condition.getDate()),
-                                    post.status.eq(Status.PUBLIC)
+                                    post.status.eq(Status.PUBLIC),
+                                    post.reportStatus.notIn(ReportStatus.BLIND, ReportStatus.BLOCK)
                             )
                             .orderBy(getOrderBy(condition.getGrid()))
                             .offset(0)
@@ -637,9 +639,10 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .leftJoin(post.category, category)
                 .leftJoin(post.blog, blog)
                 .where(
-                        post.category.id.eq(condition.getCategoryId()),  // 특정 카테고리로 필터링
+                        post.category.id.eq(condition.getCategoryId()), // 특정 카테고리로 필터링
                         getDateCondition(condition.getDate()),
-                        post.status.eq(Status.PUBLIC)  // 날짜 조건 추가
+                        post.status.eq(Status.PUBLIC),
+                        post.reportStatus.notIn(ReportStatus.BLIND, ReportStatus.BLOCK)
                 )
                 .orderBy(getOrderBy(condition.getGrid()))
                 .offset(pageable.getOffset())
@@ -731,7 +734,8 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .leftJoin(post.category, category)
                 .leftJoin(post.series, series)
                 .where(
-                        post.status.eq(Status.PUBLIC)
+                        post.status.eq(Status.PUBLIC),
+                        post.reportStatus.notIn(ReportStatus.BLIND, ReportStatus.BLOCK)
                         .and(post.title.contains(keyword)
                             .or(post.content.contains(keyword)))
                 );

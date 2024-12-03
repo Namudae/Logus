@@ -36,6 +36,7 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
                         comment.member.nickname,
                         comment.content,
                         comment.createDate,
+                        comment.reportStatus,
                         comment.post.title))
                 .from(comment)
                 .leftJoin(comment.member, member)

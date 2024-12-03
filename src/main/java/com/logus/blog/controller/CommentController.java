@@ -69,7 +69,7 @@ public class CommentController {
      * - 내용 검색
      * - 내 댓글만 / 내 댓글 제외
      */
-    @PreAuthorize("hasRole('ROLE_ADMIN') || @blogService.hasPermissionToBlog(#blogId, 'BLOG', 'ADMIN', authentication)")
+    @PreAuthorize("hasRole('ROLE_ADMIN') || @blogService.hasPermissionToBlog(#blogId, 'BLOG', 'EDITOR', authentication)")
     @GetMapping("/blog/comments")
     public ApiResponse<Page<CommentListDto>> selectBlogComments(@RequestParam("blogId") Long blogId,
                                                                @RequestParam(value="keyword", required = false) String keyword,

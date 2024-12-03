@@ -3,6 +3,7 @@ package com.logus.blog.service;
 import com.logus.admin.dto.AdminCommentListResponse;
 import com.logus.admin.dto.AdminPostListResponse;
 import com.logus.admin.entity.Category;
+import com.logus.admin.entity.ReportStatus;
 import com.logus.admin.service.CategoryService;
 import com.logus.blog.dto.*;
 import com.logus.blog.entity.*;
@@ -34,6 +35,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static com.logus.common.service.S3Service.CLOUD_FRONT_DOMAIN_NAME;
@@ -125,6 +127,14 @@ public class PostService {
 
         dto.setComments(comments);
         dto.setTags(tags);
+
+        //블라인드
+        if (post.getReportStatus() == ReportStatus.BLIND) {
+            dto.blindPost();
+        } else if (post.getReportStatus() == ReportStatus.BLOCK) {
+            dto.blockPost();
+        }
+
         return dto;
     }
 
@@ -306,6 +316,7 @@ public class PostService {
      * 게시글 목록 조회 공통처리
      * - 썸네일
      * - 태그
+     * - 블라인드
      */
     private List<PostListResponseDto> toPostList(Page<PostListResponseDto> posts) {
         return posts.stream()
@@ -315,10 +326,15 @@ public class PostService {
                     if (imgUrl != null && !imgUrl.equals("")) {
                         dto.setImgUrl(CLOUD_FRONT_DOMAIN_NAME + "/" + imgUrl);
                     }
-
                     // tags 설정
                     List<String> tags = tagService.selectPostTags(dto.getPostId());
                     dto.setTags(tags);
+                    //블라인드 처리
+                    if (Objects.equals(dto.getReportStatus(), ReportStatus.BLIND)) {
+                        dto.blindPost();
+                    } else if (Objects.equals(dto.getReportStatus(), ReportStatus.BLOCK)) {
+                        dto.blockPost();
+                    }
 
                     return dto;
                 })
@@ -332,6 +348,12 @@ public class PostService {
                     String imgUrl = dto.getImgUrl();
                     if (imgUrl != null && !imgUrl.equals("")) {
                         dto.setImgUrl(CLOUD_FRONT_DOMAIN_NAME + "/" + imgUrl);
+                    }
+                    //블라인드 처리
+                    if (Objects.equals(dto.getReportStatus(), ReportStatus.BLIND)) {
+                        dto.blindPost();
+                    } else if (Objects.equals(dto.getReportStatus(), ReportStatus.BLOCK)) {
+                        dto.blockPost();
                     }
                     return dto;
                 })

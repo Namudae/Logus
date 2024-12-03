@@ -53,4 +53,12 @@ public class ParentCommentDto {
         this.content = null;
     }
 
+    public void blindComment() {
+        this.content = "임시 숨김 처리된 댓글입니다.";
+    }
+
+    public void blockComment() {
+        this.content = "차단된 댓글입니다.";
+    }
+
 }

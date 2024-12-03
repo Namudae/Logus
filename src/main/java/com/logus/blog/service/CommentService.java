@@ -1,5 +1,6 @@
 package com.logus.blog.service;
 
+import com.logus.admin.entity.ReportStatus;
 import com.logus.blog.dto.*;
 import com.logus.blog.entity.Comment;
 import com.logus.blog.entity.Post;
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -61,7 +63,20 @@ public class CommentService {
         List<ParentCommentDto> parents = comments.stream()
                 .filter(comment -> comment.getParent() == null)
                 .sorted(Comparator.comparing(Comment::getCreateDate))  // createDate 기준 내림차순 정렬
-                .map(ParentCommentDto::new)
+                .map(comment -> {
+                            ParentCommentDto dto = new ParentCommentDto(comment);
+                            // 비밀 댓글 처리
+                            if (!isMember && comment.getStatus() == Status.SECRET) {
+                                dto.secretComment();
+                            }
+                            // 신고 처리
+                            if (Objects.equals(comment.getReportStatus(), ReportStatus.BLIND)) {
+                                dto.blindComment();
+                            } else if (Objects.equals(comment.getReportStatus(), ReportStatus.BLOCK)) {
+                                dto.blockComment();
+                            }
+                            return dto;
+                        })
                 .toList();
 
         // 자식 댓글 생성
@@ -74,12 +89,16 @@ public class CommentService {
                             .map(childComment -> {
                                 // 자식 댓글 DTO 생성
                                 ChildCommentDto.ChildDetailDto dto = new ChildCommentDto.ChildDetailDto(childComment);
-
                                 // 비밀 댓글 처리
                                 if (!isMember && childComment.getStatus() == Status.SECRET) {
                                     dto.secretComment();
                                 }
-
+                                // 신고 처리
+                                if (Objects.equals(childComment.getReportStatus(), ReportStatus.BLIND)) {
+                                    dto.blindComment();
+                                } else if (Objects.equals(childComment.getReportStatus(), ReportStatus.BLOCK)) {
+                                    dto.blockComment();
+                                }
                                 return dto;
                             })
                             .toList();
@@ -159,7 +178,17 @@ public class CommentService {
 
     public Page<CommentListDto> selectBlogComments(Long blogId, String keyword, String condition, Pageable pageable) {
         Long memberId = memberService.authMemberId();
-        return commentRepository.selectBlogComments(blogId, memberId, keyword, condition, pageable);
+        Page<CommentListDto> comments = commentRepository.selectBlogComments(blogId, memberId, keyword, condition, pageable);
+
+        return comments.map(comment -> {
+            if (Objects.equals(comment.getReportStatus(), ReportStatus.BLIND)) {
+                comment.blindComment();
+            } else if (Objects.equals(comment.getReportStatus(), ReportStatus.BLOCK)) {
+                comment.blockComment();
+            }
+            return comment;
+        });
+//        return commentRepository.selectBlogComments(blogId, memberId, keyword, condition, pageable);
     }
 
     //=====인가
