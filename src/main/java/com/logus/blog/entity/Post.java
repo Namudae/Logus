@@ -119,6 +119,11 @@ public class Post extends BaseTime {
         this.reportStatus = ReportStatus.BLIND;
     }
 
+    //블라인드
+    public void blockPost() {
+        this.reportStatus = ReportStatus.BLOCK;
+    }
+
     @OneToMany(mappedBy = "post")
     private List<Likey> likeys = new ArrayList<>();
 

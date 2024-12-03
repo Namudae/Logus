@@ -7,11 +7,14 @@ import lombok.RequiredArgsConstructor;
 @Getter
 public enum ReportStatus {
 
-    PENDING("미처리"), //미처리
-    BLIND("임시 숨김 처리"), //미처리
-    BLOCK("차단"), //처리
-    DELETE("삭제"), //처리
-    RETURN("반려"); //처리
+    //처리 전
+    PENDING("미처리"),
+    BLIND("임시 숨김 처리"),
+
+    //처리 후
+    BLOCK("차단"),
+    DELETE("삭제"),
+    RETURN("반려");
 
     private final String title;
 }

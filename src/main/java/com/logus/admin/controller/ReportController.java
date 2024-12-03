@@ -3,11 +3,13 @@ package com.logus.admin.controller;
 import com.logus.admin.dto.CategoryRequestDto;
 import com.logus.admin.dto.ReportListResponseDto;
 import com.logus.admin.dto.ReportRequest;
+import com.logus.admin.entity.ReportStatus;
 import com.logus.admin.service.ReportService;
 import com.logus.common.controller.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,6 +24,7 @@ public class ReportController {
     /**
      * 게시글 신고 조회
      */
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/report/posts")
     public ApiResponse<ReportListResponseDto> selectPostReports(Pageable pageable) {
         ReportListResponseDto dto = reportService.selectPostReports(pageable);
@@ -33,6 +36,7 @@ public class ReportController {
      * 댓글 신고 조회
      * + 페이징 추가
      */
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/report/comments")
     public ApiResponse<ReportListResponseDto> selectCommentReports(Pageable pageable) {
         ReportListResponseDto dto = reportService.selectCommentReports(pageable);
@@ -47,6 +51,27 @@ public class ReportController {
     public ApiResponse<Map<String, Long>> insertReport(@RequestBody @Valid ReportRequest reportRequest) {
         Long reportId = reportService.createReport(reportRequest);
 
+        return ApiResponse.ok(Map.of("reportId", reportId));
+    }
+
+    /**
+     * 게시글 신고 처리
+     */
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PutMapping("/report/post")
+    public ApiResponse<Map<String, Long>> handlePostReport(@RequestParam("reportId") Long reportId,
+                                                       @RequestParam(value = "reportStatus") ReportStatus reportStatus) {
+        reportService.handlePostReport(reportId, reportStatus);
+        return ApiResponse.ok(Map.of("reportId", reportId));
+    }
+    /**
+     * 댓글 신고 처리
+     */
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PutMapping("/report/comment")
+    public ApiResponse<Map<String, Long>> handleCommentReport(@RequestParam("reportId") Long reportId,
+                                                       @RequestParam(value = "reportStatus") ReportStatus reportStatus) {
+        reportService.handleCommentReport(reportId, reportStatus);
         return ApiResponse.ok(Map.of("reportId", reportId));
     }
 

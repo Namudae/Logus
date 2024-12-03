@@ -3,6 +3,7 @@ package com.logus.admin.service;
 import com.logus.admin.dto.ReportListResponseDto;
 import com.logus.admin.dto.ReportRequest;
 import com.logus.admin.entity.Report;
+import com.logus.admin.entity.ReportStatus;
 import com.logus.admin.repository.ReportRepository;
 import com.logus.blog.entity.Comment;
 import com.logus.blog.entity.Post;
@@ -12,13 +13,11 @@ import com.logus.common.exception.CustomException;
 import com.logus.common.exception.ErrorCode;
 import com.logus.member.entity.Member;
 import com.logus.member.service.MemberService;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -40,11 +39,29 @@ public class ReportService {
     }
 
     public ReportListResponseDto selectPostReports(Pageable pageable) {
-        return reportRepository.selectPostReports(pageable);
+        ReportListResponseDto responseDto = reportRepository.selectPostReports(pageable);
+
+        responseDto.getReportList().forEach(dto -> {
+            if ((dto.getReportStatus().equals(ReportStatus.DELETE))) {
+                dto.setPostTitle("삭제 처리 된 게시글입니다.");
+            } else if (dto.getPostTitle()==null) {
+                dto.setPostTitle("삭제된 게시글입니다.");
+            }
+        });
+        return responseDto;
     }
 
     public ReportListResponseDto selectCommentReports(Pageable pageable) {
-        return reportRepository.selectCommentReports(pageable);
+        ReportListResponseDto responseDto = reportRepository.selectCommentReports(pageable);
+
+        responseDto.getReportList().forEach(dto -> {
+            if ((dto.getReportStatus().equals(ReportStatus.DELETE))) {
+                dto.setCommentContent("삭제 처리 된 댓글입니다.");
+            } else if (dto.getCommentContent()==null) {
+                dto.setCommentContent("삭제된 댓글입니다.");
+            }
+        });
+        return responseDto;
     }
 
     @Transactional
@@ -88,4 +105,39 @@ public class ReportService {
 
         return reportId;
     }
+
+    @Transactional
+    public void handlePostReport(Long reportId, ReportStatus reportStatus) {
+        Report report = getById(reportId);
+        Post post = postService.getById(report.getPost().getId());
+        if (reportStatus.equals(ReportStatus.BLOCK)) {
+            report.updateReportStatus(ReportStatus.BLOCK);
+            post.blockPost();
+        } else if (reportStatus.equals(ReportStatus.DELETE)) {
+            report.updateReportStatus(ReportStatus.DELETE);
+            postService.deletePost(post.getId());
+        } else if (reportStatus.equals(ReportStatus.RETURN)) {
+            report.updateReportStatus(ReportStatus.RETURN);
+        }
+    }
+
+    @Transactional
+    public void handleCommentReport(Long reportId, ReportStatus reportStatus) {
+        Report report = getById(reportId);
+        Comment comment = commentService.getById(report.getComment().getId());
+        if (reportStatus.equals(ReportStatus.BLOCK)) {
+            report.updateReportStatus(ReportStatus.BLOCK);
+            comment.blockComment();
+        } else if (reportStatus.equals(ReportStatus.DELETE)) {
+            report.updateReportStatus(ReportStatus.DELETE);
+            commentService.deleteComment(comment.getId());
+        } else if (reportStatus.equals(ReportStatus.RETURN)) {
+            report.updateReportStatus(ReportStatus.RETURN);
+        }
+    }
+
+    public ReportListResponseDto selectPostReport(Long reportId) {
+        return null;
+    }
 }
+

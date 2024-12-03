@@ -66,4 +66,8 @@ public class Comment extends BaseTime {
     public void blindComment() {
         this.reportStatus = ReportStatus.BLIND;
     }
+
+    public void blockComment() {
+        this.reportStatus = ReportStatus.BLOCK;
+    }
 }

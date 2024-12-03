@@ -8,11 +8,8 @@ import com.logus.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
-
 @Entity
 @Getter
-@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -49,5 +46,10 @@ public class Report extends BaseTime {
     @Enumerated(EnumType.STRING)
     @Column(length = 20, columnDefinition = "varchar(20)")
     private ReportStatus reportStatus;
+
+    //==비즈니스 로직==//
+    public void updateReportStatus(ReportStatus reportStatus) {
+        this.reportStatus = reportStatus;
+    }
 
 }

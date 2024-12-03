@@ -146,7 +146,6 @@ public class CommentService {
 
     @Transactional
     public void deleteComment(Long commentId) {
-        Long memberId = memberService.authMemberId();
         Comment comment = getById(commentId);
         commentRepository.delete(comment);
     }
