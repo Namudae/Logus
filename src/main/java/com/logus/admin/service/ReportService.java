@@ -39,8 +39,12 @@ public class ReportService {
                 reportRepository.getReferenceById(reportId);
     }
 
-    public ReportListResponseDto selectReports(String reportKind, Pageable pageable) {
-        return reportRepository.selectReports(reportKind, pageable);
+    public ReportListResponseDto selectPostReports(Pageable pageable) {
+        return reportRepository.selectPostReports(pageable);
+    }
+
+    public ReportListResponseDto selectCommentReports(Pageable pageable) {
+        return reportRepository.selectCommentReports(pageable);
     }
 
     @Transactional

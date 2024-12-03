@@ -20,12 +20,22 @@ public class ReportController {
     private final ReportService reportService;
 
     /**
-     * 신고 조회
+     * 게시글 신고 조회
+     */
+    @GetMapping("/report/posts")
+    public ApiResponse<ReportListResponseDto> selectPostReports(Pageable pageable) {
+        ReportListResponseDto dto = reportService.selectPostReports(pageable);
+
+        return ApiResponse.ok(dto);
+    }
+
+    /**
+     * 댓글 신고 조회
      * + 페이징 추가
      */
-    @GetMapping("/report")
-    public ApiResponse<ReportListResponseDto> selectReports(@RequestParam(required = false) String reportKind, Pageable pageable) {
-        ReportListResponseDto dto = reportService.selectReports(reportKind, pageable);
+    @GetMapping("/report/comments")
+    public ApiResponse<ReportListResponseDto> selectCommentReports(Pageable pageable) {
+        ReportListResponseDto dto = reportService.selectCommentReports(pageable);
 
         return ApiResponse.ok(dto);
     }
