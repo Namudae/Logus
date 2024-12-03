@@ -22,4 +22,17 @@ public interface ReportRepository extends JpaRepository<Report, Long>, ReportRep
 
     @Query("SELECT COUNT(r) FROM Report r WHERE r.reporter.id = :reporterId AND r.post.id = :postId AND r.comment IS NULL")
     Long countByReporterIdAndPostId(Long reporterId, Long postId);
+
+    Integer countByCommentId(Long commentId);
+
+    @Query("SELECT COUNT(r) FROM Report r WHERE r.post.id = :postId AND r.comment IS NULL")
+    Integer countByPostId(Long postId);
+
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query("UPDATE Report r SET r.reportStatus = com.logus.admin.entity.ReportStatus.BLIND WHERE r.comment.id = :commentId")
+    void bulkUpdateReportByCommentId(Long commentId);
+
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query("UPDATE Report r SET r.reportStatus = com.logus.admin.entity.ReportStatus.BLIND WHERE r.post.id = :postId AND r.comment IS NULL")
+    void bulkUpdateReportByPostId(Long postId);
 }

@@ -43,6 +43,7 @@ public class Report extends BaseTime {
     @Column(length = 30, columnDefinition = "varchar(30)")
     private ReportType reportType;
 
+    @Column(length = 600)
     private String reason;
 
     @Enumerated(EnumType.STRING)

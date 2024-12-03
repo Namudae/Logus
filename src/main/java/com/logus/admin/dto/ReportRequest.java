@@ -21,7 +21,7 @@ public class ReportRequest {
     private Long commentId;
     private Long reportedMemberId;
     private ReportType reportType;
-    @Size(max=50, message = "신고 사유를 50자 이내로 작성해주세요")
+    @Size(max=600, message = "신고 사유를 100자 이내로 작성해주세요")
     private String reason;
 
     /*

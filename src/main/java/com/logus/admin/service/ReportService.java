@@ -51,6 +51,7 @@ public class ReportService {
         Member reported = null;
         Comment comment = null;
         Post post = null;
+        Integer count = 0;
         if (reportRequest.getCommentId() != null) {
             if (reportRepository.countByReporterIdAndCommentId(reporter.getId(), reportRequest.getCommentId())> 0) {
                 throw new CustomException(ErrorCode.DUPLICATE_COMMENT_REPORT);
@@ -58,15 +59,29 @@ public class ReportService {
             comment = commentService.getById(reportRequest.getCommentId());
             post = postService.getById(comment.getPost().getId());
             reported = comment.getMember();
+            count = reportRepository.countByCommentId(reportRequest.getCommentId());
         } else {
             if (reportRepository.countByReporterIdAndPostId(reporter.getId(), reportRequest.getPostId())> 0) {
                 throw new CustomException(ErrorCode.DUPLICATE_POST_REPORT);
             }
             post = postService.getById(reportRequest.getPostId());
             reported = post.getMember();
+            count = reportRepository.countByPostId(reportRequest.getPostId());
         }
         Report report = reportRequest.toEntity(reporter, reported, post, comment);
         Long reportId = reportRepository.save(report).getId();
+
+        //신고 누적n번일 경우 reportStatus.BLIND
+        if (count >= 4) {
+            if (reportRequest.getCommentId() != null) {
+                reportRepository.bulkUpdateReportByCommentId(reportRequest.getCommentId());
+                comment.blindComment();
+            } else {
+                reportRepository.bulkUpdateReportByPostId(post.getId());
+                post.blindPost();
+            }
+        }
+
         return reportId;
     }
 }
