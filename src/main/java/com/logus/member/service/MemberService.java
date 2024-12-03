@@ -251,6 +251,10 @@ public class MemberService {
 
     public MemberSearchResponse searchMemberByEmail(String email) {
         // Optional을 사용하여 Member 조회
+        Member me = getById(authMemberId());
+        if (me.getEmail().equals(email)) {
+            return null;
+        }
         Optional<Member> memberOptional = memberRepository.findByEmail(email);
         // 검색 결과가 없으면 null 반환
         if (memberOptional.isEmpty()) {
