@@ -22,6 +22,7 @@ public class CommentListDto {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createDate;
     private ReportStatus reportStatus;
+    private Long postId;
     private String title;
 
     public void blindComment() {
