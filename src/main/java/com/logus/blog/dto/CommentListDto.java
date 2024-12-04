@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 public class CommentListDto {
 
     private Long commentId;
+    private Byte depth;
     private Long memberId;
     private String nickname;
     private String content;

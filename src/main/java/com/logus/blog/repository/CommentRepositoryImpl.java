@@ -32,6 +32,7 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
         JPAQuery<CommentListDto> query = jpaQueryFactory
                 .select(Projections.fields(CommentListDto.class,
                         comment.id.as("commentId"),
+                        comment.depth,
                         comment.member.id.as("memberId"),
                         comment.member.nickname,
                         comment.content,
