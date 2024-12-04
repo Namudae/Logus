@@ -13,9 +13,10 @@ import java.time.LocalDateTime;
 @Data
 @Builder
 public class ReportDto {
-
     private Long reportId;
     private Long reportCount;
+    private Long reporterMemberId;
+    private Long reportedMemberId;
     @JsonFormat(shape= JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createDate;
     private ReportType reportType;
@@ -24,7 +25,7 @@ public class ReportDto {
     private Long commentId;
     private String commentContent;
     private ReportStatus reportStatus;
-//    private Long pendingCount;
-//    private Long handledCount;
-
+    private Long blogId;
+    private String blogName;
+    private String blogAddress;
 }

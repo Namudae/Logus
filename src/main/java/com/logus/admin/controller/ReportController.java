@@ -1,6 +1,7 @@
 package com.logus.admin.controller;
 
 import com.logus.admin.dto.CategoryRequestDto;
+import com.logus.admin.dto.ReportDto;
 import com.logus.admin.dto.ReportListResponseDto;
 import com.logus.admin.dto.ReportRequest;
 import com.logus.admin.entity.ReportStatus;
@@ -22,7 +23,7 @@ public class ReportController {
     private final ReportService reportService;
 
     /**
-     * 게시글 신고 조회
+     * 게시글 신고 목록 조회
      */
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/report/posts")
@@ -33,13 +34,35 @@ public class ReportController {
     }
 
     /**
-     * 댓글 신고 조회
-     * + 페이징 추가
+     * 댓글 신고 목록 조회
      */
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/report/comments")
     public ApiResponse<ReportListResponseDto> selectCommentReports(Pageable pageable) {
         ReportListResponseDto dto = reportService.selectCommentReports(pageable);
+
+        return ApiResponse.ok(dto);
+    }
+
+    /**
+     * 게시글 신고 단건 조회
+     */
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping("/report/post")
+    public ApiResponse<ReportDto> selectPostReport(@RequestParam("reportId") Long reportId) {
+        ReportDto dto = reportService.selectReportPost(reportId);
+
+        return ApiResponse.ok(dto);
+    }
+
+
+    /**
+     * 댓글 신고 단건 조회
+     */
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping("/report/comment")
+    public ApiResponse<ReportDto> selectCommentReport(@RequestParam("reportId") Long reportId) {
+        ReportDto dto = reportService.selectReportComment(reportId);
 
         return ApiResponse.ok(dto);
     }
@@ -64,6 +87,7 @@ public class ReportController {
         reportService.handlePostReport(reportId, reportStatus);
         return ApiResponse.ok(Map.of("reportId", reportId));
     }
+
     /**
      * 댓글 신고 처리
      */

@@ -1,5 +1,6 @@
 package com.logus.admin.service;
 
+import com.logus.admin.dto.ReportDto;
 import com.logus.admin.dto.ReportListResponseDto;
 import com.logus.admin.dto.ReportRequest;
 import com.logus.admin.entity.Report;
@@ -27,6 +28,10 @@ public class ReportService {
     private final PostService postService;
     private final CommentService commentService;
     private final ReportRepository reportRepository;
+    public static final String DELETE_POST = "삭제된 게시글입니다.";
+    public static final String DELETED_POST = "삭제 처리 된 게시글입니다.";
+    public static final String DELETE_COMMENT = "삭제된 댓글입니다.";
+    public static final String DELETED_COMMENT = "삭제 처리 된 댓글입니다.";
 
     public Report getById(Long reportId) {
         return reportRepository.findById(reportId)
@@ -43,9 +48,9 @@ public class ReportService {
 
         responseDto.getReportList().forEach(dto -> {
             if ((dto.getReportStatus().equals(ReportStatus.DELETE))) {
-                dto.setPostTitle("삭제 처리 된 게시글입니다.");
+                dto.setPostTitle(DELETED_POST);
             } else if (dto.getPostTitle()==null) {
-                dto.setPostTitle("삭제된 게시글입니다.");
+                dto.setPostTitle(DELETE_POST);
             }
         });
         return responseDto;
@@ -56,12 +61,46 @@ public class ReportService {
 
         responseDto.getReportList().forEach(dto -> {
             if ((dto.getReportStatus().equals(ReportStatus.DELETE))) {
-                dto.setCommentContent("삭제 처리 된 댓글입니다.");
+                dto.setCommentContent(DELETED_COMMENT);
             } else if (dto.getCommentContent()==null) {
-                dto.setCommentContent("삭제된 댓글입니다.");
+                dto.setCommentContent(DELETE_COMMENT);
+            }
+            if (dto.getPostTitle()==null) {
+                dto.setPostTitle(DELETE_POST);
             }
         });
         return responseDto;
+    }
+
+    public ReportDto selectReportPost(Long reportId) {
+        try {
+            ReportDto dto = reportRepository.selectReportPost(reportId);
+            if ((dto.getReportStatus().equals(ReportStatus.DELETE))) {
+                dto.setPostTitle(DELETED_POST);
+            } else if (dto.getPostTitle()==null) {
+                dto.setPostTitle(DELETE_POST);
+            }
+            return dto;
+        } catch (NullPointerException e) {
+            throw new CustomException(ErrorCode.REPORT_NOT_FOUND);
+        }
+    }
+
+    public ReportDto selectReportComment(Long reportId) {
+        try {
+            ReportDto dto = reportRepository.selectReportComment(reportId);
+            if ((dto.getReportStatus().equals(ReportStatus.DELETE))) {
+                dto.setCommentContent(DELETED_COMMENT);
+            } else if (dto.getCommentContent()==null) {
+                dto.setCommentContent(DELETE_COMMENT);
+            }
+            if (dto.getPostTitle()==null) {
+                dto.setPostTitle(DELETE_POST);
+            }
+            return dto;
+        } catch (NullPointerException e) {
+            throw new CustomException(ErrorCode.REPORT_NOT_FOUND);
+        }
     }
 
     @Transactional
@@ -134,10 +173,6 @@ public class ReportService {
         } else if (reportStatus.equals(ReportStatus.RETURN)) {
             report.updateReportStatus(ReportStatus.RETURN);
         }
-    }
-
-    public ReportListResponseDto selectPostReport(Long reportId) {
-        return null;
     }
 }
 

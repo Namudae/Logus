@@ -1,16 +1,19 @@
 package com.logus.admin.repository;
 
-import com.logus.admin.dto.CategoryResponseDto;
 import com.logus.admin.dto.ReportDto;
+import com.logus.admin.dto.ReportListDto;
 import com.logus.admin.dto.ReportListResponseDto;
-import com.logus.admin.dto.ReportResponseDto;
 import com.logus.admin.entity.QReport;
 import com.logus.admin.entity.ReportStatus;
+import com.logus.blog.entity.QComment;
+import com.querydsl.core.types.EntityPath;
 import com.querydsl.core.types.ExpressionUtils;
+import com.querydsl.core.types.Path;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.NumberExpression;
+import com.querydsl.core.types.dsl.NumberPath;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
@@ -20,10 +23,13 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
-import static com.logus.admin.entity.QCategory.category;
 import static com.logus.admin.entity.QReport.report;
+import static com.logus.blog.entity.QBlog.blog;
 import static com.logus.blog.entity.QComment.comment;
+import static com.logus.blog.entity.QLikey.likey;
 import static com.logus.blog.entity.QPost.post;
+import static com.logus.member.entity.QMember.member;
+import static org.springframework.util.StringUtils.hasText;
 
 public class ReportRepositoryImpl implements ReportRepositoryCustom {
 
@@ -35,8 +41,8 @@ public class ReportRepositoryImpl implements ReportRepositoryCustom {
 
     @Override
     public ReportListResponseDto selectPostReports(Pageable pageable) {
-        List<ReportDto> reportResponses =  jpaQueryFactory
-                .select(Projections.fields(ReportDto.class,
+        List<ReportListDto> reportResponses =  jpaQueryFactory
+                .select(Projections.fields(ReportListDto.class,
                         report.id.as("reportId"),
                         report.reporter.id.as("reporterMemberId"),
                         //reportCount(누적 신고수) 추가
@@ -86,7 +92,7 @@ public class ReportRepositoryImpl implements ReportRepositoryCustom {
                 .fetchOne();
 
         // Page 생성
-        Page<ReportDto> reportPage = new PageImpl<>(reportResponses, pageable, totalCount);
+        Page<ReportListDto> reportPage = new PageImpl<>(reportResponses, pageable, totalCount);
 
 
         // 최종 DTO 생성
@@ -99,11 +105,83 @@ public class ReportRepositoryImpl implements ReportRepositoryCustom {
     }
 
     @Override
-    public ReportListResponseDto selectCommentReports(Pageable pageable) {
-        List<ReportDto> reportResponses =  jpaQueryFactory
+    public ReportDto selectReportPost(Long reportId) {
+        QReport r = new QReport("r");
+        QReport report = new QReport("report");
+        return jpaQueryFactory
                 .select(Projections.fields(ReportDto.class,
                         report.id.as("reportId"),
                         report.reporter.id.as("reporterMemberId"),
+                        report.reported.id.as("reportedMemberId"),
+                        report.createDate,
+                        report.reportType,
+                        post.id.as("postId"),
+                        post.title.as("postTitle"),
+                        comment.id.as("commentId"),
+                        comment.content.as("commentContent"),
+                        report.reportStatus,
+                        blog.id.as("blogId"),
+                        blog.blogAddress,
+                        blog.blogName,
+                        ExpressionUtils.as(
+                                JPAExpressions.select(r.count())
+                                        .from(r)
+                                        .where(r.post.id.eq(post.id)),
+                                "reportCount"
+                        )
+                ))
+                .from(report)
+                .leftJoin(report.post, post)
+                .leftJoin(report.comment, comment)
+                .leftJoin(post.blog, blog)
+                .where(report.id.eq(reportId))
+                .fetchOne();
+
+    }
+
+    @Override
+    public ReportDto selectReportComment(Long reportId) {
+        QReport r = new QReport("r");
+        QReport report = new QReport("report");
+        return jpaQueryFactory
+                .select(Projections.fields(ReportDto.class,
+                        report.id.as("reportId"),
+                        report.reporter.id.as("reporterMemberId"),
+                        report.reported.id.as("reportedMemberId"),
+                        //reportCount(누적 신고수) 추가
+                        report.createDate,
+                        report.reportType,
+                        post.id.as("postId"),
+                        post.title.as("postTitle"),
+                        comment.id.as("commentId"),
+                        comment.content.as("commentContent"),
+                        report.reportStatus,
+                        blog.id.as("blogId"),
+                        blog.blogAddress,
+                        blog.blogName,
+                        ExpressionUtils.as(
+                                JPAExpressions.select(r.count())
+                                        .from(r)
+                                        .where(r.comment.id.eq(comment.id)),
+                                "reportCount"
+                        )
+                ))
+                .from(report)
+                .leftJoin(report.post, post)
+                .leftJoin(report.comment, comment)
+                .leftJoin(post.blog, blog)
+                .where(report.id.eq(reportId))
+                .fetchOne();
+
+    }
+
+    @Override
+    public ReportListResponseDto selectCommentReports(Pageable pageable) {
+        List<ReportListDto> reportResponses =  jpaQueryFactory
+                .select(Projections.fields(ReportListDto.class,
+                        report.id.as("reportId"),
+                        report.reporter.id.as("reporterMemberId"),
+                        report.reported.id.as("reportedMemberId"),
                         //reportCount(누적 신고수) 추가
                         report.createDate,
                         report.reportType,
@@ -151,7 +229,7 @@ public class ReportRepositoryImpl implements ReportRepositoryCustom {
 
 
         // Page 생성
-        Page<ReportDto> reportPage = new PageImpl<>(reportResponses, pageable, totalCount);
+        Page<ReportListDto> reportPage = new PageImpl<>(reportResponses, pageable, totalCount);
 
 
         // 최종 DTO 생성
