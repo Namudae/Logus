@@ -156,10 +156,8 @@ public class BlogFacadeService {
         }
         series.updateSeries(seriesRequestDto, imgUrl);
 
-        if (imgUrl == null || imgUrl.isEmpty()) {
-            imgUrl = null;
-        } else {
-            imgUrl = CLOUD_FRONT_DOMAIN_NAME + "/" + imgUrl;
+        if (series.getImgUrl() != null && !series.getImgUrl().isEmpty()) {
+            imgUrl = CLOUD_FRONT_DOMAIN_NAME + "/" + series.getImgUrl();
         }
         return new SeriesResponseDto(series.getId(), imgUrl);
     }
