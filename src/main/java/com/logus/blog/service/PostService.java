@@ -118,6 +118,12 @@ public class PostService {
         CommentResponseDto comments = commentService.getParentChildComments(postId, isMember);
         dto.setComments(comments);
 
+        //썸네일
+        String imgUrl = dto.getImgUrl();
+        if (imgUrl != null && !imgUrl.equals("")) {
+            dto.setImgUrl(CLOUD_FRONT_DOMAIN_NAME + "/" + imgUrl);
+        }
+
         //태그 조회
         List<String> tags = tagService.selectPostTags(postId);
         //이전게시글, 다음게시글(전체조회 기준, PUBLIC)

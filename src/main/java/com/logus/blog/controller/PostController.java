@@ -92,7 +92,7 @@ public class PostController {
     }
 
     /**
-     * 글 한개 조회
+     * 글 단건 조회
      */
     @GetMapping("/posts/{postId}")
     public ApiResponse<PostResponseDto> selectPost(@PathVariable("postId") Long postId) {
