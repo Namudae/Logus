@@ -224,7 +224,7 @@ public class CommentService {
         Long memberId = memberService.authMemberId();
         Comment comment = getById((Long) commentId);
         if (comment.getMember().getId() != memberId && comment.getPost().getMember().getId() != memberId) {
-            throw new CustomException(ErrorCode.UNAUTHORIZED_REQUEST);
+            return false;
         }
         return true;
     }
