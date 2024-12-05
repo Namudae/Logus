@@ -70,9 +70,19 @@ public class ReportController {
     /**
      * 신고 등록
      */
-    @PostMapping("/report")
-    public ApiResponse<Map<String, Long>> insertReport(@RequestBody @Valid ReportRequest reportRequest) {
-        Long reportId = reportService.createReport(reportRequest);
+    @PostMapping("/report/post")
+    public ApiResponse<Map<String, Long>> insertReportPost(@RequestBody @Valid ReportRequest reportRequest) {
+        Long reportId = reportService.createReportPost(reportRequest);
+
+        return ApiResponse.ok(Map.of("reportId", reportId));
+    }
+
+    /**
+     * 신고 등록
+     */
+    @PostMapping("/report/comment")
+    public ApiResponse<Map<String, Long>> insertReportComment(@RequestBody @Valid ReportRequest reportRequest) {
+        Long reportId = reportService.createReportComment(reportRequest);
 
         return ApiResponse.ok(Map.of("reportId", reportId));
     }

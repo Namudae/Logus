@@ -14,7 +14,6 @@ import com.logus.common.exception.CustomException;
 import com.logus.common.exception.ErrorCode;
 import com.logus.member.entity.Member;
 import com.logus.member.service.MemberService;
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -104,42 +103,58 @@ public class ReportService {
     }
 
     @Transactional
-    public Long createReport(ReportRequest reportRequest) {
-        //중복신고 불가능
+    public Long createReportPost(ReportRequest reportRequest) {
 
         Member reporter = memberService.getById(memberService.authMemberId());
         Member reported = null;
         Comment comment = null;
         Post post = null;
         Integer count = 0;
-        if (reportRequest.getCommentId() != null) {
-            if (reportRepository.countByReporterIdAndCommentId(reporter.getId(), reportRequest.getCommentId())> 0) {
-                throw new CustomException(ErrorCode.DUPLICATE_COMMENT_REPORT);
-            }
-            comment = commentService.getById(reportRequest.getCommentId());
-            post = postService.getById(comment.getPost().getId());
-            reported = comment.getMember();
-            count = reportRepository.countByCommentId(reportRequest.getCommentId());
-        } else {
-            if (reportRepository.countByReporterIdAndPostId(reporter.getId(), reportRequest.getPostId())> 0) {
-                throw new CustomException(ErrorCode.DUPLICATE_POST_REPORT);
-            }
-            post = postService.getById(reportRequest.getPostId());
-            reported = post.getMember();
-            count = reportRepository.countByPostId(reportRequest.getPostId());
+
+        if (reportRepository.countByReporterIdAndPostId(reporter.getId(), reportRequest.getPostId())> 0) {
+            throw new CustomException(ErrorCode.DUPLICATE_POST_REPORT);
         }
+
+        post = postService.getById(reportRequest.getPostId());
+        reported = post.getMember();
+        Report report = reportRequest.toEntity(reporter, reported, post, comment);
+        Long reportId = reportRepository.save(report).getId();
+
+        //신고 누적n번일 경우 reportStatus.BLIND
+        count = reportRepository.countByPostId(reportRequest.getPostId());
+        if (count >= 4) {
+            post.changeReportStatus(ReportStatus.BLIND);
+            reportRepository.bulkUpdateReportByPostId(post.getId(), ReportStatus.BLIND);
+        }
+
+        return reportId;
+    }
+
+    @Transactional
+    public Long createReportComment(ReportRequest reportRequest) {
+
+        Member reporter = memberService.getById(memberService.authMemberId());
+        Member reported = null;
+        Comment comment = null;
+        Post post = null;
+        Integer count = 0;
+
+        if (reportRepository.countByReporterIdAndCommentId(reporter.getId(), reportRequest.getCommentId())> 0) {
+            throw new CustomException(ErrorCode.DUPLICATE_COMMENT_REPORT);
+        }
+
+        comment = commentService.getById(reportRequest.getCommentId());
+        post = postService.getById(comment.getPost().getId());
+        reported = comment.getMember();
+        count = reportRepository.countByCommentId(reportRequest.getCommentId());
+
         Report report = reportRequest.toEntity(reporter, reported, post, comment);
         Long reportId = reportRepository.save(report).getId();
 
         //신고 누적n번일 경우 reportStatus.BLIND
         if (count >= 4) {
-            if (reportRequest.getCommentId() != null) {
-                reportRepository.bulkUpdateReportByCommentId(reportRequest.getCommentId());
-                comment.blindComment();
-            } else {
-                reportRepository.bulkUpdateReportByPostId(post.getId());
-                post.blindPost();
-            }
+            comment.changeReportStatus(ReportStatus.BLIND);
+            reportRepository.bulkUpdateReportByCommentId(reportRequest.getCommentId(), ReportStatus.BLIND);
         }
 
         return reportId;
@@ -150,13 +165,14 @@ public class ReportService {
         Report report = getById(reportId);
         Post post = postService.getById(report.getPost().getId());
         if (reportStatus.equals(ReportStatus.BLOCK)) {
-            report.updateReportStatus(ReportStatus.BLOCK);
-            post.blockPost();
+            post.changeReportStatus(ReportStatus.BLOCK);
+            reportRepository.bulkUpdateReportByPostId(post.getId(), ReportStatus.BLOCK);
         } else if (reportStatus.equals(ReportStatus.DELETE)) {
-            report.updateReportStatus(ReportStatus.DELETE);
             postService.deletePost(post.getId());
+            reportRepository.bulkUpdateReportByPostId(post.getId(), ReportStatus.DELETE);
         } else if (reportStatus.equals(ReportStatus.RETURN)) {
-            report.updateReportStatus(ReportStatus.RETURN);
+            post.changeReportStatus(ReportStatus.RETURN);
+            reportRepository.bulkUpdateReportByPostId(post.getId(), ReportStatus.RETURN);
         }
     }
 
@@ -165,13 +181,14 @@ public class ReportService {
         Report report = getById(reportId);
         Comment comment = commentService.getById(report.getComment().getId());
         if (reportStatus.equals(ReportStatus.BLOCK)) {
-            report.updateReportStatus(ReportStatus.BLOCK);
-            comment.blockComment();
+            comment.changeReportStatus(ReportStatus.BLOCK);
+            reportRepository.bulkUpdateReportByCommentId(comment.getId(), ReportStatus.BLOCK);
         } else if (reportStatus.equals(ReportStatus.DELETE)) {
-            report.updateReportStatus(ReportStatus.DELETE);
             commentService.deleteComment(comment.getId());
+            reportRepository.bulkUpdateReportByCommentId(comment.getId(), ReportStatus.DELETE);
         } else if (reportStatus.equals(ReportStatus.RETURN)) {
-            report.updateReportStatus(ReportStatus.RETURN);
+            comment.changeReportStatus(ReportStatus.RETURN);
+            reportRepository.bulkUpdateReportByCommentId(comment.getId(), ReportStatus.RETURN);
         }
     }
 }

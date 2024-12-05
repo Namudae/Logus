@@ -28,6 +28,9 @@ public class ReportRequest {
     Dto -> toEntity
      */
     public Report toEntity(Member reporter, Member reported, Post post, Comment comment) {
+        if (this.reportType == null) {
+            this.reportType = ReportType.OTHER;
+        }
         return Report.builder()
                 .reporter(reporter)
                 .reported(reported)

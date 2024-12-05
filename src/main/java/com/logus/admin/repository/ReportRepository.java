@@ -1,12 +1,10 @@
 package com.logus.admin.repository;
 
-import com.logus.admin.dto.ReportListResponseDto;
 import com.logus.admin.entity.Report;
+import com.logus.admin.entity.ReportStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-
-import java.util.List;
 
 public interface ReportRepository extends JpaRepository<Report, Long>, ReportRepositoryCustom {
 
@@ -29,10 +27,11 @@ public interface ReportRepository extends JpaRepository<Report, Long>, ReportRep
     Integer countByPostId(Long postId);
 
     @Modifying(flushAutomatically = true, clearAutomatically = true)
-    @Query("UPDATE Report r SET r.reportStatus = com.logus.admin.entity.ReportStatus.BLIND WHERE r.comment.id = :commentId")
-    void bulkUpdateReportByCommentId(Long commentId);
+    @Query("UPDATE Report r SET r.reportStatus = :reportStatus WHERE r.post.id = :postId AND r.comment IS NULL")
+    void bulkUpdateReportByPostId(Long postId, ReportStatus reportStatus);
 
     @Modifying(flushAutomatically = true, clearAutomatically = true)
-    @Query("UPDATE Report r SET r.reportStatus = com.logus.admin.entity.ReportStatus.BLIND WHERE r.post.id = :postId AND r.comment IS NULL")
-    void bulkUpdateReportByPostId(Long postId);
+    @Query("UPDATE Report r SET r.reportStatus = :reportStatus WHERE r.comment.id = :commentId")
+    void bulkUpdateReportByCommentId(Long commentId, ReportStatus reportStatus);
+
 }

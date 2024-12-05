@@ -115,13 +115,8 @@ public class Post extends BaseTime {
     }
 
     //블라인드
-    public void blindPost() {
-        this.reportStatus = ReportStatus.BLIND;
-    }
-
-    //블라인드
-    public void blockPost() {
-        this.reportStatus = ReportStatus.BLOCK;
+    public void changeReportStatus(ReportStatus reportStatus) {
+        this.reportStatus = reportStatus;
     }
 
     @OneToMany(mappedBy = "post")

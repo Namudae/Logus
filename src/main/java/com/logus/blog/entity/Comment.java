@@ -63,11 +63,7 @@ public class Comment extends BaseTime {
     }
 
     //블라인드 처리
-    public void blindComment() {
-        this.reportStatus = ReportStatus.BLIND;
-    }
-
-    public void blockComment() {
-        this.reportStatus = ReportStatus.BLOCK;
+    public void changeReportStatus(ReportStatus reportStatus) {
+        this.reportStatus = reportStatus;
     }
 }
