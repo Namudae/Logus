@@ -1,14 +1,11 @@
 package com.logus.common.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.logus.common.exception.CustomException;
-import com.logus.common.exception.ErrorCode;
 import com.logus.common.security.handler.Http401Handler;
 import com.logus.common.security.handler.Http403Handler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
@@ -16,7 +13,6 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractAuthenticationFilterConfigurer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -46,21 +42,13 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
+                .logout(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(registry -> {
-                    registry.requestMatchers("/home", "/register/**", "/authenticate", "/", "/login", "/error").permitAll(); //인증이 필요 없는 경로
+                    registry.requestMatchers("/home", "/register/**", "/authenticate", "/", "/login", "/logout", "/error").permitAll(); //인증이 필요 없는 경로
                     registry.requestMatchers("/admin/**").hasRole("ADMIN"); // ADMIN 역할을 가진 사용자만 접근 가능
-//                    registry.requestMatchers("/user/**").hasRole("USER"); // USER 역할을 가진 사용자만 접근 가능
-//                    registry.requestMatchers(HttpMethod.POST, "/posts/**").authenticated(); //인가자만 허용
-//                    registry.anyRequest().authenticated();
+                    registry.requestMatchers("/system/**").hasRole("ADMIN"); // ADMIN 역할을 가진 사용자만 접근 가능
                     registry.anyRequest().permitAll();
                 })
-//                .formLogin(httpSecurityFormLoginConfigurer -> {
-//                    httpSecurityFormLoginConfigurer
-//                            .loginPage("/login")
-//                            .successHandler(new AuthenticationSuccessHandler())
-//                            .permitAll();
-//                })
-//                .formLogin(AbstractAuthenticationFilterConfigurer::permitAll)
                 .exceptionHandling(e -> {
                     // 권한이 없을 때 커스텀 핸들러로 처리
                     e.accessDeniedHandler(new Http403Handler(objectMapper));

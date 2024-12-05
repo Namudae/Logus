@@ -2,7 +2,6 @@ package com.logus.common.security;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.logus.common.exception.CustomException;
 import com.logus.common.exception.ErrorCode;
 import com.logus.common.exception.ErrorResponse;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -23,7 +22,6 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.security.SignatureException;
 
 @Configuration
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
