@@ -33,7 +33,7 @@ public class CommentController {
     /**
      * 댓글 수정
      */
-    @PreAuthorize("@commentService.hasPermissionToComment(#commentId, authentication)")
+    @PreAuthorize("@commentService.hasPermissionToMyComment(#commentId)")
     @PutMapping("/comments/{commentId}")
     public ApiResponse<Map<String, Long>> updateComment(@PathVariable("commentId") Long commentId,
                                                      @RequestBody @Valid CommentRequestDto commentRequestDto) {

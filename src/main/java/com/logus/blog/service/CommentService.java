@@ -207,16 +207,11 @@ public class CommentService {
         return true;
     }
 
-    public boolean hasPermissionToCommentOld(Long commentId, Authentication authentication) {
-        // 로그인이 안 되어 있거나, 익명 사용자인 경우 예외 발생
-        if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
-            throw new CustomException(ErrorCode.NEED_LOGIN);
-        }
-
-        var userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        var post = commentRepository.findById((Long) commentId)
+    public boolean hasPermissionToMyComment(Long commentId) {
+        Long memberId = memberService.authMemberId();
+        var comment = commentRepository.findById((Long) commentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
-        if (!post.getMember().getId().equals(userPrincipal.getMemberId())) {
+        if (!comment.getMember().getId().equals(memberId)) {
             throw new CustomException(ErrorCode.UNAUTHORIZED_REQUEST);
         }
         return true;
