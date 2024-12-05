@@ -34,6 +34,7 @@ public class PostResponseDto {
     private String seriesName;
     private String title;
     private String content;
+    private String imgUrl;
     private Long views;
     private Status status;
     private ReportStatus reportStatus;

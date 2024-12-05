@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 
-public interface VisitRepository extends JpaRepository<Visit, Long> {
+public interface VisitRepository extends JpaRepository<Visit, Long>, VisitRepositoryCustom {
 
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("DELETE FROM Visit v WHERE v.blog.id = :blogId")
@@ -23,4 +23,5 @@ public interface VisitRepository extends JpaRepository<Visit, Long> {
     Long countByVisitorIdAndCreateDateAndBlogId(@Param("visitorId") String visitorId,
                                                 @Param("visitDate") LocalDate visitDate,
                                                 @Param("blogId") Long blogId);
+
 }
