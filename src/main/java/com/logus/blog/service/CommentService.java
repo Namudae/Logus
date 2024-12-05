@@ -191,6 +191,7 @@ public class CommentService {
     }
 
     //=====인가
+    //블로그 멤버까지
     public boolean hasPermissionToComment(Long commentId) {
         // 로그인이 안 되어 있거나, 익명 사용자인 경우 예외 발생
         Long memberId = memberService.authMemberId();
@@ -207,11 +208,22 @@ public class CommentService {
         return true;
     }
 
+    //댓글 작성자 본인만
     public boolean hasPermissionToMyComment(Long commentId) {
         Long memberId = memberService.authMemberId();
         var comment = commentRepository.findById((Long) commentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
         if (!comment.getMember().getId().equals(memberId)) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_REQUEST);
+        }
+        return true;
+    }
+
+    //댓글 작성자&글작성자
+    public boolean hasPermissionToCommentToPost(Long commentId) {
+        Long memberId = memberService.authMemberId();
+        Comment comment = getById((Long) commentId);
+        if (comment.getMember().getId() != memberId && comment.getPost().getMember().getId() != memberId) {
             throw new CustomException(ErrorCode.UNAUTHORIZED_REQUEST);
         }
         return true;

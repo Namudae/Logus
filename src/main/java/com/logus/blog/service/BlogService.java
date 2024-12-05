@@ -31,6 +31,7 @@ public class BlogService {
     private final BlogRepository blogRepository;
     private final BlogMemberRepository blogMemberRepository;
     private final SeriesRepository seriesRepository;
+    private final CommentRepository commentRepository;
 
     public Blog getById(Long blogId) {
         return blogRepository.findById(blogId)
@@ -170,6 +171,16 @@ public class BlogService {
         //targetType: BLOG
         if (Objects.equals(targetType, "BLOG")) {
             var blog = blogRepository.findById((Long) targetId)
+                    .orElseThrow(() -> new CustomException(ErrorCode.BLOG_NOT_FOUND));
+            validateBlogAuth(blog, userPrincipal, allowedAuths);
+        }
+
+        //targetType: COMMENT
+        if (Objects.equals(targetType, "COMMENT")) {
+            var comment = commentRepository.findById((Long) targetId)
+                    .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+            Long blogId = comment.getPost().getBlog().getId();
+            var blog = blogRepository.findById((Long) blogId)
                     .orElseThrow(() -> new CustomException(ErrorCode.BLOG_NOT_FOUND));
             validateBlogAuth(blog, userPrincipal, allowedAuths);
         }

@@ -3,6 +3,7 @@ package com.logus.blog.controller;
 import com.logus.blog.dto.CommentListDto;
 import com.logus.blog.dto.CommentRequestDto;
 import com.logus.blog.dto.PostRequestDto;
+import com.logus.blog.service.BlogService;
 import com.logus.blog.service.CommentService;
 import com.logus.common.controller.ApiResponse;
 import jakarta.validation.Valid;
@@ -20,6 +21,7 @@ import java.util.Map;
 public class CommentController {
 
     private final CommentService commentService;
+    private final BlogService blogService;
 
     /**
      * 댓글 등록
@@ -32,8 +34,9 @@ public class CommentController {
 
     /**
      * 댓글 수정
+     * - 본인만 가능
      */
-    @PreAuthorize("@commentService.hasPermissionToMyComment(#commentId)")
+    @PreAuthorize("hasRole('ROLE_ADMIN') || @commentService.hasPermissionToMyComment(#commentId)")
     @PutMapping("/comments/{commentId}")
     public ApiResponse<Map<String, Long>> updateComment(@PathVariable("commentId") Long commentId,
                                                      @RequestBody @Valid CommentRequestDto commentRequestDto) {
@@ -43,9 +46,9 @@ public class CommentController {
 
     /**
      * 댓글 삭제
-     * - 블로그 관리자도 삭제 가능하도록
+     * - 글 작성자 or 블로그 관리자(ADMIN)까지 가능
      */
-    @PreAuthorize("hasRole('ROLE_ADMIN') || @commentService.hasPermissionToComment(#commentId)")
+    @PreAuthorize("hasRole('ROLE_ADMIN') || @commentService.hasPermissionToCommentToPost(#commentId) || @blogService.hasPermissionToBlog(#commentId, 'COMMENT', 'ADMIN', authentication)")
     @DeleteMapping("/comments/{commentId}")
     public ApiResponse<String> deleteComment(@PathVariable("commentId") Long commentId) {
         commentService.deleteComment(commentId);

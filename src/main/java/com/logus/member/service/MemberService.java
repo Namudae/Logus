@@ -117,7 +117,7 @@ public class MemberService {
 
                 // JWT 토큰을 쿠키에 저장
                 Cookie cookie = new Cookie("jwt", jwtToken);
-                cookie.setMaxAge(60 * 60 * 24 * 90);  // 7일 동안 유효
+                cookie.setMaxAge(60 * 60 * 24 * 90);  // 90일 동안 유효
                 cookie.setPath("/");  // 모든 경로에서 유효
                 cookie.setHttpOnly(true);  // JavaScript에서 접근 불가
 //                cookie.setSecure(true);  // HTTPS에서만 전송
