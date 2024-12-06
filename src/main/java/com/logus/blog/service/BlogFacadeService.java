@@ -22,12 +22,14 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.logus.common.service.S3Service.CLOUD_FRONT_DOMAIN_NAME;
+import static java.util.stream.Collectors.toList;
 
 @Service
 @RequiredArgsConstructor
@@ -425,5 +427,37 @@ public class BlogFacadeService {
         }
     }
 
+    public List<StatisticsMemberPostDto> selectBlogPostStatistics(Long blogId) {
+        // 멤버 조회(imgUrl, 닉네임, memberId 반환)
+        List<BlogMemberShortResponse> members = blogMemberRepository.findByBlogId(blogId).stream()
+                .map(BlogMemberShortResponse::new)
+                .toList();
+
+        // 결과 리스트 초기화
+        List<StatisticsMemberPostDto> list = new ArrayList<>();
+
+        // 각 멤버별 통계 데이터 생성
+        for (BlogMemberShortResponse member : members) {
+            Long memberId = member.getMemberId();
+
+            // 멤버, blogId에 해당하는 통계 데이터 조회
+            List<StatisticsMemberPostDto.MemberPostDto> data = blogRepository.blogPostStatistics(blogId, memberId);
+            //today, total 조회
+            StatisticsMemberPostDto todayTotal = blogRepository.blogPostStatisticsTodayTotal(blogId, memberId);
+
+            // DTO 생성 및 데이터 설정
+            StatisticsMemberPostDto dto = StatisticsMemberPostDto.builder()
+                    .memberShortResponse(member)
+                    .memberPosts(data)
+                    .today(todayTotal.getToday())
+                    .total(todayTotal.getTotal())
+                    .build();
+
+            // 결과 리스트에 추가
+            list.add(dto);
+        }
+
+        return list;
+    }
 }
 

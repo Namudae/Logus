@@ -27,4 +27,8 @@ public interface BlogRepositoryCustom {
     Page<BlogListResponseDto> searchBlogs(String loginId, String nickname, String blogName, String blogAddress, Pageable pageable);
 
     Long findMyLogId(Long memberId);
+
+    List<StatisticsMemberPostDto.MemberPostDto> blogPostStatistics(Long blogId, Long memberId);
+
+    StatisticsMemberPostDto blogPostStatisticsTodayTotal(Long blogId, Long memberId);
 }

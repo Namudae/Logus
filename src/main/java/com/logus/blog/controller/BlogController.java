@@ -229,5 +229,15 @@ public class BlogController {
         return ApiResponse.ok();
     }
 
+    /**
+     * 통계 - 멤버별 작성한 글 수
+     */
+    @GetMapping("/blog/statistics/member")
+    public ApiResponse<List<StatisticsMemberPostDto>> blogPostStatistics(@RequestParam("blogId") Long blogId) {
+        List<StatisticsMemberPostDto> dto = blogFacadeService.selectBlogPostStatistics(blogId);
+        return ApiResponse.ok(dto);
+    }
+
+
 
 }
