@@ -46,7 +46,7 @@ public class BlogController {
     /**
      * 블로그 정보 변경
      */
-    @PreAuthorize("hasRole('ROLE_ADMIN') || @blogService.hasPermissionToBlog(#blogId, 'BLOG', 'ADMIN', authentication)")
+    @PreAuthorize("hasRole('ROLE_ADMIN') || @blogService.hasPermissionToBlog(#blogId, 'BLOG', 'OWNER', authentication)")
     @PutMapping("/blog/setting")
     public ApiResponse<Map<String, Long>> updateBlog(@RequestParam("blogId") Long blogId,
                                                      @RequestBody @Valid BlogRequestDto blogRequestDto) {
@@ -108,6 +108,7 @@ public class BlogController {
     /**
      * 블로그 권한 수정
      */
+    @PreAuthorize("hasRole('ROLE_ADMIN') || @blogService.hasPermissionToBlog(#blogId, 'BLOG', 'ADMIN', authentication)")
     @PutMapping("/blog/auth")
     public ApiResponse<String> updateBlogAuth(@RequestParam("blogId") Long blogId,
                                               @RequestBody List<BlogMemberRequestDto> blogMemberRequestDtos) {

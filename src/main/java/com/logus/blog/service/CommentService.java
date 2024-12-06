@@ -214,7 +214,8 @@ public class CommentService {
         var comment = commentRepository.findById((Long) commentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
         if (!comment.getMember().getId().equals(memberId)) {
-            throw new CustomException(ErrorCode.UNAUTHORIZED_REQUEST);
+//            throw new CustomException(ErrorCode.UNAUTHORIZED_REQUEST);
+            return false;
         }
         return true;
     }

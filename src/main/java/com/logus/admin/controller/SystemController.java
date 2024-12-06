@@ -72,8 +72,7 @@ public class SystemController {
      * 게시글 관리 - 조회
      * 검색: 제목, 내용, 아이디, 닉네임, 블로그명, 블로그 주소
      */
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping("/admin/posts")
+    @GetMapping("/system/posts")
     public ApiResponse<Page<AdminPostListResponse>> searchPostsByAdmin(@RequestParam(value="keyword", required = false) String keyword,
                                                                        @RequestParam(defaultValue = "ALL") String condition,
                                                                        Pageable pageable) {
@@ -86,8 +85,7 @@ public class SystemController {
      * 댓글 관리 - 조회
      * 검색: 게시글 제목, 댓글 내용, 아이디, 닉네임, 블로그명, 블로그 주소
      */
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping("/admin/comments")
+    @GetMapping("/system/comments")
     public ApiResponse<Page<AdminCommentListResponse>> searchCommentsByAdmin(@RequestParam(value="keyword", required = false) String keyword,
                                                                              @RequestParam(defaultValue = "ALL") String condition,
                                                                              Pageable pageable) {
@@ -99,8 +97,7 @@ public class SystemController {
     /**
      * 댓글 다중 삭제(관리자)
      */
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @DeleteMapping("/admin/comments")
+    @DeleteMapping("/system/comments")
     public ApiResponse<String> deleteCommentsForAdmin(@RequestBody List<Long> commentIds) {
         commentService.deleteCommentsForAdmin(commentIds);
         return ApiResponse.ok();
@@ -109,8 +106,7 @@ public class SystemController {
     /**
      * 글 다중 삭제(관리자)
      */
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @DeleteMapping("/admin/posts")
+    @DeleteMapping("/system/posts")
     public ApiResponse<String> deletePostsForAdmin(@RequestBody List<Long> postIds) {
         postService.deletePostsForAdmin(postIds);
         return ApiResponse.ok();
@@ -119,8 +115,7 @@ public class SystemController {
     /**
      * 회원 다중 탈퇴
      */
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @DeleteMapping("/admin/users")
+    @DeleteMapping("/system/users")
     public ApiResponse<String> deleteMembersForAdmin(@RequestBody List<Long> memberIds) throws IOException {
         blogFacadeService.deleteMembersForAdmin(memberIds);
         return ApiResponse.ok();

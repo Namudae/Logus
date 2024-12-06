@@ -130,7 +130,7 @@ public class PostController {
     /**
      * 글 삭제
      */
-    @PreAuthorize("hasRole('ROLE_ADMIN') || @postService.hasPermissionToPostMember(#postId, authentication)")
+    @PreAuthorize("hasRole('ROLE_ADMIN') || @blogService.hasPermissionToBlog(#postId, 'POST', 'OWNER', authentication)")
     @DeleteMapping("/posts/{postId}")
     public ApiResponse<String> deletePost(@PathVariable("postId") Long postId) throws MethodArgumentNotValidException {
         postService.deletePost(postId);

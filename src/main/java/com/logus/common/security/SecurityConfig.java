@@ -45,8 +45,7 @@ public class SecurityConfig {
                 .logout(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(registry -> {
                     registry.requestMatchers("/home", "/register/**", "/authenticate", "/", "/login", "/logout", "/error").permitAll(); //인증이 필요 없는 경로
-                    registry.requestMatchers("/admin/**").hasRole("ADMIN"); // ADMIN 역할을 가진 사용자만 접근 가능
-                    registry.requestMatchers("/system/**").hasRole("ADMIN"); // ADMIN 역할을 가진 사용자만 접근 가능
+                    registry.requestMatchers("/admin/**", "/system/**").hasRole("ADMIN"); // ADMIN 역할을 가진 사용자만 접근 가능
                     registry.anyRequest().permitAll();
                 })
                 .exceptionHandling(e -> {

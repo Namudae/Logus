@@ -37,8 +37,7 @@ public class CategoryController {
      * 카테고리 등록
      * + 카테고리명 중복 체크
      */
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PostMapping("/category")
+    @PostMapping("/system/category")
     public ApiResponse<Map<String, Long>> createCategory(@RequestBody @Valid CategoryRequestDto categoryRequestDto) {
         Long categoryId = categoryService.createCategory(categoryRequestDto);
 
@@ -50,8 +49,7 @@ public class CategoryController {
      * 카테고리 수정
      * + 카테고리명 중복 체크
      */
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PutMapping("/category")
+    @PutMapping("/system/category")
     public ApiResponse<Map<String, Long>> updateCategory(@RequestParam("categoryId") Long categoryId,
                                                          @RequestBody @Valid CategoryRequestDto categoryRequestDto) {
         categoryService.updateCategory(categoryId, categoryRequestDto);
@@ -63,8 +61,7 @@ public class CategoryController {
     /**
      * 카테고리 삭제
      */
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @DeleteMapping("/category")
+    @DeleteMapping("/system/category")
     public ApiResponse<String> deleteCategory(@RequestParam("categoryId") Long categoryId) {
         categoryService.deleteCategory(categoryId);
 
@@ -75,8 +72,7 @@ public class CategoryController {
     /**
      * 카테고리 순서(일괄 수정)
      */
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PutMapping("/category/order")
+    @PutMapping("/system/category/order")
     public ApiResponse<String> updateCategoryOrder(@RequestBody @Valid List<CategoryOrderRequestDto> categoryOrderRequestDto) throws IOException {
         categoryService.updateCategoryOrder(categoryOrderRequestDto);
         return ApiResponse.ok();

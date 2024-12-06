@@ -441,15 +441,12 @@ public class PostService {
     // ======== 인가 ========
     public boolean hasPermissionToPost(Long postId, Authentication authentication) {
         // 로그인이 안 되어 있거나, 익명 사용자인 경우 예외 발생
-        if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
-            throw new CustomException(ErrorCode.NEED_LOGIN);
-        }
-
-        var userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        Long memberId = memberService.authMemberId();
         var post = postRepository.findById((Long) postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
-        if (!post.getMember().getId().equals(userPrincipal.getMemberId())) {
-            throw new CustomException(ErrorCode.UNAUTHORIZED_REQUEST);
+        if (!post.getMember().getId().equals(memberId)) {
+//            throw new CustomException(ErrorCode.UNAUTHORIZED_REQUEST);
+            return false;
         }
         return true;
     }

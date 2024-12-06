@@ -31,6 +31,7 @@ public class BlogService {
     private final BlogRepository blogRepository;
     private final BlogMemberRepository blogMemberRepository;
     private final SeriesRepository seriesRepository;
+    private final PostRepository postRepository;
     private final CommentRepository commentRepository;
 
     public Blog getById(Long blogId) {
@@ -165,14 +166,23 @@ public class BlogService {
                     .orElseThrow(() -> new CustomException(ErrorCode.SERIES_NOT_FOUND));
             var blog = blogRepository.findById(series.getBlog().getId())
                     .orElseThrow(() -> new CustomException(ErrorCode.BLOG_NOT_FOUND));
-            validateBlogAuth(blog, userPrincipal, allowedAuths);
+            return validateBlogAuth(blog, userPrincipal, allowedAuths);
         }
 
         //targetType: BLOG
         if (Objects.equals(targetType, "BLOG")) {
             var blog = blogRepository.findById((Long) targetId)
                     .orElseThrow(() -> new CustomException(ErrorCode.BLOG_NOT_FOUND));
-            validateBlogAuth(blog, userPrincipal, allowedAuths);
+            return validateBlogAuth(blog, userPrincipal, allowedAuths);
+        }
+
+        //targetType: BLOG
+        if (Objects.equals(targetType, "POST")) {
+            var post = postRepository.findById((Long) targetId)
+                    .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+            var blog = blogRepository.findById((Long) post.getBlog().getId())
+                    .orElseThrow(() -> new CustomException(ErrorCode.BLOG_NOT_FOUND));
+            return validateBlogAuth(blog, userPrincipal, allowedAuths);
         }
 
         //targetType: COMMENT
@@ -182,7 +192,7 @@ public class BlogService {
             Long blogId = comment.getPost().getBlog().getId();
             var blog = blogRepository.findById((Long) blogId)
                     .orElseThrow(() -> new CustomException(ErrorCode.BLOG_NOT_FOUND));
-            validateBlogAuth(blog, userPrincipal, allowedAuths);
+            return validateBlogAuth(blog, userPrincipal, allowedAuths);
         }
 
         return true;
@@ -214,14 +224,14 @@ public class BlogService {
                     .orElseThrow(() -> new CustomException(ErrorCode.SERIES_NOT_FOUND));
             var blog = blogRepository.findById(series.getBlog().getId())
                     .orElseThrow(() -> new CustomException(ErrorCode.BLOG_NOT_FOUND));
-            validateBlogAuth(blog, userPrincipal, allowedAuths);
+            return validateBlogAuth(blog, userPrincipal, allowedAuths);
         }
 
         //targetType: BLOG
         if (Objects.equals(targetType, "BLOG")) {
             var blog = blogRepository.findById((Long) targetId)
                     .orElseThrow(() -> new CustomException(ErrorCode.BLOG_NOT_FOUND));
-            validateBlogAuth(blog, userPrincipal, allowedAuths);
+            return validateBlogAuth(blog, userPrincipal, allowedAuths);
         }
 
         return true;
@@ -234,13 +244,15 @@ public class BlogService {
                 .anyMatch(ownerId -> ownerId.equals(memberId)); // 현재 사용자 ID와 일치 여부 확인
     }
 
-    private void validateBlogAuth(Blog blog, UserPrincipal userPrincipal, List<BlogAuth> allowAuths) {
+    private boolean validateBlogAuth(Blog blog, UserPrincipal userPrincipal, List<BlogAuth> allowAuths) {
         if (blog.getBlogMembers().stream()
                 .filter(blogMember -> allowAuths.contains(blogMember.getBlogAuth())) // 허용된 권한에 해당하는 멤버 필터링
                 .map(blogMember -> blogMember.getMember().getId())
                 .noneMatch(ownerId -> ownerId.equals(userPrincipal.getMemberId()))) {
-            throw new CustomException(ErrorCode.UNAUTHORIZED_REQUEST);
+//            throw new CustomException(ErrorCode.UNAUTHORIZED_REQUEST);
+            return false;
         }
+        return true;
     }
 
     //로그인 필요

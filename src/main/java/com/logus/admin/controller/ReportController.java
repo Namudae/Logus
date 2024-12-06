@@ -25,8 +25,7 @@ public class ReportController {
     /**
      * 게시글 신고 목록 조회
      */
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping("/report/posts")
+    @GetMapping("/system/report/posts")
     public ApiResponse<ReportListResponseDto> selectPostReports(Pageable pageable) {
         ReportListResponseDto dto = reportService.selectPostReports(pageable);
 
@@ -36,8 +35,7 @@ public class ReportController {
     /**
      * 댓글 신고 목록 조회
      */
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping("/report/comments")
+    @GetMapping("/system/report/comments")
     public ApiResponse<ReportListResponseDto> selectCommentReports(Pageable pageable) {
         ReportListResponseDto dto = reportService.selectCommentReports(pageable);
 
@@ -47,8 +45,7 @@ public class ReportController {
     /**
      * 게시글 신고 단건 조회
      */
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping("/report/post")
+    @GetMapping("/system/report/post")
     public ApiResponse<ReportDto> selectPostReport(@RequestParam("reportId") Long reportId) {
         ReportDto dto = reportService.selectReportPost(reportId);
 
@@ -59,8 +56,7 @@ public class ReportController {
     /**
      * 댓글 신고 단건 조회
      */
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping("/report/comment")
+    @GetMapping("/system/report/comment")
     public ApiResponse<ReportDto> selectCommentReport(@RequestParam("reportId") Long reportId) {
         ReportDto dto = reportService.selectReportComment(reportId);
 
@@ -68,7 +64,7 @@ public class ReportController {
     }
 
     /**
-     * 신고 등록
+     * 게시물 신고 등록
      */
     @PostMapping("/report/post")
     public ApiResponse<Map<String, Long>> insertReportPost(@RequestBody @Valid ReportRequest reportRequest) {
@@ -78,7 +74,7 @@ public class ReportController {
     }
 
     /**
-     * 신고 등록
+     * 댓글 신고 등록
      */
     @PostMapping("/report/comment")
     public ApiResponse<Map<String, Long>> insertReportComment(@RequestBody @Valid ReportRequest reportRequest) {
@@ -90,8 +86,7 @@ public class ReportController {
     /**
      * 게시글 신고 처리
      */
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PutMapping("/report/post")
+    @PutMapping("/system/report/post")
     public ApiResponse<Map<String, Long>> handlePostReport(@RequestParam("reportId") Long reportId,
                                                        @RequestParam(value = "reportStatus") ReportStatus reportStatus) {
         reportService.handlePostReport(reportId, reportStatus);
@@ -101,8 +96,7 @@ public class ReportController {
     /**
      * 댓글 신고 처리
      */
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PutMapping("/report/comment")
+    @PutMapping("/system/report/comment")
     public ApiResponse<Map<String, Long>> handleCommentReport(@RequestParam("reportId") Long reportId,
                                                        @RequestParam(value = "reportStatus") ReportStatus reportStatus) {
         reportService.handleCommentReport(reportId, reportStatus);
