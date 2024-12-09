@@ -11,10 +11,10 @@ import java.util.List;
 @Data
 @Builder
 public class StatisticsMemberPostDto {
-    private BlogMemberShortResponse memberShortResponse;
+    private BlogMemberShortResponse memberInfo;
     private Long today;
     private Long total;
-    private List<MemberPostDto> memberPosts;
+    private List<MemberPostDto> dateCount;
 
     @Getter
     @Setter
@@ -27,6 +27,6 @@ public class StatisticsMemberPostDto {
     }
 
     public StatisticsMemberPostDto(BlogMemberShortResponse memberShortResponse) {
-        this.memberShortResponse = memberShortResponse;
+        this.memberInfo = memberShortResponse;
     }
 }

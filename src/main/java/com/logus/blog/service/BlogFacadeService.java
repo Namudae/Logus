@@ -29,7 +29,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.logus.common.service.S3Service.CLOUD_FRONT_DOMAIN_NAME;
-import static java.util.stream.Collectors.toList;
 
 @Service
 @RequiredArgsConstructor
@@ -447,8 +446,8 @@ public class BlogFacadeService {
 
             // DTO 생성 및 데이터 설정
             StatisticsMemberPostDto dto = StatisticsMemberPostDto.builder()
-                    .memberShortResponse(member)
-                    .memberPosts(data)
+                    .memberInfo(member)
+                    .dateCount(data)
                     .today(todayTotal.getToday())
                     .total(todayTotal.getTotal())
                     .build();
