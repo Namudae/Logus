@@ -10,7 +10,7 @@ import java.util.List;
 @Getter
 @Data
 @Builder
-public class StatisticsMemberPostDto {
+public class StatisticsMemberDto {
     private BlogMemberShortResponse memberInfo;
     private Long today;
     private Long total;
@@ -23,10 +23,10 @@ public class StatisticsMemberPostDto {
     @Builder
     public static class MemberPostDto {
         private LocalDate date;
-        private int postCount;
+        private int count;
     }
 
-    public StatisticsMemberPostDto(BlogMemberShortResponse memberShortResponse) {
+    public StatisticsMemberDto(BlogMemberShortResponse memberShortResponse) {
         this.memberInfo = memberShortResponse;
     }
 }

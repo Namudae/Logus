@@ -3,18 +3,13 @@ package com.logus.blog.repository;
 import com.logus.admin.dto.BlogListResponseDto;
 import com.logus.blog.dto.*;
 import com.logus.blog.entity.*;
-import com.logus.member.dto.MemberListResponse;
 import com.logus.member.entity.Member;
 import com.logus.member.entity.QMember;
 import com.querydsl.core.Tuple;
-import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.DateTemplate;
-import com.querydsl.core.types.dsl.DateTimeExpression;
 import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.jpa.JPAExpressions;
-import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
@@ -30,13 +25,9 @@ import java.util.stream.Collectors;
 
 import static com.logus.blog.entity.QBlog.blog;
 import static com.logus.blog.entity.QBlogMember.blogMember;
-import static com.logus.admin.entity.QCategory.category;
 import static com.logus.blog.entity.QComment.comment;
 import static com.logus.blog.entity.QFollow.follow;
-import static com.logus.blog.entity.QLikey.likey;
 import static com.logus.blog.entity.QPost.post;
-import static com.logus.blog.entity.QSeries.series;
-import static com.logus.blog.entity.QVisit.visit;
 import static com.logus.member.entity.QMember.member;
 import static org.springframework.util.StringUtils.hasText;
 
@@ -291,7 +282,7 @@ public class BlogRepositoryImpl implements BlogRepositoryCustom {
     }
 
     @Override
-    public List<StatisticsMemberPostDto.MemberPostDto> blogPostStatistics(Long blogId, Long memberId) {
+    public List<StatisticsMemberDto.MemberPostDto> blogPostStatistics(Long blogId, Long memberId) {
         // 한 달간의 날짜 리스트 생성
         List<LocalDate> datesOfLastMonth = getDatesOfLastMonth();
         DateTemplate<java.sql.Date> groupByDate = Expressions.dateTemplate(java.sql.Date.class, "DATE({0})", post.createDate);
@@ -324,9 +315,9 @@ public class BlogRepositoryImpl implements BlogRepositoryCustom {
         return datesOfLastMonth.stream()
                 .map(date -> {
                     Long count = resultMap.getOrDefault(date, 0L); // 기본값 처리
-                    return StatisticsMemberPostDto.MemberPostDto.builder()
+                    return StatisticsMemberDto.MemberPostDto.builder()
                             .date(date)
-                            .postCount(count != null ? count.intValue() : 0) // null 체크 추가
+                            .count(count != null ? count.intValue() : 0) // null 체크 추가
                             .build();
                 })
                 .collect(Collectors.toList());
@@ -340,7 +331,7 @@ public class BlogRepositoryImpl implements BlogRepositoryCustom {
     }
 
     @Override
-    public StatisticsMemberPostDto blogPostStatisticsTodayTotal(Long blogId, Long memberId) {
+    public StatisticsMemberDto blogPostStatisticsTodayTotal(Long blogId, Long memberId) {
         LocalDate todayDate = LocalDate.now();
 
         Long today = jpaQueryFactory
@@ -367,10 +358,83 @@ public class BlogRepositoryImpl implements BlogRepositoryCustom {
                         .and(post.status.ne(Status.TEMPORARY))))
                 .fetchOne();
 
-        return StatisticsMemberPostDto.builder()
+        return StatisticsMemberDto.builder()
                 .today(today)
                 .total(total)
                 .build();
 
+    }
+
+    @Override
+    public List<StatisticsMemberDto.MemberPostDto> blogCommentStatistics(Long blogId, Long memberId) {
+        // 한 달간의 날짜 리스트 생성
+        List<LocalDate> datesOfLastMonth = getDatesOfLastMonth();
+        DateTemplate<java.sql.Date> groupByDate = Expressions.dateTemplate(java.sql.Date.class, "DATE({0})", comment.createDate);
+
+        // Querydsl로 날짜별 포스트 회수 조회
+        List<Tuple> results = jpaQueryFactory
+                .select(groupByDate, comment.count())
+                .from(comment)
+                .leftJoin(comment.post.blog, blog)
+                .leftJoin(comment.member, member)
+                .where(blog.id.eq(blogId)
+                        .and(member.id.eq(memberId))
+                        .and(comment.createDate.between(
+                                datesOfLastMonth.get(0).atStartOfDay(),
+                                datesOfLastMonth.get(datesOfLastMonth.size() - 1).atTime(23, 59, 59)
+                        )))
+                .groupBy(groupByDate) // 날짜만 그룹화
+                .orderBy(groupByDate.asc())
+                .fetch();
+
+        // 3. 결과 매핑 및 날짜 보강
+        Map<LocalDate, Long> resultMap = results.stream()
+                .collect(Collectors.toMap(
+                        tuple -> tuple.get(groupByDate).toLocalDate(),
+                        tuple -> tuple.get(comment.count())
+                ));
+
+        // 4. 누락된 날짜를 0으로 채우기
+        return datesOfLastMonth.stream()
+                .map(date -> {
+                    Long count = resultMap.getOrDefault(date, 0L); // 기본값 처리
+                    return StatisticsMemberDto.MemberPostDto.builder()
+                            .date(date)
+                            .count(count != null ? count.intValue() : 0) // null 체크 추가
+                            .build();
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public StatisticsMemberDto blogCommentStatisticsTodayTotal(Long blogId, Long memberId) {
+        LocalDate todayDate = LocalDate.now();
+
+        Long today = jpaQueryFactory
+                .select(comment.count())
+                .from(comment)
+                .leftJoin(comment.post.blog, blog)
+                .leftJoin(comment.member, member)
+                .where(blog.id.eq(blogId)
+                        .and(member.id.eq(memberId))
+                        .and(comment.createDate.between(
+                                todayDate.atStartOfDay(),
+                                todayDate.atTime(23, 59, 59)
+                        )))
+                .fetchOne();
+
+        Long total = jpaQueryFactory
+                .select(comment.count())
+                .from(comment)
+                .leftJoin(comment.post.blog, blog)
+                .leftJoin(comment.member, member)
+                .where(blog.id.eq(blogId)
+                        .and(member.id.eq(memberId)))
+                .fetchOne();
+
+        return StatisticsMemberDto.builder()
+                .today(today)
+                .total(total)
+                .build();
     }
 }

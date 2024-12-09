@@ -426,26 +426,33 @@ public class BlogFacadeService {
         }
     }
 
-    public List<StatisticsMemberPostDto> selectBlogPostStatistics(Long blogId) {
+    public List<StatisticsMemberDto> selectBlogPostStatistics(Long blogId, String type) {
         // 멤버 조회(imgUrl, 닉네임, memberId 반환)
         List<BlogMemberShortResponse> members = blogMemberRepository.findByBlogId(blogId).stream()
                 .map(BlogMemberShortResponse::new)
                 .toList();
 
         // 결과 리스트 초기화
-        List<StatisticsMemberPostDto> list = new ArrayList<>();
+        List<StatisticsMemberDto> list = new ArrayList<>();
 
         // 각 멤버별 통계 데이터 생성
         for (BlogMemberShortResponse member : members) {
             Long memberId = member.getMemberId();
 
-            // 멤버, blogId에 해당하는 통계 데이터 조회
-            List<StatisticsMemberPostDto.MemberPostDto> data = blogRepository.blogPostStatistics(blogId, memberId);
-            //today, total 조회
-            StatisticsMemberPostDto todayTotal = blogRepository.blogPostStatisticsTodayTotal(blogId, memberId);
+            List<StatisticsMemberDto.MemberPostDto> data = new ArrayList<>();
+            StatisticsMemberDto todayTotal = null;
+            if (type.equals("post")) {
+                // 멤버, blogId에 해당하는 통계 데이터 조회
+                data = blogRepository.blogPostStatistics(blogId, memberId);
+                //today, total 조회
+                todayTotal = blogRepository.blogPostStatisticsTodayTotal(blogId, memberId);
+            } else if (type.equals("comment")) {
+                data = blogRepository.blogCommentStatistics(blogId, memberId);
+                todayTotal = blogRepository.blogCommentStatisticsTodayTotal(blogId, memberId);
+            }
 
             // DTO 생성 및 데이터 설정
-            StatisticsMemberPostDto dto = StatisticsMemberPostDto.builder()
+            StatisticsMemberDto dto = StatisticsMemberDto.builder()
                     .memberInfo(member)
                     .dateCount(data)
                     .today(todayTotal.getToday())

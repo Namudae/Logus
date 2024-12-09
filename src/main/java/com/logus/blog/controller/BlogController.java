@@ -233,8 +233,9 @@ public class BlogController {
      * 통계 - 멤버별 작성한 글 수
      */
     @GetMapping("/blog/statistics/member")
-    public ApiResponse<List<StatisticsMemberPostDto>> blogPostStatistics(@RequestParam("blogId") Long blogId) {
-        List<StatisticsMemberPostDto> dto = blogFacadeService.selectBlogPostStatistics(blogId);
+    public ApiResponse<List<StatisticsMemberDto>> blogPostStatistics(@RequestParam("blogId") Long blogId,
+                                                                     @RequestParam(name = "type", defaultValue = "post") String type) {
+        List<StatisticsMemberDto> dto = blogFacadeService.selectBlogPostStatistics(blogId, type);
         return ApiResponse.ok(dto);
     }
 
