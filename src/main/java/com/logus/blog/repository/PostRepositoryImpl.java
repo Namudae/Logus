@@ -546,8 +546,11 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         List<Category> categories = jpaQueryFactory
                 .select(category)
                 .from(category)
+//                .join(post).on(post.category.eq(category)) // category와 post 조인
                 .where(category.parent.isNotNull(),
                         getCategory(condition.getCategoryId()))  // 자식 카테고리만 조회
+//                .groupBy(category.id) // category 별로 그룹화
+//                .having(post.count().goe(1)) // post의 count가 1 이상인 카테고리만 조회
                 .orderBy(category.parent.orderSeq.asc(), category.orderSeq.asc())
                 .offset(pageable.getOffset()) // 페이지네이션 offset
                 .limit(pageable.getPageSize()) // 페이지네이션 limit
@@ -556,7 +559,10 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         // 2. 카테고리의 총 개수 조회 (total elements)
         long total = jpaQueryFactory
                 .selectFrom(category)
+//                .join(post).on(post.category.eq(category)) // category와 post 조인
                 .where(category.parent.isNotNull())  // 부모 카테고리만 조회
+//                .groupBy(category.id) // category 별로 그룹화
+//                .having(post.count().goe(1)) // post의 count가 1 이상인 카테고리만 조회
                 .fetchCount();  // 카테고리의 총 개수
 
         // 2. Category별로 PostList 조회
@@ -591,7 +597,8 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                                     post.category.id.eq(cat.getId())
                                     , getDateCondition(condition.getDate()),
                                     post.status.eq(Status.PUBLIC),
-                                    post.reportStatus.notIn(ReportStatus.BLIND, ReportStatus.BLOCK)
+                                    post.reportStatus.isNull()
+                                            .or(post.reportStatus.notIn(ReportStatus.BLIND, ReportStatus.BLOCK))
                             )
                             .orderBy(getOrderBy(condition.getGrid()))
                             .offset(0)
@@ -642,7 +649,8 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                         post.category.id.eq(condition.getCategoryId()), // 특정 카테고리로 필터링
                         getDateCondition(condition.getDate()),
                         post.status.eq(Status.PUBLIC),
-                        post.reportStatus.notIn(ReportStatus.BLIND, ReportStatus.BLOCK)
+                        post.reportStatus.isNull()
+                                .or(post.reportStatus.notIn(ReportStatus.BLIND, ReportStatus.BLOCK))
                 )
                 .orderBy(getOrderBy(condition.getGrid()))
                 .offset(pageable.getOffset())
