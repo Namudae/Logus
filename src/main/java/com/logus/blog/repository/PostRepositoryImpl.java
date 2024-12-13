@@ -542,16 +542,37 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     @Override
     public Page<MainGridResponse> selectMainPosts(MainGridCondition condition, Pageable pageable) {
 
+        QPost subPost = new QPost("subPost"); // 서브쿼리에서 사용할 별칭
+
         // 1. Category 조회
         List<Category> categories = jpaQueryFactory
                 .select(category)
                 .from(category)
-//                .join(post).on(post.category.eq(category)) // category와 post 조인
+                .join(post).on(post.category.eq(category)) // category와 post 조인
                 .where(category.parent.isNotNull(),
-                        getCategory(condition.getCategoryId()))  // 자식 카테고리만 조회
-//                .groupBy(category.id) // category 별로 그룹화
+                        getCategory(condition.getCategoryId()),
+                        category.id.in( // 서브쿼리 조건 추가
+                                JPAExpressions.select(subPost.category.id)
+                                        .from(subPost)
+                                        .where(
+                                                getDateCondition(condition.getDate()) // 날짜 조건
+                                        )
+                                        .groupBy(subPost.category.id)
+                                        .having(subPost.count().gt(0)) // post count > 0
+                        )
+                )  // 자식 카테고리만 조회
+                .groupBy(category.id) // category 별로 그룹화
 //                .having(post.count().goe(1)) // post의 count가 1 이상인 카테고리만 조회
-                .orderBy(category.parent.orderSeq.asc(), category.orderSeq.asc())
+                .orderBy(
+                        new OrderSpecifier<>(
+                                com.querydsl.core.types.Order.DESC,
+                                JPAExpressions.select(subPost.count())
+                                        .from(subPost)
+                                        .where(subPost.category.eq(category))
+                        ), // 서브쿼리 결과를 내림차순 정렬
+                        category.parent.orderSeq.asc(),
+                        category.orderSeq.asc()
+                )
                 .offset(pageable.getOffset()) // 페이지네이션 offset
                 .limit(pageable.getPageSize()) // 페이지네이션 limit
                 .fetch();  // 결과를 List<Category>로 가져옴
