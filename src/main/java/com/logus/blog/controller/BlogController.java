@@ -212,6 +212,7 @@ public class BlogController {
     /**
      * 구독자 조회
      */
+    @PreAuthorize("hasRole('ROLE_ADMIN') || @blogService.hasPermissionToBlog(#blogId, 'BLOG', 'EDITOR', authentication)")
     @GetMapping("/follower")
     public ApiResponse<Page<FollowerResponseDto>> selectFollower(@RequestParam("blogId") Long blogId,
                                                                  Pageable pageable) {
@@ -232,6 +233,7 @@ public class BlogController {
     /**
      * 통계 - 멤버별 작성한 글 수
      */
+    @PreAuthorize("hasRole('ROLE_ADMIN') || @blogService.hasPermissionToBlog(#blogId, 'BLOG', 'EDITOR', authentication)")
     @GetMapping("/blog/statistics/member")
     public ApiResponse<List<StatisticsMemberDto>> blogPostStatistics(@RequestParam("blogId") Long blogId,
                                                                      @RequestParam(name = "type", defaultValue = "post") String type) {

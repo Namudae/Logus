@@ -238,7 +238,9 @@ public class BlogFacadeService {
         blogService.validateAuthentication(authentication);
         Follow follow = followRepository.findById(followId)
                 .orElseThrow(() -> new CustomException(ErrorCode.FOLLOW_NOT_FOUND));
-        blogService.hasPermissionToBlog(follow.getBlog().getId(), "BLOG", "ADMIN", authentication);
+        if (!blogService.hasPermissionToBlog(follow.getBlog().getId(), "BLOG", "ADMIN", authentication)) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_REQUEST);
+        }
         followRepository.delete(follow);
     }
 
