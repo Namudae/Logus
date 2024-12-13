@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.Optional;
+
 public interface FollowRepository extends JpaRepository<Follow, Long> {
 
     @Modifying(flushAutomatically = true, clearAutomatically = true)
@@ -15,4 +17,6 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("DELETE FROM Follow f WHERE f.member.id = :memberId")
     void bulkDeleteByMemberId(Long memberId);
+
+    Optional<Follow> findByMemberIdAndBlogId(Long memberId, Long blogId);
 }

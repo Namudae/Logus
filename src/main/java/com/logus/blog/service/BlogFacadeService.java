@@ -202,6 +202,10 @@ public class BlogFacadeService {
         Blog blog = blogService.getById(blogId);
         Member member = memberService.getById(memberId);
 
+        if (followRepository.findByMemberIdAndBlogId(memberId, blogId).isPresent()) {
+            return;
+        }
+
         Follow follow = Follow.builder()
                 .blog(blog)
                 .member(member)
