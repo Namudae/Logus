@@ -35,6 +35,7 @@ public enum ErrorCode {
     CATEGORY_NOT_FOUND(3007, HttpStatus.NOT_FOUND, "존재하지 않는 카테고리입니다."),
     DUPLICATE_POST_REPORT(3008, HttpStatus.CONFLICT, "신고 처리 된 게시글입니다."),
     DUPLICATE_COMMENT_REPORT(3009, HttpStatus.CONFLICT, "신고 처리 된 댓글입니다."),
+    FOLLOW_NOT_FOUND(3010, HttpStatus.NOT_FOUND, "존재하지 않는 구독 건 입니다."),
 
     /* 4001~: 관리자 */
     REPORT_NOT_FOUND(4001, HttpStatus.NOT_FOUND, "존재하지 않는 신고입니다."),

@@ -211,7 +211,8 @@ public class BlogFacadeService {
 
     public void deleteFollow(Long followId) {
         Long memberId = blogService.authMemberId();
-        Follow follow = followRepository.getReferenceById(followId);
+        Follow follow = followRepository.findById(followId)
+                .orElseThrow(() -> new CustomException(ErrorCode.FOLLOW_NOT_FOUND));
         if (follow.getMember().getId() != memberId) {
             throw new CustomException(ErrorCode.UNAUTHORIZED_REQUEST);
         }
@@ -231,7 +232,8 @@ public class BlogFacadeService {
     public void deleteFollower(Long followId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         blogService.validateAuthentication(authentication);
-        Follow follow = followRepository.getReferenceById(followId);
+        Follow follow = followRepository.findById(followId)
+                .orElseThrow(() -> new CustomException(ErrorCode.FOLLOW_NOT_FOUND));
         blogService.hasPermissionToBlog(follow.getBlog().getId(), "BLOG", "ADMIN", authentication);
         followRepository.delete(follow);
     }
