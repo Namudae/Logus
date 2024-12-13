@@ -525,6 +525,11 @@ public class PostService {
         return new PageImpl<>(newPosts, pageable, posts.getTotalElements());
     }
 
+    public Page<MainGridResponse.PostDto> selectMainFeed(Pageable pageable) {
+        Long memberId = memberService.authMemberId();
+        return postRepository.selectMainFeed(memberId, pageable);
+    }
+
     @Transactional
     public void deletePostsForAdmin(List<Long> postIds) {
         for (Long postId : postIds) {

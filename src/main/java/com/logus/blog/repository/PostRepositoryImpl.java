@@ -32,6 +32,7 @@ import static com.logus.blog.entity.QBlog.blog;
 import static com.logus.blog.entity.QBlogMember.blogMember;
 import static com.logus.admin.entity.QCategory.category;
 import static com.logus.blog.entity.QComment.comment;
+import static com.logus.blog.entity.QFollow.follow;
 import static com.logus.blog.entity.QLikey.likey;
 import static com.logus.blog.entity.QPost.*;
 import static com.logus.blog.entity.QPostTag.postTag;
@@ -637,6 +638,66 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 
         // 4. Page 객체 반환
         return new PageImpl<>(results, pageable, total);
+    }
+
+    @Override
+    public Page<MainGridResponse.PostDto> selectMainFeed(Long memberId, Pageable pageable) {
+        //구독한 블로그의 최신글(한달 기준, 최신순으로 정렬)
+        List<MainGridResponse.PostDto> postDtos = jpaQueryFactory
+                .select(Projections.bean(MainGridResponse.PostDto.class,
+                        post.id.as("postId"),
+                        post.blog.id.as("blogId"),
+                        post.imgUrl,
+                        post.title,
+                        post.content,
+                        post.views,
+                        ExpressionUtils.as(
+                                JPAExpressions.select(comment.count())
+                                        .from(comment)
+                                        .where(comment.post.eq(post)),
+                                "commentCount"
+                        ),
+                        ExpressionUtils.as(
+                                JPAExpressions.select(likey.count())
+                                        .from(likey)
+                                        .where(likey.post.eq(post)),
+                                "likeCount"
+                        )
+                ))
+                .from(follow)
+                .leftJoin(follow.blog, blog)
+                .leftJoin(follow.member, member)
+                .leftJoin(post).on(post.blog.eq(blog))
+                .where(
+                        follow.member.id.eq(memberId),
+                        post.status.eq(Status.PUBLIC),
+                        post.createDate.goe(LocalDateTime.now().minusMonths(1)),
+                        post.reportStatus.isNull()
+                                .or(post.reportStatus.notIn(ReportStatus.BLIND, ReportStatus.BLOCK))
+                )
+                .orderBy(post.createDate.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize()) // pageable에서 가져온 size로 limit 적용
+                .fetch();
+
+        long total = Optional.ofNullable(
+                jpaQueryFactory
+                        .select(post.count())
+                        .from(follow)
+                        .leftJoin(follow.blog, blog)
+                        .leftJoin(follow.member, member)
+                        .join(post).on(post.blog.eq(blog))
+                        .where(
+                                follow.member.id.eq(memberId),
+                                post.status.eq(Status.PUBLIC),
+                                post.createDate.goe(LocalDateTime.now().minusMonths(1)),
+                                post.reportStatus.isNull()
+                                        .or(post.reportStatus.notIn(ReportStatus.BLIND, ReportStatus.BLOCK))
+                        )
+                        .fetchOne()).orElse(0L);
+
+
+        return new PageImpl<>(postDtos, pageable, total);
     }
 
     @Override

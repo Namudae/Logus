@@ -188,5 +188,14 @@ public class PostController {
         return ApiResponse.ok(posts);
     }
 
+    /**
+     * 메인 페이지 피드
+     */
+    @GetMapping("/main/feed")
+    public ApiResponse<Page<MainGridResponse.PostDto>> mainFeed(Pageable pageable) {
+        Page<MainGridResponse.PostDto> posts = postService.selectMainFeed(pageable);
+
+        return ApiResponse.ok(posts);
+    }
 
 }

@@ -38,4 +38,6 @@ public interface PostRepositoryCustom {
     Page<AdminPostListResponse> searchPostsByAdmin(String keyword, String condition, Pageable pageable);
 
     Page<AdminCommentListResponse> searchCommentsByAdmin(String keyword, String condition, Pageable pageable);
+
+    Page<MainGridResponse.PostDto> selectMainFeed(Long memberId, Pageable pageable);
 }
