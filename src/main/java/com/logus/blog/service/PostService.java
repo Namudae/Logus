@@ -13,7 +13,6 @@ import com.logus.common.entity.AttachmentType;
 import com.logus.common.exception.CustomException;
 import com.logus.common.exception.ErrorCode;
 import com.logus.common.security.JwtService;
-import com.logus.common.security.UserPrincipal;
 import com.logus.common.service.S3Service;
 import com.logus.member.entity.Member;
 import com.logus.member.service.MemberService;
@@ -498,24 +497,36 @@ public class PostService {
         return likeyRepository.findByMemberIdAndPostId(memberId, postId);
     }
 
-    public Page<MainGridResponse> selectMainPosts(MainGridCondition condition, Pageable pageable) {
-        Category category = categoryService.getReferenceById(condition.getCategoryId());
-        Page<MainGridResponse> response = null;
-        if (category == null || category.getParent() == null) {
-        //categoryId가 부모 > 자식의 부모와 같은것 조회(limit 6)
-            response = postRepository.selectMainPosts(condition, pageable);
-        } else {
-        //categoryId가 자식 > 자식인것만 조회
-            response = postRepository.selectMainPostsCategory(condition, category, pageable);
-        }
+    public List<MainGridResponse> selectMainPosts(MainGridCondition condition) {
+        List<MainGridResponse> response = null;
+        response = postRepository.selectMainPosts(condition);
 
         //이미지 url 설정
-        response.getContent().forEach(mainGridResponse ->
+        response.forEach(mainGridResponse ->
                 mainGridResponse.getPostList().forEach(MainGridResponse.PostDto::processImgUrl)
         );
 
         return response;
     }
+
+//    public Page<MainGridResponse> selectMainPostsOld(MainGridCondition condition, Pageable pageable) {
+//        Category category = categoryService.getReferenceById(condition.getCategoryId());
+//        Page<MainGridResponse> response = null;
+//        if (category == null || category.getParent() == null) {
+//        //categoryId가 부모 > 자식의 부모와 같은것 조회(limit 6)
+//            response = postRepository.selectMainPostsOld(condition, pageable);
+//        } else {
+//        //categoryId가 자식 > 자식인것만 조회
+//            response = postRepository.selectMainPostsCategory(condition, category, pageable);
+//        }
+//
+//        //이미지 url 설정
+//        response.getContent().forEach(mainGridResponse ->
+//                mainGridResponse.getPostList().forEach(MainGridResponse.PostDto::processImgUrl)
+//        );
+//
+//        return response;
+//    }
 
     public Page<PostListResponseDto> searchPostsMain(String keyword, Pageable pageable) {
         if(keyword == null) keyword = "";

@@ -541,60 +541,41 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     }
 
     @Override
-    public Page<MainGridResponse> selectMainPosts(MainGridCondition condition, Pageable pageable) {
+    public List<MainGridResponse> selectMainPosts(MainGridCondition condition) {
 
         QPost subPost = new QPost("subPost"); // 서브쿼리에서 사용할 별칭
 
-        // 1. Category 조회
+        // Parent Category 조회
         List<Category> categories = jpaQueryFactory
                 .select(category)
                 .from(category)
-                .join(post).on(post.category.eq(category)) // category와 post 조인
-                .where(category.parent.isNotNull(),
-                        getCategory(condition.getCategoryId()),
+                .leftJoin(post).on(post.category.eq(category)) // category와 post 조인
+                .where(category.parent.isNull(),
                         category.id.in( // 서브쿼리 조건 추가
-                                JPAExpressions.select(subPost.category.id)
+                                JPAExpressions.select(subPost.category.parent.id)
                                         .from(subPost)
                                         .where(
-                                                getDateCondition(condition.getDate()) // 날짜 조건
+                                                getDateConditionPost(subPost, condition.getDate()) // 날짜 조건
                                         )
-                                        .groupBy(subPost.category.id)
+                                        .groupBy(subPost.category.parent.id)
                                         .having(subPost.count().gt(0)) // post count > 0
                         )
-                )  // 자식 카테고리만 조회
+                ) //부모 카테고리만 조회
                 .groupBy(category.id) // category 별로 그룹화
-//                .having(post.count().goe(1)) // post의 count가 1 이상인 카테고리만 조회
                 .orderBy(
-                        new OrderSpecifier<>(
-                                com.querydsl.core.types.Order.DESC,
-                                JPAExpressions.select(subPost.count())
-                                        .from(subPost)
-                                        .where(subPost.category.eq(category))
-                        ), // 서브쿼리 결과를 내림차순 정렬
-                        category.parent.orderSeq.asc(),
-                        category.orderSeq.asc()
+                        category.orderSeq.asc() // orderSeq 기준 오름차순 정렬
                 )
-                .offset(pageable.getOffset()) // 페이지네이션 offset
-                .limit(pageable.getPageSize()) // 페이지네이션 limit
                 .fetch();  // 결과를 List<Category>로 가져옴
-
-        // 2. 카테고리의 총 개수 조회 (total elements)
-        long total = jpaQueryFactory
-                .selectFrom(category)
-//                .join(post).on(post.category.eq(category)) // category와 post 조인
-                .where(category.parent.isNotNull())  // 부모 카테고리만 조회
-//                .groupBy(category.id) // category 별로 그룹화
-//                .having(post.count().goe(1)) // post의 count가 1 이상인 카테고리만 조회
-                .fetchCount();  // 카테고리의 총 개수
 
         // 2. Category별로 PostList 조회
         List<MainGridResponse> results = categories.stream()
-                .map(cat -> {
+                .map(parentCategory  -> {
                     // 각 카테고리마다 해당 카테고리에 속하는 포스트를 조회
                     List<MainGridResponse.PostDto> postDtos = jpaQueryFactory
                             .select(Projections.bean(MainGridResponse.PostDto.class,
                                     post.id.as("postId"),
                                     post.blog.id.as("blogId"),
+                                    post.blog.blogAddress,
                                     post.imgUrl,
                                     post.title,
                                     post.content,
@@ -616,8 +597,8 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                             .leftJoin(post.category, category)
                             .leftJoin(post.blog, blog)
                             .where(
-                                    post.category.id.eq(cat.getId())
-                                    , getDateCondition(condition.getDate()),
+                                    post.category.parent.id.eq(parentCategory.getId()),
+                                    getDateCondition(condition.getDate()),
                                     post.status.eq(Status.PUBLIC),
                                     post.reportStatus.isNull()
                                             .or(post.reportStatus.notIn(ReportStatus.BLIND, ReportStatus.BLOCK))
@@ -629,16 +610,117 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 
                     // MainGridResponse 객체를 생성하여 반환
                     return MainGridResponse.builder()
-                            .categoryId(cat.getId())
-                            .categoryName(cat.getCategoryName())
+                            .categoryId(parentCategory.getId())
+                            .categoryName(parentCategory.getCategoryName())
                             .postList(postDtos)
                             .build();
                 })
                 .toList();
 
         // 4. Page 객체 반환
-        return new PageImpl<>(results, pageable, total);
+        return results;
     }
+
+//    @Override
+//    public Page<MainGridResponse> selectMainPostsOld(MainGridCondition condition, Pageable pageable) {
+//
+//        QPost subPost = new QPost("subPost"); // 서브쿼리에서 사용할 별칭
+//
+//        // 1. Category 조회
+//        List<Category> categories = jpaQueryFactory
+//                .select(category)
+//                .from(category)
+//                .join(post).on(post.category.eq(category)) // category와 post 조인
+//                .where(category.parent.isNotNull(),
+//                        getCategory(condition.getCategoryId()),
+//                        category.id.in( // 서브쿼리 조건 추가
+//                                JPAExpressions.select(subPost.category.id)
+//                                        .from(subPost)
+//                                        .where(
+//                                                getDateCondition(condition.getDate()) // 날짜 조건
+//                                        )
+//                                        .groupBy(subPost.category.id)
+//                                        .having(subPost.count().gt(0)) // post count > 0
+//                        )
+//                )  // 자식 카테고리만 조회
+//                .groupBy(category.id) // category 별로 그룹화
+////                .having(post.count().goe(1)) // post의 count가 1 이상인 카테고리만 조회
+//                .orderBy(
+//                        new OrderSpecifier<>(
+//                                com.querydsl.core.types.Order.DESC,
+//                                JPAExpressions.select(subPost.count())
+//                                        .from(subPost)
+//                                        .where(subPost.category.eq(category))
+//                        ), // 서브쿼리 결과를 내림차순 정렬
+//                        category.parent.orderSeq.asc(),
+//                        category.orderSeq.asc()
+//                )
+//                .offset(pageable.getOffset()) // 페이지네이션 offset
+//                .limit(pageable.getPageSize()) // 페이지네이션 limit
+//                .fetch();  // 결과를 List<Category>로 가져옴
+//
+//        // 2. 카테고리의 총 개수 조회 (total elements)
+//        long total = jpaQueryFactory
+//                .selectFrom(category)
+////                .join(post).on(post.category.eq(category)) // category와 post 조인
+//                .where(category.parent.isNotNull())  // 부모 카테고리만 조회
+////                .groupBy(category.id) // category 별로 그룹화
+////                .having(post.count().goe(1)) // post의 count가 1 이상인 카테고리만 조회
+//                .fetchCount();  // 카테고리의 총 개수
+//
+//        // 2. Category별로 PostList 조회
+//        List<MainGridResponse> results = categories.stream()
+//                .map(cat -> {
+//                    // 각 카테고리마다 해당 카테고리에 속하는 포스트를 조회
+//                    List<MainGridResponse.PostDto> postDtos = jpaQueryFactory
+//                            .select(Projections.bean(MainGridResponse.PostDto.class,
+//                                    post.id.as("postId"),
+//                                    post.blog.id.as("blogId"),
+//                                    post.blog.blogAddress,
+//                                    post.imgUrl,
+//                                    post.title,
+//                                    post.content,
+//                                    post.views,
+//                                    ExpressionUtils.as(
+//                                            JPAExpressions.select(comment.count())
+//                                                    .from(comment)
+//                                                    .where(comment.post.eq(post)),
+//                                            "commentCount"
+//                                    ),
+//                                    ExpressionUtils.as(
+//                                            JPAExpressions.select(likey.count())
+//                                                    .from(likey)
+//                                                    .where(likey.post.eq(post)),
+//                                            "likeCount"
+//                                    )
+//                            ))
+//                            .from(post)
+//                            .leftJoin(post.category, category)
+//                            .leftJoin(post.blog, blog)
+//                            .where(
+//                                    post.category.id.eq(cat.getId())
+//                                    , getDateCondition(condition.getDate()),
+//                                    post.status.eq(Status.PUBLIC),
+//                                    post.reportStatus.isNull()
+//                                            .or(post.reportStatus.notIn(ReportStatus.BLIND, ReportStatus.BLOCK))
+//                            )
+//                            .orderBy(getOrderBy(condition.getGrid()))
+//                            .offset(0)
+//                            .limit(6) // 6개 고정
+//                            .fetch();
+//
+//                    // MainGridResponse 객체를 생성하여 반환
+//                    return MainGridResponse.builder()
+//                            .categoryId(cat.getId())
+//                            .categoryName(cat.getCategoryName())
+//                            .postList(postDtos)
+//                            .build();
+//                })
+//                .toList();
+//
+//        // 4. Page 객체 반환
+//        return new PageImpl<>(results, pageable, total);
+//    }
 
     @Override
     public Page<MainGridResponse.PostDto> selectMainFeed(Long memberId, Pageable pageable) {
@@ -647,6 +729,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .select(Projections.bean(MainGridResponse.PostDto.class,
                         post.id.as("postId"),
                         post.blog.id.as("blogId"),
+                        post.blog.blogAddress,
                         post.imgUrl,
                         post.title,
                         post.content,
@@ -700,66 +783,83 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         return new PageImpl<>(postDtos, pageable, total);
     }
 
-    @Override
-    public Page<MainGridResponse> selectMainPostsCategory(MainGridCondition condition, Category cat, Pageable pageable) {
-
-        List<MainGridResponse.PostDto> postDtos = jpaQueryFactory
-                .select(Projections.bean(MainGridResponse.PostDto.class,
-                        post.id.as("postId"),
-                        post.blog.id.as("blogId"),
-                        post.imgUrl,
-                        post.title,
-                        post.content,
-                        post.views,
-                        ExpressionUtils.as(
-                                JPAExpressions.select(comment.count())
-                                        .from(comment)
-                                        .where(comment.post.eq(post)),
-                                "commentCount"
-                        ),
-                        ExpressionUtils.as(
-                                JPAExpressions.select(likey.count())
-                                        .from(likey)
-                                        .where(likey.post.eq(post)),
-                                "likeCount"
-                        )
-                ))
-                .from(post)
-                .leftJoin(post.category, category)
-                .leftJoin(post.blog, blog)
-                .where(
-                        post.category.id.eq(condition.getCategoryId()), // 특정 카테고리로 필터링
-                        getDateCondition(condition.getDate()),
-                        post.status.eq(Status.PUBLIC),
-                        post.reportStatus.isNull()
-                                .or(post.reportStatus.notIn(ReportStatus.BLIND, ReportStatus.BLOCK))
-                )
-                .orderBy(getOrderBy(condition.getGrid()))
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize()) // pageable에서 가져온 size로 limit 적용
-                .fetch();
-
-        long total = Optional.ofNullable(
-                jpaQueryFactory
-                        .select(post.count())
-                        .from(post)
-                        .where(
-                                post.category.id.eq(condition.getCategoryId()),  // 특정 카테고리로 필터링
-                                getDateCondition(condition.getDate())  // 날짜 조건 추가
-                        )
-                        .fetchOne()).orElse(0L);
-
-        MainGridResponse response = MainGridResponse.builder()
-                .categoryId(cat.getId())
-                .categoryName(cat.getCategoryName())
-                .postList(postDtos)
-                .build();
-
-        return new PageImpl<>(Collections.singletonList(response), pageable, total);
-    }
+//    @Override
+//    public Page<MainGridResponse> selectMainPostsCategory(MainGridCondition condition, Category cat, Pageable pageable) {
+//
+//        List<MainGridResponse.PostDto> postDtos = jpaQueryFactory
+//                .select(Projections.bean(MainGridResponse.PostDto.class,
+//                        post.id.as("postId"),
+//                        post.blog.id.as("blogId"),
+//                        post.blog.blogAddress,
+//                        post.imgUrl,
+//                        post.title,
+//                        post.content,
+//                        post.views,
+//                        ExpressionUtils.as(
+//                                JPAExpressions.select(comment.count())
+//                                        .from(comment)
+//                                        .where(comment.post.eq(post)),
+//                                "commentCount"
+//                        ),
+//                        ExpressionUtils.as(
+//                                JPAExpressions.select(likey.count())
+//                                        .from(likey)
+//                                        .where(likey.post.eq(post)),
+//                                "likeCount"
+//                        )
+//                ))
+//                .from(post)
+//                .leftJoin(post.category, category)
+//                .leftJoin(post.blog, blog)
+//                .where(
+//                        post.category.id.eq(condition.getCategoryId()), // 특정 카테고리로 필터링
+//                        getDateCondition(condition.getDate()),
+//                        post.status.eq(Status.PUBLIC),
+//                        post.reportStatus.isNull()
+//                                .or(post.reportStatus.notIn(ReportStatus.BLIND, ReportStatus.BLOCK))
+//                )
+//                .orderBy(getOrderBy(condition.getGrid()))
+//                .offset(pageable.getOffset())
+//                .limit(pageable.getPageSize()) // pageable에서 가져온 size로 limit 적용
+//                .fetch();
+//
+//        long total = Optional.ofNullable(
+//                jpaQueryFactory
+//                        .select(post.count())
+//                        .from(post)
+//                        .where(
+//                                post.category.id.eq(condition.getCategoryId()),  // 특정 카테고리로 필터링
+//                                getDateCondition(condition.getDate())  // 날짜 조건 추가
+//                        )
+//                        .fetchOne()).orElse(0L);
+//
+//        MainGridResponse response = MainGridResponse.builder()
+//                .categoryId(cat.getId())
+//                .categoryName(cat.getCategoryName())
+//                .postList(postDtos)
+//                .build();
+//
+//        return new PageImpl<>(Collections.singletonList(response), pageable, total);
+//    }
 
     // 날짜 조건에 맞는 시작 날짜를 반환하는 메서드
     private BooleanExpression getDateCondition(String dateCondition) {
+        LocalDateTime now = LocalDateTime.now();
+
+        if (dateCondition == null) {
+            dateCondition = "week";  // 기본값 설정: week
+        }
+
+        return switch (dateCondition) {
+            case "day" -> post.createDate.goe(now.minusDays(1));  // 하루 이내
+            case "week" -> post.createDate.goe(now.minusWeeks(1));  // 일주일 이내
+            case "month" -> post.createDate.goe(now.minusMonths(1));  // 한 달 이내
+            case "year" -> post.createDate.goe(now.minusYears(1));  // 1년 이내
+            default -> throw new IllegalArgumentException("Invalid date condition: " + dateCondition);
+        };
+    }
+
+    private BooleanExpression getDateConditionPost(QPost post, String dateCondition) {
         LocalDateTime now = LocalDateTime.now();
 
         if (dateCondition == null) {

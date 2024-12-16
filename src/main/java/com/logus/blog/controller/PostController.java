@@ -1,32 +1,19 @@
 package com.logus.blog.controller;
 
 import com.logus.blog.dto.*;
-import com.logus.blog.entity.Post;
 import com.logus.blog.service.BlogService;
 import com.logus.blog.service.PostService;
 import com.logus.common.controller.ApiResponse;
-import com.logus.common.security.JwtService;
-import com.logus.member.entity.Member;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -168,12 +155,18 @@ public class PostController {
      * - 트렌드, 최신
      */
     @GetMapping("/main")
-    public ApiResponse<Page<MainGridResponse>> mainPosts(MainGridCondition condition,
-                                                                Pageable pageable) {
-        Page<MainGridResponse> posts = postService.selectMainPosts(condition, pageable);
+    public ApiResponse<List<MainGridResponse>> mainPosts(MainGridCondition condition) {
+        List<MainGridResponse> posts = postService.selectMainPosts(condition);
 
         return ApiResponse.ok(posts);
     }
+//    @GetMapping("/main")
+//    public ApiResponse<Page<MainGridResponse>> mainPosts(MainGridCondition condition,
+//                                                                Pageable pageable) {
+//        Page<MainGridResponse> posts = postService.selectMainPostsOld(condition, pageable);
+//
+//        return ApiResponse.ok(posts);
+//    }
 
     /**
      * 메인 페이지 검색

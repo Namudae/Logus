@@ -6,5 +6,5 @@ import lombok.Data;
 public class MainGridCondition {
     private String grid;
     private String date;
-    private Long categoryId;
+//    private Long categoryId;
 }

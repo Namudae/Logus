@@ -5,11 +5,9 @@ import com.logus.admin.dto.AdminPostListResponse;
 import com.logus.admin.entity.Category;
 import com.logus.blog.dto.*;
 import com.logus.blog.entity.Post;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,9 +25,10 @@ public interface PostRepositoryCustom {
 
     Optional<TempPostResponseDto> selectTemp(Long blogId, Long memberId);
 
-    Page<MainGridResponse> selectMainPosts(MainGridCondition condition, Pageable pageable);
+    List<MainGridResponse> selectMainPosts(MainGridCondition condition);
+//    Page<MainGridResponse> selectMainPostsOld(MainGridCondition condition, Pageable pageable);
 
-    Page<MainGridResponse> selectMainPostsCategory(MainGridCondition condition, Category category, Pageable pageable);
+//    Page<MainGridResponse> selectMainPostsCategory(MainGridCondition condition, Category category, Pageable pageable);
 
     Page<PostListResponseDto> searchPostsMain(String keyword, Pageable pageable);
 
