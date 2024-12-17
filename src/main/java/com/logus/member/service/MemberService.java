@@ -107,6 +107,7 @@ public class MemberService {
     public MemberResponse login(LoginForm loginForm, HttpServletResponse response) {
         Member member = memberRepository.findByLoginId(loginForm.loginId())
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        String myLogAddress = blogService.findMyLogAddress(member.getId());
 
         try {
             Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
@@ -130,6 +131,7 @@ public class MemberService {
                         .imgUrl(
                                 (member.getImgUrl() != null ? CLOUD_FRONT_DOMAIN_NAME + "/" + member.getImgUrl() : null)
                         )
+                        .blogAddress(myLogAddress)
                         .email(member.getEmail())
                         .jwtToken(jwtToken)
                         .build();

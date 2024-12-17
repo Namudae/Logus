@@ -285,4 +285,8 @@ public class BlogService {
         Long blogId = blogRepository.findMyLogId(memberId);
         return blogId;
     }
+
+    public String findMyLogAddress(Long memberId) {
+        return blogRepository.findMyLogAddress(memberId);
+    }
 }
