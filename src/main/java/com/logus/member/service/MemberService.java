@@ -21,6 +21,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -117,12 +119,23 @@ public class MemberService {
                 String jwtToken = jwtService.generateToken(memberDetailService.loadUserByUsername(loginForm.loginId()));
 
                 // JWT 토큰을 쿠키에 저장
-                Cookie cookie = new Cookie("jwt", jwtToken);
-                cookie.setMaxAge(60 * 60 * 24 * 90);  // 90일 동안 유효
-                cookie.setPath("/");  // 모든 경로에서 유효
-                cookie.setHttpOnly(true);  // JavaScript에서 접근 불가
-//                cookie.setSecure(true);  // HTTPS에서만 전송
-                response.addCookie(cookie);  // 쿠키를 응답에 추가
+//                Cookie cookie = new Cookie("jwt", jwtToken);
+//                cookie.setMaxAge(60 * 60 * 24 * 90);  // 90일 동안 유효
+//                cookie.setPath("/");  // 모든 경로에서 유효
+//                cookie.setHttpOnly(true);  // JavaScript에서 접근 불가
+////                cookie.setSecure(true);  // HTTPS에서만 전송
+//                response.addCookie(cookie);  // 쿠키를 응답에 추가
+
+                //쿠키2
+                ResponseCookie jwtCookie = ResponseCookie.from("jwt", jwtToken)
+                        .httpOnly(true)       // HttpOnly 설정
+                        .secure(true)         // HTTPS에서만 사용
+                        .sameSite("None")     // SameSite 설정
+                        .path("/")
+                        .maxAge(60 * 60 * 24 * 90) // 90일
+                        .build();
+
+                response.addHeader(HttpHeaders.SET_COOKIE, jwtCookie.toString());
 
                 return MemberResponse.builder()
                         .memberId(member.getId())
@@ -156,7 +169,7 @@ public class MemberService {
                     cookie.setMaxAge(0);  // 쿠키를 즉시 만료시키기
                     cookie.setPath("/");  // 모든 경로에서 유효
                     cookie.setHttpOnly(true);  // JavaScript에서 접근 불가
-//                    cookie.setSecure(true);  // HTTPS에서만 전송
+                    cookie.setSecure(true);  // HTTPS에서만 전송
 //                    cookie.setSameSite("Strict");  // CSRF 방지
                     response.addCookie(cookie);  // 쿠키를 응답에 추가하여 삭제 처리
                 }

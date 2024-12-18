@@ -23,44 +23,12 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:8082", "http://localhost:3000")
+                .allowedOrigins("http://localhost:3000", "https://localhost:3000", "https://logus-blog.store/", "https://www.logus-blog.store/")
                 .allowedHeaders("*")
                 .allowedMethods("*")
                 .allowCredentials(true)
                 .allowedOriginPatterns("*")
                 .exposedHeaders("*");
     }
-
-
-    // 이스케이프 1
-//    private final ObjectMapper objectMapper;
-//
-//    @Bean
-//    public MappingJackson2HttpMessageConverter jsonEscapeConverter() {
-//        ObjectMapper copy = objectMapper.copy();
-//        copy.getFactory().setCharacterEscapes(new HtmlCharacterEscapes());
-//        return new MappingJackson2HttpMessageConverter(copy);
-//    }
-
-    //이스케이프 2 (implements WebMvcConfigurer)
-//    @Override
-//    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-//        converters.add(escapingConverter());
-//    }
-//
-//    @Bean
-//    public HttpMessageConverter escapingConverter() {
-//        ObjectMapper objectMapper = new ObjectMapper();
-//        objectMapper.getFactory().setCharacterEscapes(new HtmlCharacterEscapes());
-//
-//        // JavaTimeModule 등록 및 설정 추가
-//        objectMapper.registerModule(new JavaTimeModule());
-//        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-//
-//        MappingJackson2HttpMessageConverter escapingConverter = new MappingJackson2HttpMessageConverter();
-//        escapingConverter.setObjectMapper(objectMapper);
-//
-//        return escapingConverter;
-//    }
 
 }

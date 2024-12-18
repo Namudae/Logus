@@ -9,6 +9,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -63,12 +65,22 @@ public class VisitLogService {
     }
 
     private void setVisitorIdCookie(HttpServletResponse response, String visitorId) {
-        Cookie cookie = new Cookie("visitorId", visitorId);
-        cookie.setMaxAge(60 * 60 * 24 * 90); // 90일 동안 유효
-        cookie.setPath("/"); // 모든 경로에 대해 유효
-        cookie.setHttpOnly(true); // XSS 방지
-//        cookie.setSecure(true); // HTTPS 환경에서만 전송
-        response.addCookie(cookie);
+//        Cookie cookie = new Cookie("visitorId", visitorId);
+//        cookie.setMaxAge(60 * 60 * 24 * 90); // 90일 동안 유효
+//        cookie.setPath("/"); // 모든 경로에 대해 유효
+//        cookie.setHttpOnly(true); // XSS 방지
+////        cookie.setSecure(true); // HTTPS 환경에서만 전송
+//        response.addCookie(cookie);
+
+        ResponseCookie cookie = ResponseCookie.from("visitorId", visitorId)
+                .httpOnly(true)       // HttpOnly 설정
+                .secure(true)         // HTTPS에서만 사용
+                .sameSite("None")     // SameSite 설정
+                .path("/")
+                .maxAge(60 * 60 * 24 * 90) // 90일
+                .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }
 
     private void saveVisitorToDatabase(String visitorId, Blog blog) {
