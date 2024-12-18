@@ -23,7 +23,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:3000", "https://localhost:3000", "https://logus-blog.store/", "https://www.logus-blog.store/")
+                .allowedOrigins("http://localhost:3000", "https://localhost:3000", "https://logus-blog.store", "https://www.logus-blog.store")
                 .allowedHeaders("*")
                 .allowedMethods("*")
                 .allowCredentials(true)
