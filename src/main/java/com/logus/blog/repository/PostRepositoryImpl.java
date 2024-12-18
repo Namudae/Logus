@@ -925,9 +925,10 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .leftJoin(post.series, series)
                 .where(
                         post.status.eq(Status.PUBLIC),
-                        post.reportStatus.notIn(ReportStatus.BLIND, ReportStatus.BLOCK)
-                        .and(post.title.contains(keyword)
-                            .or(post.content.contains(keyword)))
+                        post.reportStatus.isNull()
+                                .or(post.reportStatus.notIn(ReportStatus.BLIND, ReportStatus.BLOCK)),
+                        post.title.contains(keyword)
+                            .or(post.content.contains(keyword))
                 );
 
         // 총 결과 수 조회
