@@ -136,6 +136,7 @@ public class MemberService {
                         .build();
 
                 response.addHeader(HttpHeaders.SET_COOKIE, jwtCookie.toString());
+//                response.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + jwtToken);
 
                 return MemberResponse.builder()
                         .memberId(member.getId())
@@ -165,13 +166,25 @@ public class MemberService {
             for (Cookie cookie : cookies) {
                 if ("jwt".equals(cookie.getName())) {
                     // JWT 쿠키 삭제
-                    cookie.setValue(null);
-                    cookie.setMaxAge(0);  // 쿠키를 즉시 만료시키기
-                    cookie.setPath("/");  // 모든 경로에서 유효
-                    cookie.setHttpOnly(true);  // JavaScript에서 접근 불가
-                    cookie.setSecure(true);  // HTTPS에서만 전송
-//                    cookie.setSameSite("Strict");  // CSRF 방지
-                    response.addCookie(cookie);  // 쿠키를 응답에 추가하여 삭제 처리
+//                    cookie.setValue(null);
+//                    cookie.setMaxAge(0);  // 쿠키를 즉시 만료시키기
+//                    cookie.setPath("/");  // 모든 경로에서 유효
+//                    cookie.setHttpOnly(true);  // JavaScript에서 접근 불가
+//                    cookie.setSecure(true);  // HTTPS에서만 전송
+//                    cookie.setSameSite("None");  // CSRF 방지
+//                    response.addCookie(cookie);  // 쿠키를 응답에 추가하여 삭제 처리
+
+                    // 기존 쿠키 값을 null로 설정하여 만료시킴
+                    ResponseCookie responseCookie = ResponseCookie.from("jwt", "")
+                            .httpOnly(true)      // JavaScript에서 접근 불가
+                            .secure(true)        // HTTPS에서만 전송
+                            .sameSite("None")    // SameSite 설정
+                            .path("/")           // 모든 경로에서 유효
+                            .maxAge(0)           // 즉시 만료
+                            .build();
+
+                    // 쿠키를 응답에 추가하여 삭제 처리
+                    response.addHeader("Set-Cookie", responseCookie.toString());
                 }
             }
         }

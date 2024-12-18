@@ -9,6 +9,7 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,12 +34,31 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        // 쿠키에서 JWT를 가져오기
+        Cookie[] cookies = request.getCookies();
+        String jwt = null;
+
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("jwt".equals(cookie.getName())) {
+                    jwt = cookie.getValue();  // 쿠키에서 JWT 값 추출
+                    break;
+                }
+            }
+        }
+
+        // JWT가 없거나 유효하지 않으면 필터 체인 진행
+        if (jwt == null || jwt.isEmpty()) {
             filterChain.doFilter(request, response);
             return;
         }
-        String jwt = authHeader.substring(7);
+
+//        String authHeader = request.getHeader("Authorization");
+//        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+//            filterChain.doFilter(request, response);
+//            return;
+//        }
+//        String jwt = authHeader.substring(7);
         try {
             String username = jwtService.extractUsername(jwt);
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
