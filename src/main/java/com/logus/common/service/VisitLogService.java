@@ -76,6 +76,7 @@ public class VisitLogService {
 //                .httpOnly(true)       // HttpOnly 설정
                 .secure(true)         // HTTPS에서만 사용
                 .sameSite("None")     // SameSite 설정
+                .domain("localhost")
                 .path("/")
                 .maxAge(60 * 60 * 24 * 90) // 90일
                 .build();
