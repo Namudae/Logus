@@ -73,10 +73,9 @@ public class VisitLogService {
 //        response.addCookie(cookie);
 
         ResponseCookie cookie = ResponseCookie.from("visitorId", visitorId)
-//                .httpOnly(true)       // HttpOnly 설정
+//                .httpOnly(false)       // HttpOnly 설정
                 .secure(true)         // HTTPS에서만 사용
                 .sameSite("None")     // SameSite 설정
-                .domain("localhost")
                 .path("/")
                 .maxAge(60 * 60 * 24 * 90) // 90일
                 .build();
