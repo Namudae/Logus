@@ -128,7 +128,7 @@ public class MemberService {
 
                 //쿠키2
                 ResponseCookie jwtCookie = ResponseCookie.from("jwt", jwtToken)
-                        .httpOnly(true)       // HttpOnly 설정
+//                        .httpOnly(true)       // HttpOnly 설정
                         .secure(true)         // HTTPS에서만 사용
                         .sameSite("None")     // SameSite 설정
                         .path("/")
@@ -176,7 +176,7 @@ public class MemberService {
 
                     // 기존 쿠키 값을 null로 설정하여 만료시킴
                     ResponseCookie responseCookie = ResponseCookie.from("jwt", "")
-                            .httpOnly(true)      // JavaScript에서 접근 불가
+//                            .httpOnly(true)      // JavaScript에서 접근 불가
                             .secure(true)        // HTTPS에서만 전송
                             .sameSite("None")    // SameSite 설정
                             .path("/")           // 모든 경로에서 유효
