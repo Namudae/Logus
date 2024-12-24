@@ -20,7 +20,7 @@ public interface BlogRepositoryCustom {
 
     Page<FollowerResponseDto> selectFollowers(Long blogId, Pageable pageable);
 
-    List<OurLogResponseDto> findByMemberId(Long memberId);
+    List<OurLogResponseDto> findOurLogByMemberId(Long memberId);
 
     Page<BlogListResponseDto> searchBlogs(String loginId, String nickname, String blogName, String blogAddress, Pageable pageable);
 

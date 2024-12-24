@@ -246,7 +246,7 @@ public class BlogFacadeService {
 
     public List<OurLogResponseDto> selectOurLog() {
         Long memberId = blogService.authMemberId();
-        List<OurLogResponseDto> dtos = blogRepository.findByMemberId(memberId);
+        List<OurLogResponseDto> dtos = blogRepository.findOurLogByMemberId(memberId);
 
         // 각 OurLogResponseDto의 imgUrl을 가공
         dtos.forEach(OurLogResponseDto::changeImgUrl);

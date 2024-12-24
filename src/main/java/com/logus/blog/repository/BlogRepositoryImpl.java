@@ -100,7 +100,7 @@ public class BlogRepositoryImpl implements BlogRepositoryCustom {
      * Our-Log 조회
      */
     @Override
-    public List<OurLogResponseDto> findByMemberId(Long memberId) {
+    public List<OurLogResponseDto> findOurLogByMemberId(Long memberId) {
         QBlogMember ownerBlogMember = new QBlogMember("ownerBlogMember");
 
         return jpaQueryFactory
@@ -115,9 +115,10 @@ public class BlogRepositoryImpl implements BlogRepositoryCustom {
                         ownerBlogMember.member.imgUrl.as("imgUrl")
                 ))
                 .from(blogMember)
-                .join(blogMember.blog, blog)
-                .join(ownerBlogMember).on(ownerBlogMember.blog.eq(blog)
+                .leftJoin(blogMember.blog, blog)
+                .leftJoin(ownerBlogMember).on(ownerBlogMember.blog.eq(blog)
                         .and(ownerBlogMember.blogAuth.eq(BlogAuth.OWNER)))
+                .leftJoin(ownerBlogMember.member, member) // OWNER의 member 조인도 LEFT JOIN으로 변경
                 .where(blogMember.member.id.eq(memberId))
                 .fetch();
     }
