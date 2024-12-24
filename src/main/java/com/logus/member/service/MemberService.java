@@ -295,6 +295,7 @@ public class MemberService {
                 : null;
         return MemberSearchResponse.builder()
                 .memberId(member.getId())
+                .loginId(member.getLoginId())
                 .nickname(member.getNickname())
                 .imgUrl(imgUrl)
                 .email(member.getEmail())

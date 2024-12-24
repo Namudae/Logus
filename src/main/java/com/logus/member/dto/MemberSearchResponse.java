@@ -11,6 +11,7 @@ import lombok.*;
 public class MemberSearchResponse {
 
     private Long memberId;
+    private String loginId;
     private String nickname;
     private String imgUrl;
     private String email;
