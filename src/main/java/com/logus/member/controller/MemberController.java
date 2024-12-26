@@ -104,7 +104,7 @@ public class MemberController {
      * 비밀번호 변경(비밀번호 찾기용)
      */
     @PutMapping("/user/pwd")
-    public ApiResponse<Map<String, Long>> updateUserInfo(@RequestPart("requestDto") @Valid UserInfoRequest userInfo) throws IOException {
+    public ApiResponse<Map<String, Long>> updateUserInfo(@RequestBody @Valid UserInfoRequest userInfo) throws IOException {
         Long memberId = memberService.updateMemberInfo(userInfo);
         return ApiResponse.ok(Map.of("memberId", memberId));
     }
