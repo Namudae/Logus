@@ -54,6 +54,9 @@ public class Member extends BaseTime {
         this.password = userInfo.getNewPassword() != null ? userInfo.getNewPassword() : this.password;
         this.imgUrl = imgUrl != null ? imgUrl : this.imgUrl;
     }
+    public void updatePassword(UserInfoRequest userInfo) {
+        this.password = userInfo.getNewPassword() != null ? userInfo.getNewPassword() : this.password;
+    }
 
     public void encodePassword(String password) {
         this.password = password;

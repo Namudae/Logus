@@ -242,6 +242,19 @@ public class MemberService {
         return memberId;
     }
 
+
+    @Transactional
+    public Long updateMemberInfo(UserInfoRequest userInfo) throws IOException {
+        Member member = memberRepository.findByLoginId(userInfo.getLoginId())
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        if (userInfo.getNewPassword() != null) {
+            userInfo.setNewPassword(passwordEncoder.encode(userInfo.getNewPassword()));
+        }
+        member.updatePassword(userInfo);
+
+        return member.getId();
+    }
+
     public boolean checkPassword(PasswordDto passwordDto) {
         Long memberId = authMemberId();
         Member member = getById(memberId);

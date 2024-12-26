@@ -11,6 +11,7 @@ import lombok.*;
 @Builder
 public class UserInfoRequest {
 
+    private String loginId;
     private String password;
 
     private String email;
