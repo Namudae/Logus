@@ -87,17 +87,7 @@ public class VisitLogService {
         // 오늘 날짜 가져오기
         LocalDate today = LocalDate.now();
 
-        //1. 사이트방문(blog 없음) > 빈값 insert
-        //2. 블로그 방문(blog 있음) > blogId 마다 insert
-        //기타. blog 있는데 처음 방문 > 빈값 insert, 블로그 insert(총 두개)
-
-        if (visitRepository.countByVisitorIdAndCreateDate(visitorId, today) == 0) {
-            Visit visit = Visit.builder()
-                    .sessionId(visitorId)
-                    .createDate(today)
-                    .build();
-            visitRepository.save(visit);
-        }
+        //1. 블로그 방문(blog 있음) > blogId 마다 insert
         if (blog != null) {
             //같은값 있는지 확인
             if (visitRepository.countByVisitorIdAndCreateDateAndBlogId(visitorId, today, blog.getId()) == 0) {
